@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>TTT — CEO Command Centre</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--gold:#B8860B;--gold2:rgba(184,134,11,0.1);--dark:#FFFFFF;--dark2:#F8F6F0;--dark3:#F0EDE4;--dark4:#E8E3D8;--border:rgba(184,134,11,0.2);--text:#1A1208;--muted:#6B5B3A;--green:#2E7D32;--red:#C62828;--blue:#1565C0}
+body{font-family:'Inter',system-ui,sans-serif;background:#F4F1E8;color:var(--text);display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;background:var(--dark2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.logo{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
+.logo-t{font-size:1.4rem;font-weight:700;color:var(--gold)}
+.logo-s{font-size:0.58rem;color:var(--muted);letter-spacing:0.18em;text-transform:uppercase;margin-top:2px}
+.logo-b{font-size:0.62rem;color:var(--muted);margin-top:8px;padding:4px 8px;background:rgba(201,150,58,0.1);border-radius:4px;display:inline-block}
+.nav-section{padding:12px 12px 4px;font-size:0.58rem;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:8px;margin:2px 8px;cursor:pointer;font-size:0.82rem;color:var(--muted);transition:all 0.15s}
+.nav-item:hover{background:var(--gold2);color:var(--text)}
+.nav-item.active{background:var(--gold2);color:var(--gold);border-left:2px solid var(--gold)}
+.nav-icon{font-size:1rem;width:20px;text-align:center}
+.refresh-btn{margin:12px;padding:8px;background:var(--gold2);border:1px solid var(--border);border-radius:8px;color:var(--gold);font-size:0.75rem;cursor:pointer;text-align:center}
+.main{flex:1;overflow-y:auto;background:var(--dark)}
+.topbar{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--dark2);position:sticky;top:0;z-index:10}
+.page-title{font-size:1rem;font-weight:600}
+.page-sub{font-size:0.72rem;color:var(--muted);margin-top:2px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.content{padding:20px 24px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--dark3);border:1px solid var(--border);border-radius:12px;padding:16px}
+.kpi-label{font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px}
+.kpi-value{font-size:1.6rem;font-weight:700;color:var(--gold)}
+.kpi-sub{font-size:0.68rem;color:var(--muted);margin-top:4px}
+.card{background:var(--dark3);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden}
+.card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.card-title{font-size:0.85rem;font-weight:600}
+.card-badge{font-size:0.68rem;background:var(--gold2);color:var(--gold);padding:3px 10px;border-radius:20px}
+table{width:100%;border-collapse:collapse;font-size:0.78rem}
+th{padding:10px 16px;text-align:left;font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid var(--border);font-weight:500;background:var(--dark4)}
+td{padding:10px 16px;border-bottom:1px solid rgba(201,150,58,0.06);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(201,150,58,0.03)}
+.badge{padding:2px 8px;border-radius:20px;font-size:0.65rem;font-weight:600}
+.badge-green{background:rgba(76,175,80,0.15);color:var(--green)}
+.badge-gold{background:var(--gold2);color:var(--gold)}
+.badge-red{background:rgba(239,83,80,0.15);color:var(--red)}
+.badge-blue{background:rgba(100,181,246,0.15);color:var(--blue)}
+.btn{padding:5px 12px;border-radius:6px;border:none;cursor:pointer;font-size:0.72rem;font-weight:600}
+.btn-gold{background:var(--gold);color:var(--dark)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-red{background:rgba(239,83,80,0.15);color:var(--red);border:1px solid rgba(239,83,80,0.3)}
+.search-bar{padding:10px 16px;border-bottom:1px solid var(--border);background:var(--dark4)}
+.search-input{width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:6px;padding:7px 12px;color:var(--text);font-size:0.8rem;outline:none}
+.search-input:focus{border-color:rgba(201,150,58,0.4)}
+.detail-panel{background:var(--dark2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;display:none}
+.detail-panel.open{display:block}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.detail-label{color:var(--muted);font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:3px}
+.detail-val{color:var(--text);font-weight:500;font-size:0.82rem}
+.feed-item{display:flex;gap:12px;padding:10px 16px;border-bottom:1px solid rgba(201,150,58,0.05);align-items:flex-start}
+.feed-action{font-size:0.8rem;font-weight:500}
+.feed-detail{font-size:0.72rem;color:var(--muted);margin-top:2px}
+.feed-time{font-size:0.65rem;color:var(--muted);margin-left:auto;flex-shrink:0;white-space:nowrap}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--dark2);border:1px solid var(--border);border-radius:16px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-size:0.9rem;font-weight:600}
+.modal-body{padding:20px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:0.68rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;display:block;margin-bottom:6px}
+.form-input{width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.83rem;outline:none}
+.page{display:none}
+.page.active{display:block}
+.empty{padding:40px;text-align:center;color:var(--muted);font-size:0.82rem}
+
+.sonar-dot{position:absolute;width:14px;height:14px;border-radius:50%;background:#1E88E5;border:2px solid #64B5F6;cursor:pointer;transform:translate(-50%,-50%);transition:all 0.5s ease;box-shadow:0 0 8px rgba(30,136,229,0.6)}
+.sonar-dot:hover{width:18px;height:18px;background:#42A5F5;box-shadow:0 0 16px rgba(66,165,245,0.8)}
+.sonar-dot.anon{background:#455A64;border-color:#78909C;box-shadow:0 0 6px rgba(69,90,100,0.4)}
+.sonar-dot.admin{background:#F57F17;border-color:#FFB300;box-shadow:0 0 10px rgba(245,127,23,0.6)}
+.sonar-pulse{position:absolute;border-radius:50%;border:2px solid rgba(30,136,229,0.4);animation:sonar-ring 2s ease-out infinite;pointer-events:none}
+@keyframes sonar-ring{0%{transform:translate(-50%,-50%) scale(1);opacity:0.8}100%{transform:translate(-50%,-50%) scale(3);opacity:0}}
+.visitor-card{padding:12px 14px;border-bottom:1px solid rgba(0,100,200,0.1);cursor:pointer;transition:background 0.15s}
+.visitor-card:hover{background:rgba(30,136,229,0.06)}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="logo">
+    <div class="logo-t">TTT</div>
+    <div class="logo-s">The Trip Theory</div>
+    <div class="logo-b">⚡ CEO Command Centre</div>
+  </div>
+  <div class="nav-section">Overview</div>
+  <div class="nav-item active" onclick="nav('overview',this)"><span class="nav-icon">📊</span>Dashboard</div>
+  <div class="nav-item" onclick="nav('activity',this)"><span class="nav-icon">⚡</span>Live Activity</div>
+  <div class="nav-section">People</div>
+  <div class="nav-item" onclick="nav('travellers',this)"><span class="nav-icon">👥</span>Travellers</div>
+  <div class="nav-item" onclick="nav('partners',this)"><span class="nav-icon">🏪</span>Partners</div>
+  <div class="nav-section">Business</div>
+  <div class="nav-item" onclick="nav('listings',this)"><span class="nav-icon">🏨</span>All Listings</div>
+  <div class="nav-item" onclick="nav('bookings',this)"><span class="nav-icon">📋</span>Bookings</div>
+  <div class="nav-item" onclick="nav('wallet',this)"><span class="nav-icon">🪙</span>Wallet & Coins</div>
+  <div class="nav-item" onclick="nav('chats',this)"><span class="nav-icon">💬</span>Chat Logs</div>
+  <div class="nav-section">Live Monitoring</div>
+  <div class="nav-item" onclick="nav('sonar',this)"><span class="nav-icon">📡</span>Live Sonar</div>
+  <div class="nav-section">System</div>
+  <div class="nav-item" onclick="nav('signups',this)"><span class="nav-icon">📝</span>Signups & Logins</div>
+  <div class="nav-item" onclick="nav('notify',this)"><span class="nav-icon">📣</span>Send Notification</div>
+  <div style="padding:8px 12px">
+    <input id="global-search" class="search-input" placeholder="🔍 Search email, phone, name…" oninput="globalSearch(this.value)" style="width:100%;font-size:0.75rem"/>
+  </div>
+  <div id="search-results" style="display:none;margin:0 8px 8px;background:var(--dark3);border:1px solid var(--border);border-radius:8px;max-height:300px;overflow-y:auto"></div>
+  <div class="refresh-btn" onclick="refreshAll()">🔄 Refresh Data</div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="page-title">Dashboard</div>
+      <div class="page-sub" id="page-sub">Real-time overview of TTT operations</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <span style="font-size:0.72rem;color:var(--muted)"><span class="status-dot"></span>Live</span>
+      <span id="last-refresh" style="font-size:0.68rem;color:var(--muted)"></span>
+      <span style="font-size:0.72rem;background:rgba(46,125,50,0.12);color:var(--green);padding:4px 12px;border-radius:20px;border:1px solid rgba(46,125,50,0.25);font-weight:600">
+        🟢 <span id="live-count">0</span> live now
+      </span>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- OVERVIEW -->
+    <div class="page active" id="page-overview">
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-label">Travellers</div><div class="kpi-value" id="k-travellers">—</div><div class="kpi-sub">Registered</div></div>
+        <div class="kpi"><div class="kpi-label">Partners</div><div class="kpi-value" id="k-partners">—</div><div class="kpi-sub">Onboarded</div></div>
+        <div class="kpi"><div class="kpi-label">Listings</div><div class="kpi-value" id="k-listings">—</div><div class="kpi-sub">Active</div></div>
+        <div class="kpi"><div class="kpi-label">Bookings</div><div class="kpi-value" id="k-bookings">—</div><div class="kpi-sub">All time</div></div>
+        <div class="kpi"><div class="kpi-label">Coins in Circulation</div><div class="kpi-value" id="k-coins">—</div><div class="kpi-sub">1 coin = ₹1</div></div>
+        <div class="kpi"><div class="kpi-label">Chat Messages</div><div class="kpi-value" id="k-chats">—</div><div class="kpi-sub">AI interactions</div></div>
+        <div class="kpi"><div class="kpi-label">Total Logins</div><div class="kpi-value" id="k-logins">—</div><div class="kpi-sub">All time</div></div>
+        <div class="kpi"><div class="kpi-label">Activity Events</div><div class="kpi-value" id="k-activity">—</div><div class="kpi-sub">Tracked</div></div>
+        <div class="kpi" style="border-color:rgba(46,125,50,0.3);background:rgba(46,125,50,0.05)"><div class="kpi-label" style="color:var(--green)">🟢 Live on Site</div><div class="kpi-value" id="k-live" style="color:var(--green)">—</div><div class="kpi-sub">Right now</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="card">
+          <div class="card-header"><div class="card-title">🕐 Recent Signups</div></div>
+          <table><thead><tr><th>Contact</th><th>Source</th><th>When</th></tr></thead><tbody id="t-signups-recent"></tbody></table>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">⚡ Recent Activity</div></div>
+          <div id="feed-recent" style="max-height:300px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVITY -->
+    <div class="page" id="page-activity">
+      <div class="card">
+        <div class="card-header"><div class="card-title">⚡ All Activity</div><span class="card-badge" id="activity-count">0</span></div>
+        <div class="search-bar"><input class="search-input" placeholder="Filter by user or action…" oninput="filterActivity(this.value)"/></div>
+        <div id="feed-all" style="max-height:70vh;overflow-y:auto"></div>
+      </div>
+    </div>
+
+    <!-- TRAVELLERS -->
+    <div class="page" id="page-travellers">
+      <div class="card">
+        <div class="card-header"><div class="card-title">👥 All Travellers</div><span class="card-badge" id="travellers-count">0</span></div>
+        <div class="search-bar"><input class="search-input" placeholder="Search…" oninput="filterTable('t-travellers',this.value)"/></div>
+        <table><thead><tr><th>Name / Contact</th><th>User ID</th><th>Persona</th><th>Coins</th><th>Joined</th><th>Action</th></tr></thead><tbody id="t-travellers"></tbody></table>
+      </div>
+      <div class="detail-panel" id="traveller-detail">
+        <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+          <div style="font-size:0.9rem;font-weight:600" id="td-name"></div>
+          <button class="btn btn-outline" onclick="document.getElementById('traveller-detail').classList.remove('open')">✕ Close</button>
+        </div>
+        <div class="detail-grid" id="td-grid"></div>
+        <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Recent Chat Queries</div>
+        <div id="td-chats" style="margin-bottom:12px"></div>
+        <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Activity</div>
+        <div id="td-activity" style="margin-bottom:16px"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-gold" onclick="openCoinModal()">🪙 Adjust Coins</button>
+          <button class="btn" style="background:rgba(46,125,50,0.15);color:var(--green);border:1px solid rgba(46,125,50,0.3)" onclick="impersonateUser(_currentTravellerId)">🔐 Login As This Traveller</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARTNERS -->
+    <div class="page" id="page-partners">
+      <div class="card">
+        <div class="card-header"><div class="card-title">🏪 All Partners</div><span class="card-badge" id="partners-count">0</span></div>
+        <div class="search-bar"><input class="search-input" placeholder="Search…" oninput="filterTable('t-partners',this.value)"/></div>
+        <table><thead><tr><th>Business</th><th>Partner ID</th><th>Type</th><th>Listings</th><th>Wallet</th><th>Joined</th><th>Action</th></tr></thead><tbody id="t-partners"></tbody></table>
+      </div>
+      <div class="detail-panel" id="partner-detail">
+        <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+          <div style="font-size:0.9rem;font-weight:600" id="pd-name"></div>
+          <button class="btn btn-outline" onclick="document.getElementById('partner-detail').classList.remove('open')">✕ Close</button>
+        </div>
+        <div class="detail-grid" id="pd-grid"></div>
+        <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Listings</div>
+        <div id="pd-listings"></div>
+      </div>
+    </div>
+
+    <!-- LISTINGS -->
+    <div class="page" id="page-listings">
+      <div class="card">
+        <div class="card-header"><div class="card-title">🏨 All Listings</div><span class="card-badge" id="listings-count">0</span></div>
+        <div class="search-bar"><input class="search-input" placeholder="Search…" oninput="filterTable('t-listings',this.value)"/></div>
+        <table><thead><tr><th>Title</th><th>Partner</th><th>Type</th><th>Location</th><th>Price</th><th>Status</th><th>Action</th></tr></thead><tbody id="t-listings"></tbody></table>
+      </div>
+    </div>
+
+    <!-- BOOKINGS -->
+    <div class="page" id="page-bookings">
+      <div class="card">
+        <div class="card-header"><div class="card-title">📋 All Bookings</div><span class="card-badge" id="bookings-count">0</span></div>
+        <table><thead><tr><th>Booking ID</th><th>Service</th><th>User</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody id="t-bookings"></tbody></table>
+      </div>
+    </div>
+
+    <!-- WALLET -->
+    <div class="page" id="page-wallet">
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="kpi"><div class="kpi-label">Total Coins</div><div class="kpi-value" id="w-issued">—</div></div>
+        <div class="kpi"><div class="kpi-label">With Travellers</div><div class="kpi-value" id="w-travellers">—</div></div>
+        <div class="kpi"><div class="kpi-label">With Partners</div><div class="kpi-value" id="w-partners">—</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">All Wallets</div></div>
+        <table><thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Balance (Coins)</th><th>Balance (₹)</th></tr></thead><tbody id="t-wallets"></tbody></table>
+      </div>
+    </div>
+
+    <!-- CHATS -->
+    <div class="page" id="page-chats">
+      <div class="card">
+        <div class="card-header"><div class="card-title">💬 Chat Logs</div><span class="card-badge" id="chats-count">0</span></div>
+        <div class="search-bar"><input class="search-input" placeholder="Search messages…" oninput="filterTable('t-chats',this.value)"/></div>
+        <table><thead><tr><th>User</th><th>Query</th><th>Time</th></tr></thead><tbody id="t-chats"></tbody></table>
+      </div>
+    </div>
+
+    <!-- SIGNUPS -->
+    <div class="page" id="page-signups">
+      <div class="card">
+        <div class="card-header"><div class="card-title">📝 Signups & Logins</div><span class="card-badge" id="signups-count">0</span></div>
+        <table><thead><tr><th>Contact</th><th>User ID</th><th>Event</th><th>Source</th><th>Time</th></tr></thead><tbody id="t-signups"></tbody></table>
+      </div>
+    </div>
+
+    <!-- SONAR -->
+    <div class="page" id="page-sonar">
+      <div style="display:grid;grid-template-columns:1fr 380px;gap:16px;height:calc(100vh - 120px)">
+        <!-- Radar -->
+        <div class="card" style="display:flex;flex-direction:column;overflow:hidden">
+          <div class="card-header">
+            <div class="card-title">📡 Live Visitor Sonar</div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:0.72rem;color:var(--green);font-weight:600">🟢 <span id="sonar-count">0</span> active</span>
+              <span style="font-size:0.68rem;color:var(--muted)">Updates every 10s</span>
+            </div>
+          </div>
+          <div style="flex:1;position:relative;background:#0a1628;border-radius:0 0 12px 12px;overflow:hidden;min-height:500px">
+            <canvas id="sonar-canvas" style="position:absolute;inset:0;width:100%;height:100%"></canvas>
+            <div id="sonar-dots"></div>
+            <!-- Tooltip -->
+            <div id="sonar-tooltip" style="display:none;position:absolute;background:rgba(10,22,40,0.95);border:1px solid rgba(0,150,255,0.4);border-radius:10px;padding:12px 16px;min-width:220px;pointer-events:none;z-index:10">
+              <div id="tt-name" style="font-size:0.85rem;font-weight:700;color:#4FC3F7;margin-bottom:4px"></div>
+              <div id="tt-contact" style="font-size:0.72rem;color:#90CAF9;margin-bottom:6px"></div>
+              <div id="tt-page" style="font-size:0.72rem;color:#B0BEC5;margin-bottom:4px"></div>
+              <div id="tt-action" style="font-size:0.72rem;color:#80CBC4"></div>
+              <div id="tt-time" style="font-size:0.65rem;color:#546E7A;margin-top:4px"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Visitor List -->
+        <div class="card" style="display:flex;flex-direction:column;overflow:hidden">
+          <div class="card-header"><div class="card-title">Active Visitors</div></div>
+          <div id="sonar-list" style="flex:1;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFY -->
+    <div class="page" id="page-notify">
+      <div class="card">
+        <div class="card-header"><div class="card-title">📣 Send Notification</div></div>
+        <div style="padding:20px">
+          <div class="form-group"><label class="form-label">Recipient Email</label><input class="form-input" id="notif-email" placeholder="user@email.com"/></div>
+          <div class="form-group"><label class="form-label">Type</label><select class="form-input" id="notif-type"><option value="booking_confirm">Booking Confirmation</option><option value="wallet_load">Wallet Loaded</option><option value="trip_reminder">Trip Reminder</option><option value="welcome">Welcome</option></select></div>
+          <div class="form-group"><label class="form-label">User Name</label><input class="form-input" id="notif-name" placeholder="Traveller name"/></div>
+          <div class="form-group"><label class="form-label">Detail</label><input class="form-input" id="notif-detail" placeholder="e.g. Tirthan Homestay — 2 nights"/></div>
+          <button class="btn btn-gold" style="width:100%;padding:12px" onclick="sendNotif()">📣 Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COIN MODAL -->
+<div class="modal-overlay" id="coin-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">🪙 Adjust Coins</div><button class="btn btn-outline" onclick="document.getElementById('coin-modal').classList.remove('open')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">User ID</label><input class="form-input" id="coin-uid" readonly/></div>
+      <div class="form-group"><label class="form-label">Amount (+ add / - deduct)</label><input class="form-input" id="coin-amount" type="number" placeholder="e.g. 500 or -200"/></div>
+      <div class="form-group"><label class="form-label">Reason</label><input class="form-input" id="coin-reason" placeholder="Goodwill bonus, error correction…"/></div>
+      <button class="btn btn-gold" style="width:100%;padding:10px" onclick="submitCoinAdjust()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- LISTING EDIT MODAL -->
+<div class="modal-overlay" id="listing-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">✏️ Edit Listing</div><button class="btn btn-outline" onclick="document.getElementById('listing-modal').classList.remove('open')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-lid"/>
+      <div class="form-group"><label class="form-label">Title</label><input class="form-input" id="edit-title"/></div>
+      <div class="form-group"><label class="form-label">Price (₹)</label><input class="form-input" id="edit-price" type="number"/></div>
+      <div class="form-group"><label class="form-label">Location</label><input class="form-input" id="edit-location"/></div>
+      <div class="form-group"><label class="form-label">Status</label><select class="form-input" id="edit-status"><option value="active">Active</option><option value="inactive">Inactive</option><option value="pending">Pending Review</option></select></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-gold" style="flex:1;padding:10px" onclick="submitListingEdit()">Save</button>
+        <button class="btn btn-red" style="padding:10px" onclick="deleteListing()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API='http://localhost:8000', KEY='ttt-admin-2024';
+let _allActivity=[], _currentTravellerId=null;
+const PAGES={
+  overview:['Dashboard','Real-time TTT operations overview'],
+  activity:['Live Activity','Every user action in real time'],
+  travellers:['Travellers','Click any row for full profile'],
+  partners:['Partners','All partners, listings and wallets'],
+  listings:['All Listings','Every property on TTT'],
+  bookings:['Bookings','All booking records'],
+  wallet:['Wallet & Coins','Coin circulation'],
+  chats:['Chat Logs','All Aria concierge queries'],
+  signups:['Signups & Logins','Every auth event'],
+  sonar: ['Live Sonar','Real-time visitor tracking — click dots for details'],
+  notify:['Send Notification','Push to users'],
+};
+function nav(page,el){
+  document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('page-title').textContent=PAGES[page][0];
+  document.getElementById('page-sub').textContent=PAGES[page][1];
+  loadPage(page);
+}
+async function api(path){
+  try{const r=await fetch(API+path);if(!r.ok)return null;return await r.json();}catch(e){return null;}
+}
+function fmt(n){return(n||0).toLocaleString('en-IN');}
+function ago(ts){
+  if(!ts)return'—';
+  const diff=Math.floor((Date.now()-new Date(ts))/1000);
+  if(diff<60)return diff+'s ago';if(diff<3600)return Math.floor(diff/60)+'m ago';
+  if(diff<86400)return Math.floor(diff/3600)+'h ago';
+  return new Date(ts).toLocaleDateString('en-IN');
+}
+function feedItem(a){
+  const icons={chat:'💬',login:'🔑',signup:'✨',wallet_spend:'💸',partner_listing_created:'🏨'};
+  const ic=icons[a.action]||'⚡';
+  const det=a.detail?Object.entries(a.detail).map(([k,v])=>k+': '+v).join(' · '):'';
+  return`<div class="feed-item"><div style="font-size:1rem;margin-top:2px">${ic}</div><div style="flex:1"><div class="feed-action">${a.action.replace(/_/g,' ')} <span style="color:var(--muted);font-size:0.7rem">${a.user_id||''}</span></div>${det?`<div class="feed-detail">${det}</div>`:''}</div><div class="feed-time">${ago(a.timestamp)}</div></div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// SONAR ENGINE — Live visitor radar (Fixed)
+// ══════════════════════════════════════════════════════
+let _sonarInterval = null;
+let _sonarPositions = {};
+let _sweepAngle = 0;
+let _sweepRunning = false;
+
+function initSonar() {
+  if (!_sweepRunning) startSweep();
+  loadSonarData();
+  if (_sonarInterval) clearInterval(_sonarInterval);
+  _sonarInterval = setInterval(loadSonarData, 8000);
+}
+
+function startSweep() {
+  _sweepRunning = true;
+  const canvas = document.getElementById('sonar-canvas');
+  if (!canvas) return;
+
+  function resize() {
+    canvas.width = canvas.parentElement.offsetWidth;
+    canvas.height = canvas.parentElement.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function draw() {
+    if (!document.getElementById('page-sonar').classList.contains('active')) {
+      requestAnimationFrame(draw); return;
+    }
+    resize();
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    const cx = w/2, cy = h/2;
+    const maxR = Math.min(cx, cy) * 0.88;
+    ctx.clearRect(0, 0, w, h);
+
+    // Background
+    ctx.fillStyle = '#040d1a';
+    ctx.fillRect(0, 0, w, h);
+
+    // Rings
+    [0.25, 0.5, 0.75, 1].forEach((r, i) => {
+      ctx.beginPath();
+      ctx.arc(cx, cy, maxR*r, 0, Math.PI*2);
+      ctx.strokeStyle = 'rgba(0,180,255,0.15)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Ring labels
+      ctx.fillStyle = 'rgba(0,180,255,0.3)';
+      ctx.font = '10px Inter, sans-serif';
+      const labels = ['active','browsing','idle','offline'];
+      ctx.fillText(labels[i], cx + maxR*r + 4, cy - 4);
+    });
+
+    // Cross hairs
+    ctx.beginPath();
+    ctx.moveTo(cx-maxR, cy); ctx.lineTo(cx+maxR, cy);
+    ctx.moveTo(cx, cy-maxR); ctx.lineTo(cx, cy+maxR);
+    ctx.strokeStyle = 'rgba(0,180,255,0.08)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Sweep
+    const grad = ctx.createConicalGradient
+      ? ctx.createConicalGradient(cx, cy, 0)
+      : null;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(_sweepAngle);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.arc(0, 0, maxR, -0.4, 0.4);
+    ctx.closePath();
+    const sweepGrad = ctx.createLinearGradient(0, -maxR*0.3, maxR, 0);
+    sweepGrad.addColorStop(0, 'rgba(0,255,120,0)');
+    sweepGrad.addColorStop(1, 'rgba(0,255,120,0.18)');
+    ctx.fillStyle = sweepGrad;
+    ctx.fill();
+    // Sweep line
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(maxR, 0);
+    ctx.strokeStyle = 'rgba(0,255,120,0.6)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.restore();
+
+    _sweepAngle += 0.025;
+    if (_sweepAngle > Math.PI*2) _sweepAngle = 0;
+
+    // Centre dot
+    ctx.beginPath();
+    ctx.arc(cx, cy, 4, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(0,255,120,0.8)';
+    ctx.fill();
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+async function loadSonarData() {
+  const [vd, td] = await Promise.all([
+    api('/api/admin/live-visitors?key='+KEY),
+    api('/api/admin/travellers?key='+KEY)
+  ]);
+  if (!vd) return;
+
+  const visitors = vd.visitors || [];
+  const userMap = {};
+  if (td) Object.values(td.travellers||{}).forEach(u => { userMap[u.id] = u; });
+
+  document.getElementById('sonar-count').textContent = visitors.length;
+
+  const canvas = document.getElementById('sonar-canvas');
+  const w = canvas?.width || 700, h = canvas?.height || 500;
+  const cx = w/2, cy = h/2, maxR = Math.min(cx,cy)*0.88;
+
+  // Assign stable positions
+  visitors.forEach(v => {
+    const key = v.session_id || v.user_id;
+    if (!_sonarPositions[key]) {
+      const ago = v.last_seen_ago || 0;
+      // More active = closer to centre
+      const r = Math.min(0.85, 0.08 + (ago/300)*0.77);
+      const angle = Math.random() * Math.PI*2;
+      _sonarPositions[key] = { r, angle };
+    }
+  });
+
+  renderDots(visitors, userMap, cx, cy, maxR);
+  renderSonarList(visitors, userMap);
+}
+
+function renderDots(visitors, userMap, cx, cy, maxR) {
+  const container = document.getElementById('sonar-dots');
+  container.innerHTML = '';
+
+  // Set container to match canvas
+  const canvas = document.getElementById('sonar-canvas');
+  container.style.cssText = `position:absolute;inset:0;width:${canvas.width}px;height:${canvas.height}px;pointer-events:none`;
+
+  visitors.forEach((v, idx) => {
+    const key = v.session_id || v.user_id;
+    const pos = _sonarPositions[key] || {r:0.5, angle:idx};
+    const user = userMap[v.user_id];
+    const isAnon = !user || v.user_id === 'anon';
+
+    const px = cx + Math.cos(pos.angle) * maxR * pos.r;
+    const py = cy + Math.sin(pos.angle) * maxR * pos.r;
+
+    // Pulse ring
+    const pulse = document.createElement('div');
+    pulse.style.cssText = `position:absolute;left:${px}px;top:${py}px;width:16px;height:16px;border-radius:50%;border:2px solid rgba(${isAnon?'100,150,200':'30,180,255'},0.5);transform:translate(-50%,-50%);animation:sonar-ring ${1.5+idx*0.2}s ease-out infinite;pointer-events:none`;
+    container.appendChild(pulse);
+
+    // Dot
+    const dot = document.createElement('div');
+    const color = isAnon ? '#5C8A9A' : '#1BB5FF';
+    const glow = isAnon ? 'rgba(92,138,154,0.4)' : 'rgba(27,181,255,0.6)';
+    dot.style.cssText = `position:absolute;left:${px}px;top:${py}px;width:14px;height:14px;border-radius:50%;background:${color};border:2px solid ${isAnon?'#7AAABB':'#64CCFF'};transform:translate(-50%,-50%);cursor:pointer;box-shadow:0 0 10px ${glow};pointer-events:all;z-index:5;transition:all 0.3s`;
+    dot.title = user ? (user.name||user.email||v.user_id) : 'Guest visitor';
+
+    const tooltip = document.getElementById('sonar-tooltip');
+    dot.addEventListener('mouseenter', (e) => {
+      const name  = v.name  || user?.name  || 'Anonymous Guest';
+      const email = v.email || user?.email || '—';
+      const phone = v.phone || user?.phone || '—';
+      document.getElementById('tt-name').textContent = name;
+      document.getElementById('tt-contact').textContent = `📧 ${email}  📱 ${phone}`;
+      document.getElementById('tt-page').textContent = '📄 Tab: ' + (v.page||'Home');
+      document.getElementById('tt-action').textContent = user ? '✅ Logged in traveller' : '👤 Guest visitor';
+      document.getElementById('tt-time').textContent = `⏱ ${v.last_seen_ago||0}s ago`;
+      const rect = container.parentElement.getBoundingClientRect();
+      let tx = e.clientX - rect.left + 20;
+      let ty = e.clientY - rect.top - 10;
+      if (tx + 240 > rect.width) tx -= 260;
+      if (ty + 120 > rect.height) ty -= 130;
+      tooltip.style.left = tx+'px';
+      tooltip.style.top = ty+'px';
+      tooltip.style.display = 'block';
+      dot.style.width = '20px';
+      dot.style.height = '20px';
+      dot.style.boxShadow = `0 0 20px ${glow}`;
+    });
+    dot.addEventListener('mouseleave', () => {
+      tooltip.style.display = 'none';
+      dot.style.width = '14px';
+      dot.style.height = '14px';
+    });
+    dot.addEventListener('click', () => {
+      if (user) loadTravellerDetail(v.user_id);
+    });
+    container.appendChild(dot);
+  });
+}
+
+function renderSonarList(visitors, userMap) {
+  const list = document.getElementById('sonar-list');
+  if (!visitors.length) {
+    list.innerHTML = '<div style="padding:40px;text-align:center;color:#546E7A;font-size:0.82rem">📡 No active visitors right now.<br/><span style="font-size:0.72rem;opacity:0.7">Open the main app to see visitors appear here.</span></div>';
+    return;
+  }
+  list.innerHTML = visitors.map((v, i) => {
+    const user = userMap[v.user_id];
+    const name  = v.name  || user?.name  || 'Anonymous';
+    const email = v.email || user?.email || '—';
+    const phone = v.phone || user?.phone || '—';
+    const ago = v.last_seen_ago || 0;
+    const timeStr = ago < 60 ? ago+'s ago' : Math.floor(ago/60)+'m ago';
+    const isAnon = (!name || name === 'Anonymous') && v.user_id==='anon';
+    return `<div class="visitor-card" onclick="${!isAnon?`loadTravellerDetail('${v.user_id}')`:''}">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${isAnon?'#546E7A':'#1BB5FF'};box-shadow:0 0 8px ${isAnon?'rgba(84,110,122,0.3)':'rgba(27,181,255,0.5)'};margin-top:4px;flex-shrink:0"></div>
+        <div style="flex:1">
+          <div style="font-size:0.83rem;font-weight:600">${name}</div>
+          <div style="font-size:0.7rem;color:var(--muted)">📧 ${email}</div>
+          <div style="font-size:0.7rem;color:var(--muted)">📱 ${phone}</div>
+          <div style="font-size:0.68rem;color:var(--muted);margin-top:2px">📄 ${v.page||'Home'} · ${timeStr}</div>
+        </div>
+        <div>
+          <div style="font-size:0.62rem;font-weight:700;color:${isAnon?'#78909C':'#1BB5FF'}">${isAnon?'GUEST':'LIVE'}</div>
+          ${!isAnon?`<button onclick="event.stopPropagation();impersonateUser('${v.user_id}')" style="margin-top:4px;padding:2px 8px;font-size:0.62rem;background:rgba(27,181,255,0.1);color:#1BB5FF;border:1px solid rgba(27,181,255,0.3);border-radius:4px;cursor:pointer">Login As</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+
+
+// ── Live visitor counter ─────────────────────────────────────────
+async function updateLiveCount() {
+  const d = await api('/api/admin/live-visitors?key='+KEY);
+  if (!d) return;
+  document.getElementById('live-count').textContent = d.count;
+  document.getElementById('k-live').textContent = d.count;
+}
+setInterval(updateLiveCount, 15000);
+updateLiveCount();
+
+// ── Global search ─────────────────────────────────────────────────
+async function globalSearch(q) {
+  const box = document.getElementById('search-results');
+  if (!q || q.length < 2) { box.style.display='none'; return; }
+  const d = await api('/api/admin/search?q='+encodeURIComponent(q)+'&key='+KEY);
+  if (!d) return;
+  const travellers = d.travellers||[], partners = d.partners||[];
+  if (!travellers.length && !partners.length) {
+    box.innerHTML = '<div style="padding:12px;font-size:0.78rem;color:var(--muted)">No results found</div>';
+    box.style.display = 'block'; return;
+  }
+  let html = '';
+  travellers.forEach(u => {
+    html += `<div style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer" onclick="nav('travellers',document.querySelector('.nav-item:nth-child(4)'));setTimeout(()=>loadTravellerDetail('${u.id}'),500)">
+      <div style="font-size:0.8rem;font-weight:600">${u.name||u.email||u.phone||u.id}</div>
+      <div style="font-size:0.68rem;color:var(--muted)">👤 Traveller · ${u.email||''} ${u.phone||''} · ${(u.coins||0)} coins</div>
+      <button style="font-size:0.65rem;padding:2px 8px;background:rgba(46,125,50,0.1);color:var(--green);border:1px solid rgba(46,125,50,0.3);border-radius:4px;cursor:pointer;margin-top:4px" onclick="event.stopPropagation();impersonateUser('${u.id}')">Login As</button>
+    </div>`;
+  });
+  partners.forEach(p => {
+    html += `<div style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer" onclick="nav('partners',document.querySelector('.nav-item:nth-child(5)'));setTimeout(()=>loadPartnerDetail('${p.partner_id}'),500)">
+      <div style="font-size:0.8rem;font-weight:600">${p.business_name||p.name||p.partner_id}</div>
+      <div style="font-size:0.68rem;color:var(--muted)">🏪 Partner · ${p.email||''} ${p.phone||''}</div>
+      <button style="font-size:0.65rem;padding:2px 8px;background:rgba(46,125,50,0.1);color:var(--green);border:1px solid rgba(46,125,50,0.3);border-radius:4px;cursor:pointer;margin-top:4px" onclick="event.stopPropagation();impersonatePartner('${p.partner_id}')">Login As Partner</button>
+    </div>`;
+  });
+  box.innerHTML = html;
+  box.style.display = 'block';
+}
+
+// Close search on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('#global-search') && !e.target.closest('#search-results'))
+    document.getElementById('search-results').style.display = 'none';
+});
+
+// ── Impersonation ─────────────────────────────────────────────────
+async function impersonateUser(uid) {
+  if (!confirm('Login as this traveller? This will open the main app in a new tab logged in as them.')) return;
+  const d = await api('/api/admin/impersonate?user_id='+uid+'&key='+KEY);
+  if (!d || !d.success) { alert('Failed to impersonate: user not found in system'); return; }
+  const session = d.session;
+  const url = 'http://localhost:8000';
+  const w = window.open(url, '_blank');
+  // Wait for page to load then inject session
+  setTimeout(() => {
+    w.postMessage({type:'ttt_impersonate', session: session, user: d.user}, '*');
+  }, 2000);
+  alert('Opening app as: ' + (session.name || uid) + '\nThe tab will auto-login in 2 seconds.');
+}
+
+async function impersonatePartner(pid) {
+  if (!confirm('Login as this partner? This will open the partner portal in a new tab.')) return;
+  const d = await api('/api/admin/impersonate-partner?partner_id='+pid+'&key='+KEY);
+  if (!d || !d.success) { alert('Failed'); return; }
+  // Store partner session and open portal
+  const data = JSON.stringify({partner_id: pid, ...d.partner});
+  const url = 'http://localhost:8000?partner_impersonate='+encodeURIComponent(data);
+  window.open(url, '_blank');
+  alert('Opening partner portal as: ' + (d.partner?.business_name || pid));
+}
+
+async function loadSummary(){
+  const d=await api('/api/admin/full-summary?key='+KEY);
+  if(!d)return;
+  const t=d.totals;
+  document.getElementById('k-travellers').textContent=fmt(t.travellers||0);
+  document.getElementById('k-partners').textContent=fmt(t.partners||0);
+  document.getElementById('k-listings').textContent=fmt(t.listings||0);
+  document.getElementById('k-bookings').textContent=fmt(t.bookings||0);
+  document.getElementById('k-coins').textContent=fmt(t.total_coins_in_circulation||0);
+  document.getElementById('k-chats').textContent=fmt(t.chat_messages||0);
+  document.getElementById('k-logins').textContent=fmt(t.total_logins||0);
+  document.getElementById('k-activity').textContent=fmt(t.total_activity||0);
+  const recentSignups = d.recent_signups||[];
+  document.getElementById('t-signups-recent').innerHTML=recentSignups.slice(0,8).map(s=>`<tr><td>${s.contact||s.source||'—'}</td><td><span class="badge badge-gold">${s.source||'otp'}</span></td><td>${ago(s.timestamp)}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">None yet</td></tr>';
+  document.getElementById('feed-recent').innerHTML=(d.recent_activity||[]).slice(0,15).map(a=>feedItem(a)).join('');
+}
+async function loadActivity(){
+  const d=await api('/api/admin/activity?key='+KEY+'&limit=500');
+  if(!d)return;
+  _allActivity=d.activity||[];
+  document.getElementById('activity-count').textContent=fmt(_allActivity.length)+' events';
+  document.getElementById('feed-all').innerHTML=_allActivity.slice(0,200).map(a=>feedItem(a)).join('')||'<div class="empty">No activity yet</div>';
+}
+function filterActivity(q){
+  if(!q){document.getElementById('feed-all').innerHTML=_allActivity.slice(0,200).map(a=>feedItem(a)).join('');return;}
+  q=q.toLowerCase();
+  const f=_allActivity.filter(a=>(a.user_id+a.action+JSON.stringify(a.detail)).toLowerCase().includes(q));
+  document.getElementById('feed-all').innerHTML=f.map(a=>feedItem(a)).join('')||'<div class="empty">No matches</div>';
+}
+async function loadTravellers(){
+  const d=await api('/api/admin/travellers?key='+KEY);
+  if(!d)return;
+  const t=d.travellers||{};
+  document.getElementById('travellers-count').textContent=fmt(Object.keys(t).length);
+  document.getElementById('t-travellers').innerHTML=Object.values(t).map(u=>`<tr onclick="loadTravellerDetail('${u.id}')" style="cursor:pointer"><td><div style="font-weight:500">${u.name||'—'}</div><div style="font-size:0.7rem;color:var(--muted)">${u.email||u.phone||'—'}</div></td><td style="font-family:monospace;font-size:0.7rem;color:var(--muted)">${u.id}</td><td><span class="badge badge-gold">${u.persona||u.travel_persona||'—'}</span></td><td style="color:var(--gold);font-weight:600">${fmt(u.coins||0)}</td><td>${ago(u.created_at)}</td><td style="display:flex;gap:6px"><button class="btn btn-outline" onclick="event.stopPropagation();loadTravellerDetail('${u.id}')">View</button><button class="btn btn-gold" onclick="event.stopPropagation();impersonateUser('${u.id}')" title="Login as this traveller">Login As</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty">No travellers yet</td></tr>';
+}
+async function loadTravellerDetail(uid){
+  const d=await api('/api/admin/traveller-detail/'+uid+'?key='+KEY);
+  if(!d)return;
+  _currentTravellerId=uid;
+  document.getElementById('traveller-detail').classList.add('open');
+  document.getElementById('td-name').textContent=d.user?.name||d.user?.email||uid;
+  const fields=[['User ID',uid],['Email',d.user?.email||'—'],['Phone',d.user?.phone||'—'],['Persona',d.user?.persona||d.user?.travel_persona||'—'],['Coins',fmt(d.wallet?.coins||0)+' coins'],['Joined',ago(d.user?.created_at)],['Chats',fmt(d.chat_count)],['Activity',fmt(d.activity_count)]];
+  document.getElementById('td-grid').innerHTML=fields.map(([l,v])=>`<div><div class="detail-label">${l}</div><div class="detail-val">${v}</div></div>`).join('');
+  document.getElementById('td-chats').innerHTML=(d.chats||[]).slice(0,5).map(c=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:0.78rem;color:var(--muted)">"${c.message}" <span style="float:right;font-size:0.65rem">${ago(c.timestamp)}</span></div>`).join('')||'<div style="color:var(--muted);font-size:0.78rem">No chats yet</div>';
+  document.getElementById('td-activity').innerHTML=(d.activity||[]).slice(0,5).map(a=>feedItem(a)).join('')||'<div style="color:var(--muted);font-size:0.78rem">No activity</div>';
+  document.getElementById('coin-uid').value=uid;
+}
+async function loadPartners(){
+  const d=await api('/api/admin/partners-list?key='+KEY);
+  if(!d)return;
+  let p=d.partners||{};
+  // handle both array and dict formats
+  if(Array.isArray(p)) p=Object.fromEntries(p.map(x=>[x.partner_id||x.id,x]));
+  // filter out demo
+  const realPartners=Object.fromEntries(Object.entries(p).filter(([k])=>k!=='demo-partner-001'));
+  document.getElementById('partners-count').textContent=fmt(Object.keys(realPartners).length);
+  document.getElementById('t-partners').innerHTML=Object.values(realPartners).map(pt=>{
+    const lcount=Object.values(d.listings||{}).filter(l=>l.partner_id===pt.partner_id).length;
+    return`<tr onclick="loadPartnerDetail('${pt.partner_id}')" style="cursor:pointer"><td><div style="font-weight:500">${pt.business_name||pt.name||'—'}</div><div style="font-size:0.7rem;color:var(--muted)">${pt.email||'—'}</div></td><td style="font-family:monospace;font-size:0.7rem;color:var(--muted)">${pt.partner_id}</td><td><span class="badge badge-blue">${pt.listing_type||'—'}</span></td><td style="font-weight:600">${lcount}</td><td style="color:var(--gold)">${fmt(pt.wallet_coins||0)}</td><td>${ago(pt.created_at)}</td><td style="display:flex;gap:6px"><button class="btn btn-outline" onclick="event.stopPropagation();loadPartnerDetail('${pt.partner_id}')">View</button><button class="btn btn-gold" onclick="event.stopPropagation();impersonatePartner('${pt.partner_id}')" title="Login as this partner">Login As</button></td></tr>`;
+  }).join('')||'<tr><td colspan="7" class="empty">No partners yet</td></tr>';
+}
+async function loadPartnerDetail(pid){
+  const d=await api('/api/admin/partner-detail/'+pid+'?key='+KEY);
+  if(!d)return;
+  document.getElementById('partner-detail').classList.add('open');
+  document.getElementById('pd-name').textContent=d.partner?.business_name||pid;
+  const fields=[['Partner ID',pid],['Business',d.partner?.business_name||'—'],['Email',d.partner?.email||'—'],['Type',d.partner?.listing_type||'—'],['Location',d.partner?.location||'—'],['Listings',fmt(d.listing_count)],['Bookings',fmt(d.booking_count)],['Wallet',fmt(d.wallet?.coins||d.wallet?.balance||0)+' coins']];
+  document.getElementById('pd-grid').innerHTML=fields.map(([l,v])=>`<div><div class="detail-label">${l}</div><div class="detail-val">${v}</div></div>`).join('');
+  document.getElementById('pd-listings').innerHTML=(d.listings||[]).map(l=>`<div style="padding:10px;background:var(--dark4);border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:500;font-size:0.83rem">${l.title}</div><div style="font-size:0.7rem;color:var(--muted)">${l.location||''} · ₹${fmt(l.price)}</div></div><div style="display:flex;gap:6px"><span class="badge ${l.status==='active'?'badge-green':'badge-red'}">${l.status||'—'}</span><button class="btn btn-outline" onclick="openListingEdit('${l.id}','${l.title}',${l.price},'${l.location||''}','${l.status||'active'}')">Edit</button></div></div>`).join('')||'<div style="color:var(--muted);font-size:0.78rem">No listings</div>';
+}
+async function loadListings(){
+  const d=await api('/api/admin/partners-list?key='+KEY);
+  if(!d)return;
+  // listings can be a dict {id: listing} or array
+  const lDict = d.listings||{};
+  const ls = Array.isArray(lDict) ? lDict : Object.values(lDict);
+  // Filter out demo listings
+  const real = ls.filter(l => l.partner_id !== 'demo-partner-001');
+  document.getElementById('listings-count').textContent=fmt(real.length);
+  document.getElementById('t-listings').innerHTML=real.map(l=>`<tr>
+    <td><div style="font-weight:500">${l.title||'—'}</div><div style="font-size:0.7rem;color:var(--muted)">${l.description?.slice(0,40)||''}</div></td>
+    <td style="font-size:0.7rem;color:var(--muted)">${l.partner_id||'—'}</td>
+    <td><span class="badge badge-blue">${l.listing_type||l.category||'—'}</span></td>
+    <td>${l.location||'—'}</td>
+    <td style="color:var(--gold);font-weight:600">₹${fmt(l.price||0)}</td>
+    <td><span class="badge ${l.status==='active'?'badge-green':'badge-red'}">${l.status||'active'}</span></td>
+    <td><button class="btn btn-outline" onclick="openListingEdit('${l.id}','${(l.title||'').replace(/'/g,"\'")}',${l.price||0},'${(l.location||'').replace(/'/g,"\'")}','${l.status||'active'}')">Edit</button></td>
+  </tr>`).join('')||'<tr><td colspan="7" class="empty">No listings yet</td></tr>';
+}
+async function loadBookings(){
+  const d=await api('/api/admin/bookings?key='+KEY);
+  if(!d)return;
+  // endpoint returns array or dict
+  let bs = d.bookings||[];
+  if(!Array.isArray(bs)) bs = Object.values(bs);
+  document.getElementById('bookings-count').textContent=fmt(bs.length);
+  document.getElementById('t-bookings').innerHTML=bs.length ? bs.map(b=>`<tr>
+    <td style="font-family:monospace;font-size:0.7rem;color:var(--muted)">${b.id||b.booking_id||'—'}</td>
+    <td style="font-weight:500">${b.service||b.listing_title||b.listing_id||'—'}</td>
+    <td style="font-size:0.7rem;color:var(--muted)">${b.user_id||b.customer_phone||'—'}</td>
+    <td style="color:var(--gold);font-weight:600">₹${fmt(b.amount||b.coins||b.total_price||0)}</td>
+    <td><span class="badge ${b.status==='confirmed'?'badge-green':'badge-gold'}">${b.status||'confirmed'}</span></td>
+    <td>${ago(b.created_at||b.timestamp)}</td>
+  </tr>`).join('') : '<tr><td colspan="6" class="empty">No bookings yet — make a booking in the app to see it here</td></tr>';
+}
+async function loadWallet(){
+  const[ws,td,pd]=await Promise.all([
+    api('/api/wallet/summary?key='+KEY),
+    api('/api/admin/travellers?key='+KEY),
+    api('/api/admin/partners-list?key='+KEY)
+  ]);
+  // Use wallet summary or calculate from travellers
+  let tCoins=0, pCoins=0;
+  const rows=[];
+  if(td) Object.values(td.travellers||{}).forEach(u=>{
+    const c=u.coins||0; tCoins+=c;
+    rows.push(`<tr><td style="font-size:0.72rem">${u.id}</td><td>${u.name||u.email||'—'}</td><td><span class="badge badge-gold">traveller</span></td><td style="color:var(--gold);font-weight:600">${fmt(c)}</td><td>₹${fmt(c)}</td></tr>`);
+  });
+  if(pd) Object.values(pd.partners||{}).filter(p=>p.partner_id!=='demo-partner-001').forEach(p=>{
+    const c=p.wallet_coins||0; pCoins+=c;
+    rows.push(`<tr><td style="font-size:0.72rem">${p.partner_id}</td><td>${p.business_name||p.name||'—'}</td><td><span class="badge badge-blue">partner</span></td><td style="color:var(--gold);font-weight:600">${fmt(c)}</td><td>₹${fmt(c)}</td></tr>`);
+  });
+  document.getElementById('w-issued').textContent=fmt(tCoins+pCoins);
+  document.getElementById('w-travellers').textContent=fmt(tCoins);
+  document.getElementById('w-partners').textContent=fmt(pCoins);
+  document.getElementById('t-wallets').innerHTML=rows.join('')||'<tr><td colspan="5" class="empty">No wallets yet</td></tr>';
+}
+async function loadChats(){
+  const d=await api('/api/admin/chat-log?key='+KEY+'&limit=500');
+  if(!d)return;
+  document.getElementById('chats-count').textContent=fmt((d.chats||[]).length);
+  document.getElementById('t-chats').innerHTML=(d.chats||[]).map(c=>`<tr>
+    <td>
+      <div style="font-weight:500;font-size:0.82rem">${c.name||'—'}</div>
+      <div style="font-size:0.7rem;color:var(--muted)">${c.email||c.phone||c.user_id||'—'}</div>
+    </td>
+    <td>${c.message||'—'}</td>
+    <td style="white-space:nowrap">${ago(c.timestamp)}</td>
+  </tr>`).join('')||'<tr><td colspan="3" class="empty">No chat logs yet</td></tr>';
+}
+async function loadSignups(){
+  const[sd,ld]=await Promise.all([
+    api('/api/admin/analyses?key='+KEY),
+    api('/api/admin/logins?key='+KEY)
+  ]);
+  const signups=(sd?.signups||[]).map(s=>({...s,event:'signup'}));
+  const logins=(ld?.logins||[]);
+  const all=[...signups,...logins].sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+  document.getElementById('signups-count').textContent=fmt(all.length);
+  if(!all.length){
+    document.getElementById('t-signups').innerHTML='<tr><td colspan="5" class="empty">No signup/login events yet. Events are logged when users sign in.</td></tr>';
+    return;
+  }
+  document.getElementById('t-signups').innerHTML=all.slice(0,200).map(e=>`<tr>
+    <td>${e.contact||e.email||'—'}</td>
+    <td style="font-family:monospace;font-size:0.7rem;color:var(--muted)">${e.user_id||e.uid||'—'}</td>
+    <td><span class="badge ${e.event==='signup'?'badge-green':'badge-blue'}">${e.event||'—'}</span></td>
+    <td style="color:var(--muted);font-size:0.72rem">${e.source||e.mode||'—'}</td>
+    <td>${ago(e.timestamp)}</td>
+  </tr>`).join('');
+}
+function filterTable(id,q){
+  document.getElementById(id)?.querySelectorAll('tr').forEach(r=>r.style.display=(!q||r.textContent.toLowerCase().includes(q.toLowerCase()))?'':'none');
+}
+function openCoinModal(){document.getElementById('coin-uid').value=_currentTravellerId||'';document.getElementById('coin-amount').value='';document.getElementById('coin-reason').value='';document.getElementById('coin-modal').classList.add('open');}
+async function submitCoinAdjust(){
+  const uid=document.getElementById('coin-uid').value,amt=parseInt(document.getElementById('coin-amount').value),rsn=document.getElementById('coin-reason').value||'Admin adjustment';
+  if(!uid||isNaN(amt)){alert('Fill all fields');return;}
+  const r=await fetch(`${API}/api/admin/user/${uid}/coins?amount=${amt}&reason=${encodeURIComponent(rsn)}&key=${KEY}`,{method:'PUT'});
+  const d=await r.json();
+  if(d.success){alert('Done! New balance: '+d.new_balance+' coins');document.getElementById('coin-modal').classList.remove('open');loadTravellerDetail(uid);}
+  else alert('Failed');
+}
+function openListingEdit(lid,title,price,location,status){
+  document.getElementById('edit-lid').value=lid;document.getElementById('edit-title').value=title;
+  document.getElementById('edit-price').value=price;document.getElementById('edit-location').value=location;
+  document.getElementById('edit-status').value=status;document.getElementById('listing-modal').classList.add('open');
+}
+async function submitListingEdit(){
+  const lid=document.getElementById('edit-lid').value;
+  const updates={title:document.getElementById('edit-title').value,price:parseFloat(document.getElementById('edit-price').value),location:document.getElementById('edit-location').value,status:document.getElementById('edit-status').value};
+  const r=await fetch(`${API}/api/admin/listing/${lid}?key=${KEY}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(updates)});
+  const d=await r.json();
+  if(d.success){alert('Updated!');document.getElementById('listing-modal').classList.remove('open');loadListings();}
+}
+async function deleteListing(){
+  if(!confirm('Delete this listing?'))return;
+  const lid=document.getElementById('edit-lid').value;
+  await fetch(`${API}/api/admin/listing/${lid}?key=${KEY}`,{method:'DELETE'});
+  alert('Deleted');document.getElementById('listing-modal').classList.remove('open');loadListings();
+}
+async function sendNotif(){
+  const email=document.getElementById('notif-email').value,type=document.getElementById('notif-type').value,name=document.getElementById('notif-name').value,detail=document.getElementById('notif-detail').value;
+  if(!email){alert('Enter recipient');return;}
+  const r=await fetch(`${API}/api/notify`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,notification_type:type,user_name:name,data:{detail}})});
+  const d=await r.json();
+  alert(d.success?'Sent!':'Failed: '+JSON.stringify(d));
+}
+function loadPage(page){const map={overview:loadSummary,activity:loadActivity,travellers:loadTravellers,partners:loadPartners,listings:loadListings,bookings:loadBookings,wallet:loadWallet,chats:loadChats,signups:loadSignups,sonar:initSonar};if(map[page])map[page]();}
+function refreshAll(){loadPage(document.querySelector('.page.active')?.id?.replace('page-','')||'overview');document.getElementById('last-refresh').textContent='Updated '+new Date().toLocaleTimeString('en-IN');}
+loadSummary();
+document.getElementById('last-refresh').textContent='Updated '+new Date().toLocaleTimeString('en-IN');
+setInterval(refreshAll,60000);
+</script>
+</body>
+</html>
