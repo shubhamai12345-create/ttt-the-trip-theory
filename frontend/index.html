@@ -2554,6 +2554,8 @@
             // New user — run full onboarding
             showView('onboard');
             setOnboardStep(1);
+            // CRM: track signup
+            try{if(window.CRMTrack)CRMTrack.signup({id:authData.id,email:authData.email,phone:authData.phone,name:authData.name});}catch{}
           } else {
             // Returning user — go straight to app
             toast('✦ Welcome back!');
@@ -3033,6 +3035,8 @@
       if (!auth) { showView('login'); return; }
       showView('app');
       if (!msgs.length) sendWelcome();
+      // CRM: track login
+      try{const u=JSON.parse(auth||'{}');if(window.CRMTrack)CRMTrack.login({id:u.id,email:u.email,phone:u.phone,name:u.name});}catch{}
     }
 
     function goHome() { showView('landing'); window.scrollTo(0,0); }
@@ -3064,6 +3068,8 @@
           res = {response: mockReply(text), mock:true};
         }
         rmTyping(); addMsg('ai', res.response); msgs.push({role:'assistant', content:res.response});
+        // CRM: track chat
+        try{if(window.CRMTrack)CRMTrack.chat(text);}catch{}
         if (/trip|flight|travel|goa|rajasthan|kerala/i.test(text)) addFlightTeaser(text);
         checkWalletPrompt(res.response);
         detectBookingAndShowPayment(res.response, text);
@@ -3587,6 +3593,11 @@
       if(backendUp){try{await fetch(API+'/api/user/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pf)});}catch{}}
       const ok=document.getElementById('save-ok'); ok.style.display='block'; setTimeout(function(){ok.style.display='none';},3000);
       toast('✅ Profile saved!');
+      // CRM: track profile + sync social data
+      try{if(window.CRMTrack){CRMTrack.profile({name:pf.name,instagram:pf.ig,linkedin:pf.linkedin,phone:pf.phone});
+        fetch('/api/crm/sync-profile',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({user_id:pf.email||pf.id,email:pf.email,name:pf.name,phone:pf.phone,instagram_handle:pf.ig,linkedin_url:pf.linkedin,source:'profile_update'}),keepalive:true}).catch(()=>{});
+      }}catch{}
     }
 
     function openModal(){document.getElementById('assist-modal').classList.add('open');}
@@ -3892,6 +3903,8 @@
         }
         closeBookModal();
         toast('✅ Booking confirmed for '+(l?l.title:'listing')+'!');
+        // CRM: track booking
+        try{if(window.CRMTrack)CRMTrack.booking({listing:l?l.title:'',location:l?l.location:'',amount:total,checkin:checkin,checkout:checkout,guests:guests});}catch{}
         addMsg('ai', '✅ **Booking Confirmed!**\n\nYour booking for **'+(l?l.title:'')+'** in '+(l?l.location:'')+' has been confirmed.\n\n📅 '+checkin+' → '+checkout+' · '+guests+' guest(s)\n💰 Total: ₹'+total.toLocaleString('en-IN')+'\n\nThe partner will reach you at **'+phone+'** to confirm details. 🌍');
         msgs.push({role:'assistant',content:'Booking confirmed.'});
       } catch(e) { toast('Booking submitted!'); closeBookModal(); }
@@ -4567,5 +4580,32 @@ if('serviceWorker' in navigator){
       }
     });
 </script>
+
+  <!-- TTT CRM Activity Tracker -->
+  <script>
+  (function(){
+    const API_BASE = '';
+    function getUID(){
+      try{const a=JSON.parse(sessionStorage.getItem('ttt_auth')||'{}');return a.id||a.email||('anon_'+getSession());}catch{return 'anon_'+getSession();}
+    }
+    function getSession(){let s=sessionStorage.getItem('_ttt_sid');if(!s){s='s'+Date.now()+Math.random().toString(36).slice(2);sessionStorage.setItem('_ttt_sid',s);}return s;}
+    function fire(type,data){
+      fetch(API_BASE+'/api/crm/activity',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({user_id:getUID(),session_id:getSession(),activity_type:type,activity_data:data||{},page_url:location.pathname}),keepalive:true}).catch(()=>{});
+    }
+    window.CRMTrack = {
+      login:   function(u){fire('login',  {email:u.email,phone:u.phone,name:u.name,method:'otp'});},
+      signup:  function(u){fire('signup', {email:u.email,phone:u.phone,name:u.name});},
+      chat:    function(q){fire('chat',   {query:(q||'').slice(0,200)});},
+      trip:    function(d){fire('trip',   d||{});},
+      booking: function(d){fire('booking',d||{});},
+      search:  function(d){fire('search', d||{});},
+      profile: function(d){fire('profile',d||{});},
+      visit:   function(p){fire('visit',  {page:p||location.pathname});}
+    };
+    // Track page visit
+    (function(){const k='_v'+location.pathname;const t=parseInt(sessionStorage.getItem(k)||'0');if(Date.now()-t>30000){sessionStorage.setItem(k,Date.now());fire('visit',{page:location.pathname,ref:document.referrer});}})();
+  })();
+  </script>
 </body>
 </html>
