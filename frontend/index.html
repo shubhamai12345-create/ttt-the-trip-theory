@@ -660,7 +660,7 @@
     .form-sec  { background: #F5F5FF !important; }
     .assist    { background: #F9FAFB !important; }
     .membership{ background: #FFFFFF !important; }
-    footer     { background: #F9FAFB !important; border-top: 1px solid var(--border) !important; }
+    /* footer bg override removed */
 
     /* Light app theme */
     #view-app  { background: #FFFFFF !important; }
@@ -1628,7 +1628,7 @@
 
 
   <!-- FOOTER -->
-  <footer style="background:#0D0A05;border-top:1px solid rgba(201,150,58,0.08);padding:52px 5% 28px">
+  <footer style="background-color:#0D0A05 !important;background:#0D0A05;border-top:1px solid rgba(201,150,58,0.08);padding:52px 5% 28px">
     <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;margin-bottom:36px">
       <div><div style="font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:400;color:var(--gold);margin-bottom:9px;letter-spacing:0.06em">TTT</div><p style="font-size:0.76rem;color:rgba(255,255,255,0.80);line-height:1.8;max-width:250px;font-weight:300">India's first Agentic AI luxury travel concierge. Built for explorers who don't follow itineraries.</p><p style="font-size:0.69rem;color:rgba(255,255,255,0.50);margin-top:10px;line-height:1.8;font-weight:300">📍 Gurugram, Haryana, India<br/>✉️ concierge@triptheory.in</p></div>
       <div><div style="font-size:0.57rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:13px">Product</div><button onclick="navLaunchClick()" style="display:block;font-size:0.76rem;color:#FFFFFF;font-weight:700;cursor:pointer;margin-bottom:7px;transition:color 0.2s;border:none;background:none;text-align:left;padding:0">Plan a Trip</button><button onclick="document.getElementById('how-it-works')?.scrollIntoView({behavior:'smooth'})" style="display:block;font-size:0.76rem;color:#FFFFFF;font-weight:700;cursor:pointer;margin-bottom:7px;transition:color 0.2s;border:none;background:none;text-align:left;padding:0">How It Works</button></div>
