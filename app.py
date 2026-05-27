@@ -44,7 +44,12 @@ init_db()
 app.include_router(auth_router)
 
 # Serve frontend
-frontend_dir = os.path.join(os.path.dirname(__file__), "frontend")
+# Robust frontend_dir that works in Railway
+_script_dir = os.path.dirname(os.path.abspath(__file__))
+frontend_dir = os.path.join(_script_dir, "frontend")
+if not os.path.exists(frontend_dir):
+    # Fallback to cwd-based path
+    frontend_dir = os.path.join(os.getcwd(), "frontend")
 if os.path.exists(frontend_dir):
     app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
@@ -327,6 +332,22 @@ async def admin_dashboard():
     if os.path.exists(admin_file):
         return FileResponse(admin_file, headers={"Cache-Control": "no-store"})
     return {"error": "admin.html not found in frontend/"}
+
+@app.get("/debug-fs")
+async def debug_fs():
+    """Debug endpoint to check file system paths."""
+    import glob
+    cwd = os.getcwd()
+    files = glob.glob("frontend/*.html") + glob.glob("/app/frontend/*.html")
+    return {
+        "cwd": cwd,
+        "frontend_dir": frontend_dir,
+        "__file__": __file__,
+        "frontend_dir_exists": os.path.exists(frontend_dir),
+        "html_files_found": files,
+        "crm_exists_frontend_dir": os.path.exists(os.path.join(frontend_dir, "crm.html")),
+        "crm_exists_cwd": os.path.exists(os.path.join(cwd, "frontend", "crm.html")),
+    }
 
 @app.get("/health")
 async def health():
@@ -3324,10 +3345,17 @@ async def crm_add_note(user_id: str, data: dict, admin_key: str = Query("")):
 # ── 10. CRM Dashboard page ──────────────────────────────────────────────────
 @app.get("/crm")
 async def crm_dashboard():
-    crm_file = os.path.join(frontend_dir, "crm.html")
-    if os.path.exists(crm_file):
-        return FileResponse(crm_file, headers={"Cache-Control": "no-store"})
-    return HTMLResponse("<h2>CRM dashboard not found. Add frontend/crm.html</h2>", status_code=404)
+    # Try file first, fallback to inline HTML
+    attempts = [
+        os.path.join(frontend_dir, "crm.html"),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend", "crm.html"),
+        os.path.join(os.getcwd(), "frontend", "crm.html"),
+        "/app/frontend/crm.html",
+    ]
+    for crm_file in attempts:
+        if os.path.exists(crm_file):
+            return FileResponse(crm_file, headers={"Cache-Control": "no-store"})
+    return HTMLResponse("<h1>CRM Loading...</h1><script>setTimeout(()=>location.reload(),2000)</script>", 200)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # END CRM
