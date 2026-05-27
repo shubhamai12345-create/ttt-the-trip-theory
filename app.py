@@ -3343,6 +3343,19 @@ async def crm_add_note(user_id: str, data: dict, admin_key: str = Query("")):
 
 
 # ── 10. CRM Dashboard page ──────────────────────────────────────────────────
+
+@app.get("/landing")
+async def landing_page():
+    attempts = [
+        os.path.join(frontend_dir, "landing.html"),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend", "landing.html"),
+        os.path.join(os.getcwd(), "frontend", "landing.html"),
+    ]
+    for f in attempts:
+        if os.path.exists(f):
+            return FileResponse(f, headers={"Cache-Control": "no-store"})
+    return HTMLResponse("<h2>Landing page not found</h2>", status_code=404)
+
 @app.get("/crm")
 async def crm_dashboard():
     # Try file first, fallback to inline HTML
