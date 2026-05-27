@@ -1,240 +1,481 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TTT CRM — CEO Command Centre</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
-:root{--gold:#B8860B;--gold-l:#FDF6E7;--gold-d:#7A5400;--bg:#FAFAF8;--sur:#FFFFFF;--bdr:#E8E4DC;--txt:#1A1A1A;--mut:#6B6860;--hnt:#A8A49C;--hot:#C0392B;--hot-bg:#FDF0EF;--warm:#C87D0A;--warm-bg:#FEF6E4;--cold:#1A6CA8;--cold-bg:#EBF4FC;--grn:#1A7A4A;--grn-bg:#E9F7EF;--rad:10px;}
+:root{
+  --gold:#B8860B;--gold-l:#FDF6E7;--gold-d:#7A5400;--gold-m:#E8C84A;
+  --bg:#F7F6F3;--sur:#FFFFFF;--bdr:#E5E2D9;--bdr2:#D0CCC0;
+  --txt:#1A1917;--mut:#6B6860;--hnt:#A8A49C;
+  --hot:#C0392B;--hot-bg:#FEF0EF;--hot-b:#F5C6C3;
+  --warm:#C87D0A;--warm-bg:#FEF6E4;--warm-b:#F5DBA3;
+  --cold:#1A6CA8;--cold-bg:#EBF4FC;--cold-b:#B8D8F0;
+  --grn:#1A7A4A;--grn-bg:#E8F6EF;--grn-b:#A3DEC0;
+  --purple:#6B3FA0;--purple-bg:#F3EEF9;
+  --rad:8px;--rad-lg:12px;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Georgia',serif;background:var(--bg);color:var(--txt);min-height:100vh}
-#loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh}
-.lcard{background:var(--sur);border:1px solid var(--bdr);border-radius:16px;padding:3rem 2.5rem;width:380px;text-align:center}
-.llogo{font-size:30px;font-weight:700;color:var(--gold);letter-spacing:3px;margin-bottom:4px}
-.lsub{font-size:11px;color:var(--hnt);letter-spacing:1px;text-transform:uppercase;margin-bottom:2rem}
-.lcard input{width:100%;padding:12px 16px;border:1px solid var(--bdr);border-radius:var(--rad);font-size:14px;margin-bottom:12px;background:var(--bg);font-family:'Georgia',serif;outline:none}
+body{font-family:'Georgia',serif;background:var(--bg);color:var(--txt);height:100vh;display:flex;flex-direction:column}
+
+/* ── Login ─────────────────────────────────────── */
+#loginScreen{display:flex;align-items:center;justify-content:center;flex:1;background:var(--bg)}
+.lcard{background:var(--sur);border:1px solid var(--bdr);border-radius:16px;padding:3rem 2.5rem;width:380px;text-align:center;box-shadow:0 2px 20px rgba(0,0,0,.06)}
+.llogo{font-size:32px;font-weight:700;color:var(--gold);letter-spacing:4px}
+.lsub{font-size:11px;color:var(--hnt);letter-spacing:1.5px;text-transform:uppercase;margin:4px 0 2rem}
+.lcard input{width:100%;padding:12px 16px;border:1px solid var(--bdr);border-radius:var(--rad);font-size:14px;margin-bottom:12px;background:var(--bg);font-family:inherit;outline:none;transition:border .2s}
 .lcard input:focus{border-color:var(--gold)}
-.lbtn{width:100%;padding:12px;background:var(--gold);color:#fff;border:none;border-radius:var(--rad);font-size:14px;cursor:pointer;letter-spacing:1px;font-family:'Georgia',serif}
+.lbtn{width:100%;padding:12px;background:var(--gold);color:#fff;border:none;border-radius:var(--rad);font-size:14px;cursor:pointer;letter-spacing:1px;font-family:inherit;transition:background .2s}
 .lbtn:hover{background:var(--gold-d)}
-.lerr{color:var(--hot);font-size:12px;margin-top:8px}
-#app{display:none}
-.topbar{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:50}
-.logo{font-size:20px;font-weight:700;color:var(--gold);letter-spacing:2px}
-.live-badge{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--grn);background:var(--grn-bg);padding:4px 12px;border-radius:20px}
-.ldot{width:7px;height:7px;background:var(--grn);border-radius:50%;animation:pulse 2s infinite}
+.lerr{color:var(--hot);font-size:12px;margin-top:8px;min-height:18px}
+
+/* ── App Shell ─────────────────────────────────── */
+#app{display:none;flex:1;flex-direction:column;overflow:hidden}
+.topbar{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:54px;flex-shrink:0}
+.logo{font-size:18px;font-weight:700;color:var(--gold);letter-spacing:2px}
+.topbar-mid{display:flex;gap:2px}
+.nav-btn{padding:6px 14px;font-size:12px;border:none;background:transparent;cursor:pointer;color:var(--mut);font-family:inherit;border-radius:var(--rad);letter-spacing:.3px;transition:all .15s}
+.nav-btn:hover{background:var(--bg);color:var(--txt)}
+.nav-btn.active{background:var(--gold-l);color:var(--gold-d);font-weight:500}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.live-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--grn);background:var(--grn-bg);padding:3px 10px;border-radius:20px;border:1px solid var(--grn-b)}
+.ldot{width:6px;height:6px;background:var(--grn);border-radius:50%;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.topbar-right{display:flex;align-items:center;gap:10px}
-.main{padding:2rem;max-width:1400px;margin:0 auto}
-.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:2rem}
-.mc{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--rad);padding:1.25rem 1rem;text-align:center}
-.ml{font-size:11px;color:var(--mut);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
-.mv{font-size:28px;font-weight:700}
-.ms{font-size:11px;color:var(--hnt);margin-top:4px}
-.controls{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap}
-.srch{flex:1;min-width:200px;max-width:300px;position:relative}
-.srch input{width:100%;padding:9px 12px 9px 34px;border:1px solid var(--bdr);border-radius:var(--rad);font-size:13px;background:var(--sur);font-family:'Georgia',serif;outline:none}
-.srch input:focus{border-color:var(--gold)}
-.srch-ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--hnt);font-size:16px}
-.tabs{display:flex;gap:4px}
-.tab{padding:7px 14px;font-size:12px;border:1px solid var(--bdr);border-radius:20px;cursor:pointer;background:var(--sur);color:var(--mut);font-family:'Georgia',serif}
-.tab.active{background:var(--txt);color:#fff;border-color:var(--txt)}
-.tab.hot.active{background:var(--hot);border-color:var(--hot)}
-.tab.warm.active{background:var(--warm);border-color:var(--warm)}
-.tab.cold.active{background:var(--cold);border-color:var(--cold)}
-select.srt{padding:8px 12px;border:1px solid var(--bdr);border-radius:var(--rad);font-size:12px;background:var(--sur);font-family:'Georgia',serif;color:var(--mut);outline:none;cursor:pointer}
-.btn-sm{padding:8px 14px;font-size:12px;border:1px solid var(--bdr);border-radius:var(--rad);background:var(--sur);cursor:pointer;font-family:'Georgia',serif;color:var(--mut)}
-.btn-sm:hover{border-color:var(--gold);color:var(--gold-d)}
-.btn-gold{background:var(--gold);color:#fff;border:none;border-radius:var(--rad);padding:8px 16px;font-size:12px;cursor:pointer;font-family:'Georgia',serif}
+.icon-btn{width:32px;height:32px;border-radius:var(--rad);border:1px solid var(--bdr);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--mut)}
+.icon-btn:hover{background:var(--bg)}
+
+/* ── Main content area ─────────────────────────── */
+.app-body{flex:1;overflow:hidden;display:flex}
+.page{display:none;flex:1;overflow-y:auto;padding:1.5rem}
+.page.active{display:block}
+
+/* ── Metric cards ──────────────────────────────── */
+.metrics-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:1.5rem}
+.mc{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--rad-lg);padding:1rem;position:relative;overflow:hidden}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--bdr)}
+.mc.hot::before{background:var(--hot)}
+.mc.warm::before{background:var(--warm)}
+.mc.cold::before{background:var(--cold)}
+.mc.grn::before{background:var(--grn)}
+.mc.gold::before{background:var(--gold)}
+.mc-label{font-size:11px;color:var(--mut);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
+.mc-val{font-size:26px;font-weight:700;line-height:1}
+.mc-sub{font-size:11px;color:var(--hnt);margin-top:5px}
+.mc-delta{font-size:11px;margin-top:4px}
+.mc-delta.up{color:var(--grn)} .mc-delta.dn{color:var(--hot)}
+
+/* ── Section header ────────────────────────────── */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.sec-title{font-size:15px;font-weight:500}
+.sec-actions{display:flex;gap:6px;align-items:center}
+
+/* ── Buttons ───────────────────────────────────── */
+.btn{padding:7px 14px;font-size:12px;border-radius:var(--rad);cursor:pointer;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn-outline{border:1px solid var(--bdr2);background:var(--sur);color:var(--mut)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold-d)}
+.btn-gold{background:var(--gold);color:#fff;border:none}
 .btn-gold:hover{background:var(--gold-d)}
-.tw{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--rad);overflow:hidden}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;padding:11px 14px;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--mut);border-bottom:1px solid var(--bdr);background:var(--bg);font-weight:400}
-td{padding:12px 14px;border-bottom:1px solid var(--bdr);vertical-align:middle}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:#FAFAF3;cursor:pointer}
-.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
-.nc{display:flex;align-items:center;gap:10px}
-.nn{font-weight:600;font-size:13px}
-.ns{font-size:11px;color:var(--hnt);margin-top:1px}
-.sb-wrap{display:flex;align-items:center;gap:8px}
-.sb{height:5px;flex:1;border-radius:3px;background:var(--bdr);overflow:hidden}
-.sf{height:100%;border-radius:3px;transition:width .4s}
-.sn{font-size:13px;font-weight:700;min-width:28px}
-.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:.3px}
-.bh{background:var(--hot-bg);color:var(--hot)}
-.bw{background:var(--warm-bg);color:var(--warm)}
-.bc{background:var(--cold-bg);color:var(--cold)}
-/* social icons in table */
-.soc-row{display:flex;gap:5px}
-.soc-ic{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:1px solid var(--bdr);background:var(--bg);color:var(--mut);text-decoration:none;cursor:default;transition:all .2s}
-.soc-ic.ig-active{background:#fce4ec;border-color:#e91e8c;color:#ad1457;cursor:pointer}
-.soc-ic.ig-active:hover{background:#e91e8c;color:#fff}
-.soc-ic.wa-active{background:#e8f5e9;border-color:#25D366;color:#1B5E20;cursor:pointer}
-.soc-ic.wa-active:hover{background:#25D366;color:#fff}
-.soc-ic.li-active{background:#e3f2fd;border-color:#0077b5;color:#01579b;cursor:pointer}
-.soc-ic.li-active:hover{background:#0077b5;color:#fff}
-.act-btn{font-size:11px;padding:5px 10px;border:1px solid var(--bdr);border-radius:6px;background:var(--sur);cursor:pointer;color:var(--mut);font-family:'Georgia',serif;white-space:nowrap}
-.act-btn:hover{border-color:var(--gold);color:var(--gold-d)}
-.empty{text-align:center;padding:4rem;color:var(--hnt);font-size:14px}
-/* Detail panel */
-.ov{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:none;justify-content:flex-end}
-.ov.open{display:flex}
-.dp{width:420px;height:100vh;background:var(--sur);border-left:1px solid var(--bdr);overflow-y:auto;padding:1.5rem;animation:si .25s ease}
-@keyframes si{from{transform:translateX(60px);opacity:0}to{transform:translateX(0);opacity:1}}
-.dc{float:right;background:none;border:none;font-size:24px;cursor:pointer;color:var(--hnt);line-height:1;padding:0}
-.dav{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;margin:1rem auto .75rem}
-.dn{text-align:center;font-size:17px;font-weight:700}
-.de{text-align:center;font-size:12px;color:var(--mut);margin-top:3px}
-.bsv{font-size:52px;font-weight:700;text-align:center;margin:1rem 0 2px}
-.bsl{text-align:center;font-size:12px;color:var(--mut);margin-bottom:1rem}
-.sbk{background:var(--bg);border-radius:var(--rad);padding:1rem;border:1px solid var(--bdr)}
+.btn-ghost{border:none;background:transparent;color:var(--mut)}
+.btn-ghost:hover{background:var(--bg);color:var(--txt)}
+.btn-danger{border:1px solid var(--hot-b);background:var(--hot-bg);color:var(--hot)}
+.btn-sm{padding:5px 10px;font-size:11px}
+
+/* ── Search & Filters ──────────────────────────── */
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;min-width:180px;max-width:280px}
+.search-wrap input{width:100%;padding:8px 10px 8px 32px;border:1px solid var(--bdr);border-radius:var(--rad);font-size:13px;background:var(--sur);font-family:inherit;outline:none}
+.search-wrap input:focus{border-color:var(--gold)}
+.search-ic{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--hnt);font-size:14px}
+.filter-chips{display:flex;gap:4px;flex-wrap:wrap}
+.chip{padding:5px 12px;font-size:12px;border:1px solid var(--bdr);border-radius:20px;cursor:pointer;background:var(--sur);color:var(--mut);font-family:inherit;transition:all .15s}
+.chip:hover{border-color:var(--bdr2)}
+.chip.active{background:var(--txt);color:#fff;border-color:var(--txt)}
+.chip.hot.active{background:var(--hot);border-color:var(--hot)}
+.chip.warm.active{background:var(--warm);border-color:var(--warm)}
+.chip.cold.active{background:var(--cold);border-color:var(--cold)}
+select.sel{padding:7px 10px;border:1px solid var(--bdr);border-radius:var(--rad);font-size:12px;background:var(--sur);font-family:inherit;color:var(--mut);outline:none;cursor:pointer}
+
+/* ── Lead Table ────────────────────────────────── */
+.table-card{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--rad-lg);overflow:hidden}
+.lead-table{width:100%;border-collapse:collapse;font-size:13px}
+.lead-table th{text-align:left;padding:10px 14px;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--mut);border-bottom:1px solid var(--bdr);background:var(--bg);font-weight:400}
+.lead-table td{padding:11px 14px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+.lead-table tr:last-child td{border-bottom:none}
+.lead-table tr:hover td{background:#FAFAF4;cursor:pointer}
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.lead-name-cell{display:flex;align-items:center;gap:9px}
+.lead-name{font-weight:600;font-size:13px}
+.lead-meta{font-size:11px;color:var(--hnt);margin-top:1px}
+.stage-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;border:1px solid}
+.badge-new{background:#F3EEF9;color:#6B3FA0;border-color:#D4C2F0}
+.badge-contacted{background:#EBF4FC;color:#1A6CA8;border-color:#B8D8F0}
+.badge-qualified{background:#FEF6E4;color:#C87D0A;border-color:#F5DBA3}
+.badge-proposal{background:#FDF0EF;color:#C0392B;border-color:#F5C6C3}
+.badge-booking{background:#E8F6EF;color:#1A7A4A;border-color:#A3DEC0}
+.badge-won{background:#E8F6EF;color:#1A7A4A;border-color:#A3DEC0;font-weight:700}
+.badge-lost{background:#F5F5F5;color:#888;border-color:#DDD}
+.score-bar-wrap{display:flex;align-items:center;gap:7px}
+.sbar{height:4px;flex:1;background:var(--bdr);border-radius:2px;overflow:hidden}
+.sfill{height:100%;border-radius:2px;transition:width .4s}
+.snum{font-size:13px;font-weight:700;min-width:26px}
+.soc-row{display:flex;gap:4px}
+.soc{width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:1px solid var(--bdr);background:var(--bg);color:var(--mut);cursor:default;text-decoration:none;transition:all .15s}
+.soc.ig{background:#fce4ec;border-color:#e91e8c;color:#ad1457;cursor:pointer}
+.soc.ig:hover{background:#e91e8c;color:#fff}
+.soc.wa{background:#e8f5e9;border-color:#25D366;color:#1B5E20;cursor:pointer}
+.soc.wa:hover{background:#25D366;color:#fff}
+.soc.li{background:#e3f2fd;border-color:#0077b5;color:#01579b;cursor:pointer}
+.soc.li:hover{background:#0077b5;color:#fff}
+.time-cell{font-size:12px;color:var(--hnt)}
+
+/* ── Pipeline View ─────────────────────────────── */
+.pipeline{display:flex;gap:12px;overflow-x:auto;padding-bottom:1rem;min-height:500px}
+.pipe-col{min-width:220px;flex-shrink:0}
+.pipe-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:var(--rad) var(--rad) 0 0;margin-bottom:8px;font-size:12px;font-weight:500;letter-spacing:.3px}
+.pipe-cards{display:flex;flex-direction:column;gap:8px;min-height:200px}
+.pipe-card{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--rad);padding:10px;cursor:pointer;transition:box-shadow .15s}
+.pipe-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.pipe-card-name{font-size:13px;font-weight:600;margin-bottom:3px}
+.pipe-card-meta{font-size:11px;color:var(--hnt)}
+.pipe-card-score{display:flex;align-items:center;gap:5px;margin-top:7px}
+.pipe-card-sbar{height:3px;flex:1;background:var(--bdr);border-radius:2px;overflow:hidden}
+.pipe-card-sfill{height:100%;border-radius:2px}
+
+/* ── Detail Panel ──────────────────────────────── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:200;display:none;justify-content:flex-end}
+.overlay.open{display:flex}
+.detail-panel{width:460px;height:100vh;background:var(--sur);display:flex;flex-direction:column;border-left:1px solid var(--bdr);animation:slideIn .2s ease;overflow:hidden}
+@keyframes slideIn{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+.dp-header{padding:1rem 1.25rem;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.dp-body{flex:1;overflow-y:auto;padding:1.25rem}
+.dp-tabs{display:flex;gap:0;border-bottom:1px solid var(--bdr);flex-shrink:0;padding:0 1.25rem}
+.dp-tab{padding:8px 14px;font-size:12px;cursor:pointer;border-bottom:2px solid transparent;color:var(--mut);font-family:inherit;background:none;border-top:none;border-left:none;border-right:none;margin-bottom:-1px;transition:all .15s}
+.dp-tab.active{color:var(--txt);border-bottom-color:var(--gold);font-weight:500}
+.dp-section{margin-bottom:1.25rem}
+.dp-section-title{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--bdr)}
+.info-grid{display:grid;grid-template-columns:90px 1fr;gap:4px 8px;font-size:13px}
+.info-label{color:var(--hnt);padding:3px 0;font-size:12px}
+.info-val{padding:3px 0;color:var(--txt)}
+.big-score{font-size:48px;font-weight:700;text-align:center;line-height:1;margin:0.5rem 0 2px}
+.score-tier-label{text-align:center;font-size:12px;color:var(--mut);margin-bottom:.75rem}
+.sbk{background:var(--bg);border-radius:var(--rad);padding:10px 14px;border:1px solid var(--bdr)}
 .sbr{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;color:var(--mut)}
-.sbr span:last-child{font-weight:700;color:var(--txt)}
-.st{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin:1.5rem 0 .75rem;padding-bottom:6px;border-bottom:1px solid var(--bdr)}
-.ir{display:flex;gap:8px;padding:5px 0;font-size:12px;align-items:center}
-.il{color:var(--hnt);min-width:80px;flex-shrink:0;font-size:11px}
-.iv{color:var(--txt)}
-/* big social buttons in detail */
-.soc-btn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border-radius:var(--rad);font-size:13px;cursor:pointer;text-decoration:none;font-family:'Georgia',serif;transition:all .2s;margin-bottom:8px;border:1px solid var(--bdr)}
-.soc-btn.ig{background:#fce4ec;border-color:#e91e8c;color:#ad1457}
-.soc-btn.ig:hover{background:#e91e8c;color:#fff}
-.soc-btn.wa{background:#e8f5e9;border-color:#25D366;color:#1B5E20}
-.soc-btn.wa:hover{background:#25D366;color:#fff}
-.soc-btn.li{background:#e3f2fd;border-color:#0077b5;color:#01579b}
-.soc-btn.li:hover{background:#0077b5;color:#fff}
-.soc-btn.email{background:var(--bg);border-color:var(--bdr);color:var(--mut)}
-.soc-btn.email:hover{border-color:var(--gold);color:var(--gold-d)}
-.soc-btn span{font-size:20px}
-.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.sx{background:var(--bg);border:1px solid var(--bdr);border-radius:var(--rad);padding:10px;text-align:center}
-.sxn{font-size:22px;font-weight:700}
-.sxl{font-size:10px;color:var(--hnt);text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
-.ai{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--bdr)}
-.ad{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0}
-.at{font-size:12px;color:var(--mut);line-height:1.5}
-.atm{font-size:11px;color:var(--hnt);margin-top:2px}
-.ein{width:100%;padding:8px 10px;border:1px solid var(--bdr);border-radius:6px;font-size:12px;background:var(--bg);font-family:'Georgia',serif;color:var(--txt);margin-bottom:8px;outline:none}
-.ein:focus{border-color:var(--gold)}
-.sbtn{padding:8px 20px;background:var(--gold);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Georgia',serif}
-.notes-area{width:100%;padding:8px 10px;border:1px solid var(--bdr);border-radius:6px;font-size:12px;background:var(--bg);font-family:'Georgia',serif;color:var(--txt);outline:none;resize:vertical;min-height:70px}
-.notes-area:focus{border-color:var(--gold)}
-.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;background:var(--gold-l);color:var(--gold-d);margin:2px}
-.toast{position:fixed;bottom:2rem;right:2rem;background:var(--txt);color:#fff;padding:10px 20px;border-radius:var(--rad);font-size:13px;z-index:200;display:none;animation:fu .3s ease}
-@keyframes fu{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
-/* WA modal */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center}
-.modal-bg.open{display:flex}
-.modal{background:var(--sur);border-radius:16px;padding:2rem;width:500px;max-width:95vw}
-.modal h3{font-size:16px;font-weight:600;margin-bottom:1rem}
-.modal textarea{width:100%;padding:12px;border:1px solid var(--bdr);border-radius:var(--rad);font-size:13px;font-family:'Georgia',serif;outline:none;resize:vertical;min-height:140px}
-.modal textarea:focus{border-color:var(--gold)}
-.modal-actions{display:flex;gap:8px;margin-top:1rem;justify-content:flex-end}
-@media(max-width:900px){.metrics{grid-template-columns:repeat(3,1fr)}.dp{width:100%}}
+.sbr strong{color:var(--txt);font-weight:500}
+/* Stage selector */
+.stage-selector{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.stage-opt{padding:4px 10px;font-size:11px;border-radius:10px;cursor:pointer;border:1px solid var(--bdr);background:var(--bg);color:var(--mut);font-family:inherit;transition:all .15s}
+.stage-opt:hover{border-color:var(--bdr2)}
+.stage-opt.sel-new{background:#F3EEF9;color:#6B3FA0;border-color:#D4C2F0}
+.stage-opt.sel-contacted{background:#EBF4FC;color:#1A6CA8;border-color:#B8D8F0}
+.stage-opt.sel-qualified{background:#FEF6E4;color:#C87D0A;border-color:#F5DBA3}
+.stage-opt.sel-proposal{background:#FDF0EF;color:#C0392B;border-color:#F5C6C3}
+.stage-opt.sel-booking{background:#E8F6EF;color:#1A7A4A;border-color:#A3DEC0}
+.stage-opt.sel-won{background:#E8F6EF;color:#1A7A4A;border-color:#A3DEC0;font-weight:700}
+.stage-opt.sel-lost{background:#F5F5F5;color:#888;border-color:#DDD}
+/* Social action buttons */
+.soc-action{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--rad);border:1px solid var(--bdr);background:var(--bg);margin-bottom:6px;cursor:pointer;text-decoration:none;font-family:inherit;font-size:13px;transition:all .15s;color:var(--txt)}
+.soc-action:hover{box-shadow:0 1px 5px rgba(0,0,0,.1)}
+.soc-action.ig:hover{background:#fce4ec;border-color:#e91e8c;color:#ad1457}
+.soc-action.wa:hover{background:#e8f5e9;border-color:#25D366;color:#1B5E20}
+.soc-action.li:hover{background:#e3f2fd;border-color:#0077b5;color:#01579b}
+.soc-action.email:hover{background:var(--gold-l);border-color:var(--gold);color:var(--gold-d)}
+.soc-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.soc-icon.ig{background:#fce4ec}
+.soc-icon.wa{background:#e8f5e9}
+.soc-icon.li{background:#e3f2fd}
+.soc-icon.email{background:var(--gold-l)}
+/* Activity timeline */
+.act-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--bdr)}
+.act-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.act-content{flex:1}
+.act-text{font-size:13px;color:var(--txt);line-height:1.4}
+.act-time{font-size:11px;color:var(--hnt);margin-top:2px}
+.act-badge{display:inline-block;padding:1px 7px;border-radius:8px;font-size:10px;font-weight:500;margin-right:5px}
+/* Edit fields */
+.edit-field{display:grid;grid-template-columns:90px 1fr;gap:8px;align-items:center;margin-bottom:8px}
+.edit-label{font-size:12px;color:var(--hnt)}
+.edit-input{padding:7px 10px;border:1px solid var(--bdr);border-radius:var(--rad);font-size:12px;background:var(--bg);font-family:inherit;color:var(--txt);outline:none;width:100%}
+.edit-input:focus{border-color:var(--gold)}
+textarea.edit-input{resize:vertical;min-height:60px}
+/* Tasks */
+.task-item{display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--bdr);border-radius:var(--rad);margin-bottom:6px;background:var(--sur)}
+.task-check{width:16px;height:16px;border-radius:3px;border:1.5px solid var(--bdr2);cursor:pointer;flex-shrink:0}
+.task-check.done{background:var(--grn);border-color:var(--grn)}
+.task-text{flex:1;font-size:13px}
+.task-due{font-size:11px;color:var(--hnt)}
+.task-overdue{color:var(--hot)}
+/* Notes */
+.note-item{background:var(--gold-l);border-radius:var(--rad);padding:10px;margin-bottom:8px;border-left:3px solid var(--gold)}
+.note-text{font-size:13px;color:var(--txt)}
+.note-meta{font-size:11px;color:var(--mut);margin-top:5px}
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat-box{background:var(--bg);border:1px solid var(--bdr);border-radius:var(--rad);padding:10px;text-align:center}
+.stat-num{font-size:20px;font-weight:700}
+.stat-lbl{font-size:10px;color:var(--hnt);text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+
+/* ── Analytics Page ────────────────────────────── */
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:1.5rem}
+.analytics-grid.three{grid-template-columns:repeat(3,1fr)}
+.chart-card{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--rad-lg);padding:1.25rem}
+.chart-title{font-size:13px;font-weight:500;margin-bottom:1rem;color:var(--txt)}
+.funnel-bar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.funnel-label{font-size:12px;color:var(--mut);min-width:80px}
+.funnel-track{flex:1;height:24px;background:var(--bg);border-radius:4px;overflow:hidden;border:1px solid var(--bdr)}
+.funnel-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding:0 8px;font-size:11px;font-weight:500;color:#fff;transition:width .6s}
+.funnel-count{font-size:12px;font-weight:600;min-width:30px;text-align:right}
+.activity-feed{max-height:320px;overflow-y:auto}
+.feed-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--bdr);font-size:12px}
+.feed-dot{width:7px;height:7px;border-radius:50%;margin-top:3px;flex-shrink:0}
+.feed-content{flex:1;color:var(--mut);line-height:1.4}
+.feed-time{font-size:11px;color:var(--hnt);white-space:nowrap}
+.source-row{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:13px}
+.source-bar{flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.source-fill{height:100%;border-radius:3px;background:var(--gold)}
+.source-count{font-size:12px;font-weight:600;min-width:30px;text-align:right}
+
+/* ── Tasks Page ────────────────────────────────── */
+.tasks-list{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--rad-lg);overflow:hidden}
+.task-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--bdr);cursor:pointer;transition:background .1s}
+.task-row:hover{background:var(--bg)}
+.task-row:last-child{border-bottom:none}
+.task-row .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--bdr2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;transition:all .2s}
+.task-row .check.done{background:var(--grn);border-color:var(--grn);color:#fff}
+.task-row .task-info{flex:1}
+.task-row .task-title{font-size:13px;font-weight:500}
+.task-row .task-sub{font-size:11px;color:var(--hnt);margin-top:2px}
+.task-row .task-due-tag{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--warm-bg);color:var(--warm);border:1px solid var(--warm-b)}
+.task-row .task-due-tag.overdue{background:var(--hot-bg);color:var(--hot);border-color:var(--hot-b)}
+.task-row .task-due-tag.done{background:var(--grn-bg);color:var(--grn);border-color:var(--grn-b)}
+.empty-state{text-align:center;padding:3rem;color:var(--hnt);font-size:14px}
+
+/* ── WA Modal ──────────────────────────────────── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--sur);border-radius:14px;padding:1.75rem;width:500px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.15)}
+.modal-title{font-size:15px;font-weight:500;margin-bottom:.75rem;display:flex;align-items:center;gap:8px}
+.modal-to{font-size:12px;color:var(--mut);margin-bottom:.75rem;padding:8px 10px;background:var(--bg);border-radius:var(--rad)}
+.modal-textarea{width:100%;padding:12px;border:1px solid var(--bdr);border-radius:var(--rad);font-size:13px;font-family:inherit;outline:none;resize:vertical;min-height:130px}
+.modal-textarea:focus{border-color:var(--gold)}
+.modal-actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
+
+/* ── Toast ─────────────────────────────────────── */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--txt);color:#fff;padding:9px 18px;border-radius:var(--rad);font-size:13px;z-index:400;display:none;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media(max-width:900px){.metrics-row{grid-template-columns:repeat(3,1fr)}.detail-panel{width:100%}.analytics-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
+<!-- LOGIN -->
 <div id="loginScreen">
   <div class="lcard">
     <div class="llogo">TTT</div>
     <div class="lsub">CRM · CEO Command Centre</div>
-    <input type="password" id="keyIn" placeholder="Enter admin key" onkeydown="if(event.key==='Enter')login()">
-    <button class="lbtn" onclick="login()">ACCESS CRM</button>
+    <input type="password" id="keyIn" placeholder="Enter admin key" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="lbtn" onclick="doLogin()">ACCESS CRM</button>
     <div class="lerr" id="lerr"></div>
   </div>
 </div>
 
+<!-- APP -->
 <div id="app">
   <div class="topbar">
-    <div>
-      <span class="logo">TTT</span>
-      <span style="font-size:11px;color:var(--hnt);margin-left:10px;letter-spacing:.5px">CRM · CEO COMMAND CENTRE</span>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="logo">TTT</div>
+      <span style="font-size:11px;color:var(--hnt);letter-spacing:.5px">CRM</span>
+    </div>
+    <div class="topbar-mid">
+      <button class="nav-btn active" onclick="switchPage('leads',this)">Leads</button>
+      <button class="nav-btn" onclick="switchPage('pipeline',this)">Pipeline</button>
+      <button class="nav-btn" onclick="switchPage('analytics',this)">Analytics</button>
+      <button class="nav-btn" onclick="switchPage('tasks',this)">Tasks <span id="task-badge" style="background:var(--hot);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:2px;display:none"></span></button>
     </div>
     <div class="topbar-right">
-      <div class="live-badge"><div class="ldot"></div><span id="liveCount">Live</span></div>
+      <div class="live-pill"><div class="ldot"></div><span id="liveCnt">Live</span></div>
       <span id="lastUp" style="font-size:11px;color:var(--hnt)"></span>
-      <button class="btn-sm" onclick="loadAll()">↻ Refresh</button>
-      <button class="btn-gold" onclick="exportCSV()">↓ Export</button>
+      <button class="icon-btn" onclick="loadAll()" title="Refresh">↻</button>
+      <button class="btn btn-gold btn-sm" onclick="exportCSV()">↓ Export</button>
     </div>
   </div>
 
-  <div class="main">
-    <div class="metrics">
-      <div class="mc"><div class="ml">Total leads</div><div class="mv" id="m0">—</div></div>
-      <div class="mc"><div class="ml">🔥 Hot</div><div class="mv" id="m1" style="color:var(--hot)">—</div><div class="ms">75+ score</div></div>
-      <div class="mc"><div class="ml">🟡 Warm</div><div class="mv" id="m2" style="color:var(--warm)">—</div><div class="ms">40–74</div></div>
-      <div class="mc"><div class="ml">🔵 Cold</div><div class="mv" id="m3" style="color:var(--cold)">—</div><div class="ms">0–39</div></div>
-      <div class="mc"><div class="ml">Bookings</div><div class="mv" id="m4" style="color:var(--grn)">—</div></div>
-      <div class="mc"><div class="ml">Avg score</div><div class="mv" id="m5" style="color:var(--gold-d)">—</div></div>
+  <div class="app-body">
+
+    <!-- LEADS PAGE -->
+    <div class="page active" id="page-leads">
+      <div class="metrics-row" id="metrics"></div>
+      <div class="sec-hdr">
+        <span class="sec-title" id="leads-count-label">All Leads</span>
+        <div class="sec-actions">
+          <button class="btn btn-outline btn-sm" onclick="openBulkWA()">📱 Bulk WhatsApp</button>
+          <button class="btn btn-outline btn-sm" onclick="exportCSV()">↓ CSV</button>
+        </div>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-ic">⌕</span>
+          <input type="text" id="si" placeholder="Search leads..." oninput="renderLeads()">
+        </div>
+        <div class="filter-chips">
+          <button class="chip active" onclick="setTier('all',this)">All</button>
+          <button class="chip hot" onclick="setTier('hot',this)">🔥 Hot</button>
+          <button class="chip warm" onclick="setTier('warm',this)">🟡 Warm</button>
+          <button class="chip cold" onclick="setTier('cold',this)">🔵 Cold</button>
+        </div>
+        <select class="sel" id="stageFilter" onchange="renderLeads()">
+          <option value="">All stages</option>
+          <option>new</option><option>contacted</option><option>qualified</option>
+          <option>proposal</option><option>booking</option><option>won</option><option>lost</option>
+        </select>
+        <select class="sel" id="sortSel" onchange="renderLeads()">
+          <option value="score">By score</option>
+          <option value="recent">Most recent</option>
+          <option value="activity">Most active</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </div>
+      <div class="table-card">
+        <table class="lead-table">
+          <thead><tr>
+            <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"> Lead</th>
+            <th>Contact</th><th>Stage</th><th>Social reach</th>
+            <th style="width:140px">Lead score</th><th>Activities</th>
+            <th>Last active</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
     </div>
 
-    <div class="controls">
-      <div class="srch">
-        <span class="srch-ic">⌕</span>
-        <input type="text" id="si" placeholder="Search leads..." oninput="render()">
+    <!-- PIPELINE PAGE -->
+    <div class="page" id="page-pipeline">
+      <div class="sec-hdr" style="margin-bottom:1.5rem">
+        <span class="sec-title">Pipeline view</span>
+        <span style="font-size:12px;color:var(--hnt)">Click any card to open lead details</span>
       </div>
-      <div class="tabs">
-        <button class="tab active" onclick="setTier('all',this)">All</button>
-        <button class="tab hot"   onclick="setTier('hot',this)">🔥 Hot</button>
-        <button class="tab warm"  onclick="setTier('warm',this)">🟡 Warm</button>
-        <button class="tab cold"  onclick="setTier('cold',this)">🔵 Cold</button>
-      </div>
-      <select class="srt" id="srt" onchange="render()">
-        <option value="score">By score</option>
-        <option value="recent">Most recent</option>
-        <option value="activity">Most active</option>
-        <option value="name">Name A–Z</option>
-      </select>
-      <button class="btn-sm" onclick="openBulkWA()">📱 Bulk WhatsApp</button>
+      <div class="pipeline" id="pipelineBoard"></div>
     </div>
 
-    <div class="tw">
-      <table>
-        <thead><tr>
-          <th>Lead</th><th>Contact</th><th>Social reach</th>
-          <th style="width:150px">Lead score</th><th>Status</th>
-          <th>Visits</th><th>Chats</th><th>Last active</th><th>Actions</th>
-        </tr></thead>
-        <tbody id="tb"></tbody>
-      </table>
+    <!-- ANALYTICS PAGE -->
+    <div class="page" id="page-analytics">
+      <div class="sec-hdr" style="margin-bottom:1.5rem"><span class="sec-title">Analytics & Insights</span></div>
+      <div class="analytics-grid three">
+        <div class="chart-card">
+          <div class="chart-title">Lead funnel</div>
+          <div id="funnelChart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Lead sources</div>
+          <canvas id="sourceChart" height="180"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Score distribution</div>
+          <canvas id="scoreChart" height="180"></canvas>
+        </div>
+      </div>
+      <div class="analytics-grid">
+        <div class="chart-card">
+          <div class="chart-title">Activity breakdown</div>
+          <canvas id="activityChart" height="200"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Live activity feed</div>
+          <div class="activity-feed" id="actFeed"></div>
+        </div>
+      </div>
     </div>
+
+    <!-- TASKS PAGE -->
+    <div class="page" id="page-tasks">
+      <div class="sec-hdr" style="margin-bottom:1rem">
+        <span class="sec-title">Follow-up tasks</span>
+        <div class="sec-actions">
+          <select class="sel" id="taskFilter" onchange="renderTasks()">
+            <option value="all">All tasks</option>
+            <option value="pending">Pending</option>
+            <option value="overdue">Overdue</option>
+            <option value="done">Completed</option>
+          </select>
+          <button class="btn btn-gold btn-sm" onclick="openAddTask()">+ Add task</button>
+        </div>
+      </div>
+      <div class="tasks-list" id="tasksList"></div>
+    </div>
+
   </div>
 </div>
 
-<!-- Detail panel -->
-<div class="ov" id="ov" onclick="if(event.target===this)closeDet()">
-  <div class="dp" id="dp"></div>
+<!-- DETAIL PANEL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeDet()">
+  <div class="detail-panel">
+    <div class="dp-header">
+      <div id="dp-title" style="font-size:15px;font-weight:600"></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="openAddTaskForLead(currentLead?.user_id)">+ Task</button>
+        <button class="btn btn-ghost btn-sm" style="font-size:16px;padding:5px 8px" onclick="closeDet()">×</button>
+      </div>
+    </div>
+    <div class="dp-tabs">
+      <button class="dp-tab active" onclick="switchDpTab('overview',this)">Overview</button>
+      <button class="dp-tab" onclick="switchDpTab('activities',this)">Activity <span id="act-count" style="font-size:10px;background:var(--bg);padding:1px 5px;border-radius:8px;margin-left:3px"></span></button>
+      <button class="dp-tab" onclick="switchDpTab('edit',this)">Edit</button>
+      <button class="dp-tab" onclick="switchDpTab('notes',this)">Notes</button>
+    </div>
+    <div class="dp-body" id="dpBody"></div>
+  </div>
 </div>
 
-<!-- WhatsApp message modal -->
-<div class="modal-bg" id="waMod">
-  <div class="modal">
-    <h3>📱 WhatsApp Message</h3>
-    <div style="font-size:12px;color:var(--mut);margin-bottom:10px">To: <span id="waRecip" style="font-weight:600;color:var(--txt)"></span></div>
-    <textarea id="waTxt"></textarea>
+<!-- WA MODAL -->
+<div class="modal-overlay" id="waMod">
+  <div class="modal-box">
+    <div class="modal-title">📱 WhatsApp message</div>
+    <div class="modal-to" id="waTo"></div>
+    <textarea class="modal-textarea" id="waTxt"></textarea>
     <div class="modal-actions">
-      <button class="btn-sm" onclick="document.getElementById('waMod').classList.remove('open')">Cancel</button>
-      <button class="btn-gold" onclick="sendWA()">Open WhatsApp ↗</button>
-      <button class="btn-sm" onclick="copyWAText()">Copy text</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('waMod').classList.remove('open')">Cancel</button>
+      <button class="btn btn-outline btn-sm" onclick="copyWAText()">Copy text</button>
+      <button class="btn btn-gold" onclick="sendWA()">Open WhatsApp ↗</button>
     </div>
   </div>
 </div>
 
-<!-- Bulk WA modal -->
-<div class="modal-bg" id="bulkMod">
-  <div class="modal">
-    <h3>📱 Bulk WhatsApp Campaign</h3>
-    <div style="font-size:12px;color:var(--mut);margin-bottom:8px">Use <code style="background:var(--bg);padding:2px 5px;border-radius:4px">{{name}}</code> for personalisation</div>
-    <select class="srt" style="width:100%;margin-bottom:10px" id="bulkTier">
-      <option value="all">All leads</option>
-      <option value="hot">Hot leads only 🔥</option>
-      <option value="warm">Warm leads only 🟡</option>
-      <option value="cold">Cold leads only 🔵</option>
+<!-- BULK WA MODAL -->
+<div class="modal-overlay" id="bulkMod">
+  <div class="modal-box">
+    <div class="modal-title">📱 Bulk WhatsApp campaign</div>
+    <div style="font-size:12px;color:var(--mut);margin-bottom:8px">Use <code style="background:var(--bg);padding:1px 5px;border-radius:4px">{{name}}</code> for personalisation. Links for all leads will be copied to clipboard.</div>
+    <select class="sel" style="width:100%;margin-bottom:10px" id="bulkTier">
+      <option value="all">All leads with phone</option>
+      <option value="hot">Hot leads 🔥</option>
+      <option value="warm">Warm leads 🟡</option>
+      <option value="cold">Cold leads 🔵</option>
     </select>
-    <textarea id="bulkTxt" style="width:100%;padding:12px;border:1px solid var(--bdr);border-radius:var(--rad);font-size:13px;font-family:'Georgia',serif;outline:none;resize:vertical;min-height:120px">Hi {{name}}! 👋 Your next adventure awaits — plan it with India's first AI Travel Concierge at thetriptheory.com ✈️</textarea>
+    <textarea class="modal-textarea" id="bulkMsg" style="min-height:100px">Hi {{name}}! 👋 Your next adventure awaits — plan it with India's first AI Travel Concierge at thetriptheory.com ✈️</textarea>
     <div class="modal-actions">
-      <button class="btn-sm" onclick="document.getElementById('bulkMod').classList.remove('open')">Cancel</button>
-      <button class="btn-gold" onclick="runBulk()">Generate WA links ↗</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('bulkMod').classList.remove('open')">Cancel</button>
+      <button class="btn btn-gold" onclick="runBulk()">Generate &amp; copy all links ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TASK MODAL -->
+<div class="modal-overlay" id="taskMod">
+  <div class="modal-box" style="width:420px">
+    <div class="modal-title">+ New follow-up task</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <input class="edit-input" id="taskTitle" placeholder="Task description..." style="width:100%">
+      <input class="edit-input" id="taskDue" type="date" style="width:100%">
+      <select class="sel" id="taskPriority" style="width:100%">
+        <option value="normal">Normal priority</option>
+        <option value="high">High priority</option>
+        <option value="urgent">Urgent</option>
+      </select>
+      <input class="edit-input" id="taskLeadId" type="hidden">
+    </div>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn btn-ghost" onclick="document.getElementById('taskMod').classList.remove('open')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveTask()">Save task</button>
     </div>
   </div>
 </div>
@@ -242,58 +483,69 @@ tr:hover td{background:#FAFAF3;cursor:pointer}
 <div class="toast" id="toast"></div>
 
 <script>
-const COLORS=[{bg:'#FDF0EF',c:'#7B1A14'},{bg:'#EEF8F4',c:'#0B4F30'},{bg:'#EEF4FD',c:'#103A6A'},{bg:'#FDF6E7',c:'#6B430A'},{bg:'#F3EEF8',c:'#4A1E7A'},{bg:'#FEF0F5',c:'#7A1840'},{bg:'#FFFBE6',c:'#6B5A00'}];
-let KEY='', all=[], tier='all', waUserId='', waPhone='';
+const STAGE_ORDER=['new','contacted','qualified','proposal','booking','won','lost'];
+const STAGE_COLORS={new:{bg:'#F3EEF9',txt:'#6B3FA0',bar:'#9C6DD6'},contacted:{bg:'#EBF4FC',txt:'#1A6CA8',bar:'#378ADD'},qualified:{bg:'#FEF6E4',txt:'#C87D0A',bar:'#E8A020'},proposal:{bg:'#FDF0EF',txt:'#C0392B',bar:'#E24B4A'},booking:{bg:'#E8F6EF',txt:'#1A7A4A',bar:'#1D9E75'},won:{bg:'#E8F6EF',txt:'#0B5E30',bar:'#0E7F46'},lost:{bg:'#F5F5F5',txt:'#888',bar:'#CCC'}};
+const ACT_COLORS={login:'#888',signup:'#9C6DD6',chat:'#378ADD',trip:'#E8A020',search:'#1D9E75',booking:'#C0392B',visit:'#A8A49C',profile:'#B8860B'};
+const PALETTES=[{bg:'#FDF0EF',c:'#7B1A14'},{bg:'#EEF8F4',c:'#0B4F30'},{bg:'#EEF4FD',c:'#103A6A'},{bg:'#FDF6E7',c:'#6B430A'},{bg:'#F3EEF8',c:'#4A1E7A'},{bg:'#FEF0F5',c:'#7A1840'},{bg:'#FFFBE6',c:'#6B5A00'}];
 
-function login(){
+let KEY='', allLeads=[], allTasks=[], tier='all', currentLead=null, dpTab='overview';
+let charts={};
+
+function doLogin(){
   KEY=document.getElementById('keyIn').value.trim();
   if(!KEY){document.getElementById('lerr').textContent='Enter admin key';return}
   document.getElementById('loginScreen').style.display='none';
-  document.getElementById('app').style.display='block';
+  document.getElementById('app').style.display='flex';
   loadAll();
   setInterval(loadAll,30000);
 }
 
 async function loadAll(){
   await Promise.all([loadMetrics(),loadLeads()]);
-  document.getElementById('lastUp').textContent='Updated '+new Date().toLocaleTimeString('en-IN');
+  document.getElementById('lastUp').textContent='Updated '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  renderTasks();
+  updateAnalytics();
 }
 
 async function loadMetrics(){
   try{
     const r=await fetch(`/api/crm/metrics?admin_key=${KEY}`);
     const d=await r.json();
-    document.getElementById('m0').textContent=d.total_leads||0;
-    document.getElementById('m1').textContent=d.hot||0;
-    document.getElementById('m2').textContent=d.warm||0;
-    document.getElementById('m3').textContent=d.cold||0;
-    document.getElementById('m4').textContent=d.total_bookings||0;
-    document.getElementById('m5').textContent=d.avg_score||0;
-    document.getElementById('liveCount').textContent=(d.live_now||0)+' live now';
+    document.getElementById('liveCnt').textContent=(d.live_now||0)+' live now';
+    document.getElementById('metrics').innerHTML=`
+      <div class="mc"><div class="mc-label">Total leads</div><div class="mc-val">${d.total_leads||0}</div><div class="mc-sub">Registered travellers</div></div>
+      <div class="mc hot"><div class="mc-label">🔥 Hot</div><div class="mc-val" style="color:var(--hot)">${d.hot||0}</div><div class="mc-sub">Score 75+ · Convert now</div></div>
+      <div class="mc warm"><div class="mc-label">🟡 Warm</div><div class="mc-val" style="color:var(--warm)">${d.warm||0}</div><div class="mc-sub">Score 40–74 · Nurture</div></div>
+      <div class="mc cold"><div class="mc-label">🔵 Cold</div><div class="mc-val" style="color:var(--cold)">${d.cold||0}</div><div class="mc-sub">Score 0–39 · Browsing</div></div>
+      <div class="mc grn"><div class="mc-label">Bookings</div><div class="mc-val" style="color:var(--grn)">${d.total_bookings||0}</div><div class="mc-sub">Confirmed</div></div>
+      <div class="mc gold"><div class="mc-label">Avg score</div><div class="mc-val" style="color:var(--gold-d)">${d.avg_score||0}</div><div class="mc-sub">Out of 100</div></div>
+    `;
   }catch(e){}
 }
 
 async function loadLeads(){
   try{
-    const srt=document.getElementById('srt')?.value||'score';
-    const r=await fetch(`/api/crm/leads?admin_key=${KEY}&sort=${srt}&limit=500`);
+    const r=await fetch(`/api/crm/leads?admin_key=${KEY}&limit=500`);
     const d=await r.json();
-    all=d.leads||[];
-    render();
+    allLeads=d.leads||[];
+    renderLeads();
+    renderPipeline();
   }catch(e){
-    document.getElementById('tb').innerHTML='<tr><td colspan="9"><div class="empty">Error — check admin key</div></td></tr>';
+    document.getElementById('tbody').innerHTML='<tr><td colspan="8"><div class="empty-state">Error — check admin key or reload</div></td></tr>';
   }
 }
 
 function getFiltered(){
   const s=(document.getElementById('si')?.value||'').toLowerCase();
-  const srt=document.getElementById('srt')?.value||'score';
-  let arr=[...all];
+  const stage=document.getElementById('stageFilter')?.value||'';
+  const sort=document.getElementById('sortSel')?.value||'score';
+  let arr=[...allLeads];
   if(s) arr=arr.filter(l=>(l.full_name||'').toLowerCase().includes(s)||(l.email||'').toLowerCase().includes(s)||(l.phone||'').includes(s));
   if(tier!=='all') arr=arr.filter(l=>l.tier===tier);
-  if(srt==='score') arr.sort((a,b)=>b.score-a.score);
-  else if(srt==='recent') arr.sort((a,b)=>new Date(b.last_activity)-new Date(a.last_activity));
-  else if(srt==='activity') arr.sort((a,b)=>(b.ai_chats+b.visits)-(a.ai_chats+a.visits));
+  if(stage) arr=arr.filter(l=>(l.stage||'new')===stage);
+  if(sort==='score') arr.sort((a,b)=>b.score-a.score);
+  else if(sort==='recent') arr.sort((a,b)=>new Date(b.last_activity)-new Date(a.last_activity));
+  else if(sort==='activity') arr.sort((a,b)=>(b.ai_chats+b.visits)-(a.ai_chats+a.visits));
   else arr.sort((a,b)=>(a.full_name||a.email||'').localeCompare(b.full_name||b.email||''));
   return arr;
 }
@@ -301,223 +553,436 @@ function getFiltered(){
 function sc(s){return s>=75?'#C0392B':s>=40?'#C87D0A':'#1A6CA8'}
 function ini(n){if(!n)return'?';return n.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()}
 function ago(iso){
-  if(!iso)return'—';
-  const m=Math.floor((Date.now()-new Date(iso))/60000);
+  if(!iso)return'—';const m=Math.floor((Date.now()-new Date(iso))/60000);
   if(m<1)return'Just now';if(m<60)return m+'m ago';
-  const h=Math.floor(m/60);if(h<24)return h+'h ago';
-  return Math.floor(h/24)+'d ago';
+  const h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago';
 }
+function stageBadge(s){
+  s=s||'new';
+  const labels={new:'New',contacted:'Contacted',qualified:'Qualified',proposal:'Proposal',booking:'Booking',won:'Won ✓',lost:'Lost'};
+  return `<span class="stage-badge badge-${s}">${labels[s]||s}</span>`;
+}
+function totalActs(l){return (l.visits||0)+(l.ai_chats||0)+(l.trips_planned||0)+(l.bookings||0)+(l.searches||0)+(l.logins||0)}
 
-function render(){
+function renderLeads(){
   const arr=getFiltered();
-  if(!arr.length){document.getElementById('tb').innerHTML='<tr><td colspan="9"><div class="empty">No leads found</div></td></tr>';return}
-  document.getElementById('tb').innerHTML=arr.map((l,i)=>{
-    const col=COLORS[i%COLORS.length];
-    const s=l.score||0;
-    const tc={hot:'bh',warm:'bw',cold:'bc'}[l.tier]||'bc';
-    const name=l.full_name||l.email||'Unknown';
-    const hasIG=!!l.instagram_handle;
-    const hasWA=!!(l.phone||l.whatsapp_number);
-    const hasLI=!!l.linkedin_url;
-    return `<tr onclick="openDet('${l.user_id}')">
-      <td><div class="nc">
+  document.getElementById('leads-count-label').textContent=arr.length+' leads';
+  if(!arr.length){document.getElementById('tbody').innerHTML='<tr><td colspan="8"><div class="empty-state">No leads found</div></td></tr>';return}
+  document.getElementById('tbody').innerHTML=arr.map((l,i)=>{
+    const col=PALETTES[i%PALETTES.length];
+    const s=l.score||0;const name=l.full_name||l.email||'Unknown';
+    const hasIG=!!l.instagram_handle,hasWA=!!(l.phone||l.whatsapp_number),hasLI=!!l.linkedin_url;
+    return `<tr onclick="openLead('${l.user_id}')">
+      <td><div class="lead-name-cell">
+        <input type="checkbox" onclick="event.stopPropagation()" class="row-check" data-id="${l.user_id}" style="margin-right:4px">
         <div class="av" style="background:${col.bg};color:${col.c}">${ini(name)}</div>
-        <div><div class="nn">${name}</div><div class="ns">${l.source||'organic'}</div></div>
+        <div><div class="lead-name">${name}</div><div class="lead-meta">${l.source||'organic'} · Joined ${l.first_seen?new Date(l.first_seen).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'—'}</div></div>
       </div></td>
-      <td style="font-size:12px;color:var(--mut);line-height:1.8">${l.email||'—'}<br>${l.phone||''}</td>
+      <td style="font-size:12px;color:var(--mut);line-height:1.8">${l.email||'—'}<br><span style="font-size:11px">${l.phone||''}</span></td>
+      <td>${stageBadge(l.stage)}</td>
       <td><div class="soc-row">
-        <a class="soc-ic ${hasIG?'ig-active':''}" onclick="event.stopPropagation()" ${hasIG?`href="https://instagram.com/${l.instagram_handle}" target="_blank" title="@${l.instagram_handle}"`:'title="No Instagram"'}>ig</a>
-        <span class="soc-ic ${hasWA?'wa-active':''}" onclick="event.stopPropagation();${hasWA?`openWA('${l.user_id}','${name}','${l.phone||''}')`:''}" title="${hasWA?'Send WhatsApp':'No phone'}">wa</span>
-        <a class="soc-ic ${hasLI?'li-active':''}" onclick="event.stopPropagation()" ${hasLI?`href="${l.linkedin_url}" target="_blank" title="View LinkedIn"`:'title="No LinkedIn"'}>in</a>
+        <a class="soc ig ${hasIG?'':'dim'}" onclick="event.stopPropagation()" ${hasIG?`href="https://instagram.com/${l.instagram_handle}" target="_blank" title="@${l.instagram_handle}"`:'title="No Instagram"'} ${!hasIG?'style="opacity:.35;pointer-events:none"':''}>ig</a>
+        <span class="soc wa ${hasWA?'':'dim'}" onclick="event.stopPropagation();${hasWA?`openWAModal('${l.user_id}','${name}','${l.phone||''}')`:''}" title="${hasWA?'WhatsApp':'No phone'}" ${!hasWA?'style="opacity:.35;pointer-events:none"':''}>wa</span>
+        <a class="soc li ${hasLI?'':'dim'}" onclick="event.stopPropagation()" ${hasLI?`href="${l.linkedin_url}" target="_blank" title="LinkedIn"`:'title="No LinkedIn"'} ${!hasLI?'style="opacity:.35;pointer-events:none"':''}>in</a>
       </div></td>
-      <td><div class="sb-wrap">
-        <div class="sb"><div class="sf" style="width:${s}%;background:${sc(s)}"></div></div>
-        <span class="sn" style="color:${sc(s)}">${s}</span>
+      <td><div class="score-bar-wrap">
+        <div class="sbar"><div class="sfill" style="width:${s}%;background:${sc(s)}"></div></div>
+        <span class="snum" style="color:${sc(s)}">${s}</span>
       </div></td>
-      <td><span class="badge ${tc}">${l.tier.charAt(0).toUpperCase()+l.tier.slice(1)}</span></td>
-      <td style="font-size:13px;text-align:center">${l.visits||0}</td>
-      <td style="font-size:13px;text-align:center">${l.ai_chats||0}</td>
-      <td style="font-size:12px;color:var(--hnt)">${ago(l.last_activity)}</td>
+      <td style="font-size:12px;text-align:center;color:var(--mut)">${totalActs(l)}</td>
+      <td class="time-cell">${ago(l.last_activity)}</td>
       <td style="white-space:nowrap">
-        ${hasWA?`<button class="act-btn" onclick="event.stopPropagation();openWA('${l.user_id}','${name}','${l.phone||''}')">📱 WA</button> `:''}
-        ${hasIG?`<a class="act-btn" href="https://instagram.com/${l.instagram_handle}" target="_blank" onclick="event.stopPropagation()" style="text-decoration:none">📸 IG</a>`:''}
+        ${hasWA?`<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openWAModal('${l.user_id}','${name}','${l.phone||''}')">📱</button> `:''}
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openAddTaskForLead('${l.user_id}')">+ task</button>
       </td>
     </tr>`;
   }).join('');
 }
 
-async function openDet(uid){
-  document.getElementById('ov').classList.add('open');
-  document.getElementById('dp').innerHTML='<div style="padding:3rem;text-align:center;color:var(--hnt)">Loading...</div>';
-  try{
-    const r=await fetch(`/api/crm/lead/${encodeURIComponent(uid)}?admin_key=${KEY}`);
-    const l=await r.json();
-    renderDet(l);
-  }catch(e){document.getElementById('dp').innerHTML='<div style="padding:2rem;color:var(--hot)">Error loading lead.</div>'}
+function renderPipeline(){
+  const stages=STAGE_ORDER;
+  const board=document.getElementById('pipelineBoard');
+  const grouped={};
+  stages.forEach(s=>grouped[s]=[]);
+  allLeads.forEach(l=>{ const s=l.stage||'new'; if(grouped[s]) grouped[s].push(l); });
+  board.innerHTML=stages.map(stage=>{
+    const col=STAGE_COLORS[stage];
+    const cards=grouped[stage];
+    return `<div class="pipe-col">
+      <div class="pipe-hdr" style="background:${col.bg};color:${col.txt}">
+        <span>${stage.charAt(0).toUpperCase()+stage.slice(1)}</span>
+        <span style="background:${col.bg};border:1px solid ${col.bar};padding:1px 7px;border-radius:10px;font-size:11px">${cards.length}</span>
+      </div>
+      <div class="pipe-cards">
+        ${cards.map(l=>{
+          const name=l.full_name||l.email||'Unknown';
+          const s=l.score||0;
+          return `<div class="pipe-card" onclick="openLead('${l.user_id}')">
+            <div class="pipe-card-name">${name}</div>
+            <div class="pipe-card-meta">${l.email||''}</div>
+            <div style="font-size:11px;color:var(--hnt);margin-top:4px">${ago(l.last_activity)}</div>
+            <div class="pipe-card-score">
+              <div class="pipe-card-sbar"><div class="pipe-card-sfill" style="width:${s}%;background:${sc(s)}"></div></div>
+              <span style="font-size:11px;font-weight:700;color:${sc(s)}">${s}</span>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
 }
 
-function renderDet(l){
-  const s=l.score||0;const tc={hot:'bh',warm:'bw',cold:'bc'}[l.tier]||'bc';
+async function openLead(uid){
+  currentLead=allLeads.find(l=>l.user_id===uid)||{user_id:uid};
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('dp-title').textContent='Loading...';
+  document.getElementById('dpBody').innerHTML='<div style="padding:2rem;text-align:center;color:var(--hnt)">Loading...</div>';
+  try{
+    const r=await fetch(`/api/crm/lead/${encodeURIComponent(uid)}?admin_key=${KEY}`);
+    currentLead=await r.json();
+    document.getElementById('act-count').textContent=(currentLead.recent_activities||[]).length;
+    renderDpTab();
+  }catch(e){document.getElementById('dpBody').innerHTML='<div style="padding:2rem;color:var(--hot)">Error loading lead</div>'}
+}
+
+function closeDet(){document.getElementById('overlay').classList.remove('open')}
+
+function switchDpTab(tab,el){
+  dpTab=tab;
+  document.querySelectorAll('.dp-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderDpTab();
+}
+
+function renderDpTab(){
+  const l=currentLead; if(!l) return;
   const name=l.full_name||l.email||'Unknown';
-  const col=COLORS[name.charCodeAt(0)%COLORS.length];
-  const ac={login:'#888',chat:'#1A6CA8',trip:'#C0392B',search:'#C87D0A',booking:'#1A7A4A',visit:'#A8A49C',signup:'#7F77DD'};
-  const acts=(l.recent_activities||[]).slice(0,15);
-  const hasIG=!!l.instagram_handle;
-  const hasWA=!!(l.phone||l.whatsapp_number);
-  const hasLI=!!l.linkedin_url;
-  document.getElementById('dp').innerHTML=`
-    <button class="dc" onclick="closeDet()">×</button>
-    <div class="dav" style="background:${col.bg};color:${col.c}">${ini(name)}</div>
-    <div class="dn">${name}</div>
-    <div class="de">${l.email||''}</div>
-    <div style="text-align:center;margin-top:8px"><span class="badge ${tc}">${l.tier.charAt(0).toUpperCase()+l.tier.slice(1)} lead</span></div>
-    <div class="bsv" style="color:${sc(s)}">${s}</div>
-    <div class="bsl">Lead score</div>
-    <div class="sbk">
-      <div class="sbr"><span>Page visits (×1.5)</span><span>+${Math.round((l.visits||0)*1.5)}</span></div>
-      <div class="sbr"><span>AI chats (×4)</span><span>+${(l.ai_chats||0)*4}</span></div>
-      <div class="sbr"><span>Trips planned (×6)</span><span>+${(l.trips_planned||0)*6}</span></div>
-      <div class="sbr"><span>Bookings (×20)</span><span>+${(l.bookings||0)*20}</span></div>
+  document.getElementById('dp-title').textContent=name;
+  const col=PALETTES[name.charCodeAt(0)%PALETTES.length];
+  const s=l.score||0;
+  if(dpTab==='overview') renderDpOverview(l,col,s,name);
+  else if(dpTab==='activities') renderDpActivities(l);
+  else if(dpTab==='edit') renderDpEdit(l);
+  else if(dpTab==='notes') renderDpNotes(l);
+}
+
+function renderDpOverview(l,col,s,name){
+  const stage=l.stage||'new';
+  const stageCol=STAGE_COLORS[stage];
+  const hasIG=!!l.instagram_handle,hasWA=!!(l.phone||l.whatsapp_number),hasLI=!!l.linkedin_url;
+  document.getElementById('dpBody').innerHTML=`
+    <div style="text-align:center;margin-bottom:1.25rem">
+      <div class="av" style="width:56px;height:56px;font-size:18px;background:${col.bg};color:${col.c};margin:0 auto .75rem">${ini(name)}</div>
+      <div style="font-size:16px;font-weight:700">${name}</div>
+      <div style="font-size:12px;color:var(--mut);margin-top:3px">${l.email||''}</div>
+      <div style="margin-top:8px">${stageBadge(l.stage)}</div>
     </div>
-
-    <div class="st">Reach out</div>
-    ${hasWA?`<a class="soc-btn wa" href="javascript:void(0)" onclick="openWA('${l.user_id}','${name}','${l.phone||''}')"><span>📱</span><div><div style="font-weight:600;font-size:13px">WhatsApp</div><div style="font-size:11px;opacity:.8">${l.phone||''}</div></div></a>`:'<div style="font-size:12px;color:var(--hnt);margin-bottom:8px">No phone — add below to enable WhatsApp</div>'}
-    ${hasIG?`<a class="soc-btn ig" href="https://instagram.com/${l.instagram_handle}" target="_blank"><span>📸</span><div><div style="font-weight:600;font-size:13px">Instagram</div><div style="font-size:11px;opacity:.8">@${l.instagram_handle}</div></div></a>`:''}
-    ${hasLI?`<a class="soc-btn li" href="${l.linkedin_url}" target="_blank"><span>💼</span><div><div style="font-weight:600;font-size:13px">LinkedIn</div><div style="font-size:11px;opacity:.8">View profile</div></div></a>`:''}
-    ${l.email?`<a class="soc-btn email" href="mailto:${l.email}"><span>✉️</span><div><div style="font-weight:600;font-size:13px">Email</div><div style="font-size:11px;opacity:.8">${l.email}</div></div></a>`:''}
-
-    <div class="st">Contact info</div>
-    <div class="ir"><span class="il">Phone</span><span class="iv">${l.phone||'—'}</span></div>
-    <div class="ir"><span class="il">Instagram</span><span class="iv" style="color:#ad1457">${l.instagram_handle?'@'+l.instagram_handle:'—'}</span></div>
-    <div class="ir"><span class="il">LinkedIn</span><span class="iv" style="font-size:11px;color:#0077b5">${l.linkedin_url||'—'}</span></div>
-    <div class="ir"><span class="il">Source</span><span class="iv">${l.source||'organic'}</span></div>
-    <div class="ir"><span class="il">Joined</span><span class="iv">${l.first_seen?new Date(l.first_seen).toLocaleDateString('en-IN'):'—'}</span></div>
-
-    <div class="st">Edit profile</div>
-    <input class="ein" id="e_phone"    placeholder="Phone / WhatsApp number" value="${l.phone||''}">
-    <input class="ein" id="e_ig"       placeholder="Instagram handle (e.g. @username)" value="${l.instagram_handle?'@'+l.instagram_handle:''}">
-    <input class="ein" id="e_li"       placeholder="LinkedIn URL" value="${l.linkedin_url||''}">
-    <textarea class="notes-area" id="e_notes" placeholder="Add notes...">${l.notes||''}</textarea>
-    <button class="sbtn" onclick="savePro('${l.user_id}')">Save changes</button>
-
-    <div class="st">Stats</div>
-    <div class="sg">
-      <div class="sx"><div class="sxn">${l.visits||0}</div><div class="sxl">Visits</div></div>
-      <div class="sx"><div class="sxn">${l.ai_chats||0}</div><div class="sxl">AI Chats</div></div>
-      <div class="sx"><div class="sxn">${l.trips_planned||0}</div><div class="sxl">Trips planned</div></div>
-      <div class="sx"><div class="sxn" style="color:var(--grn)">${l.bookings||0}</div><div class="sxl">Bookings</div></div>
+    <div class="big-score" style="color:${sc(s)}">${s}</div>
+    <div class="score-tier-label">${s>=75?'🔥 Hot lead — ready to convert':s>=40?'🟡 Warm — needs nurturing':'🔵 Cold — still exploring'}</div>
+    <div class="sbk" style="margin-bottom:1.25rem">
+      <div class="sbr"><span>Page visits (×1.5)</span><strong>+${Math.round((l.visits||0)*1.5)}</strong></div>
+      <div class="sbr"><span>AI chats (×4)</span><strong>+${(l.ai_chats||0)*4}</strong></div>
+      <div class="sbr"><span>Trips planned (×6)</span><strong>+${(l.trips_planned||0)*6}</strong></div>
+      <div class="sbr"><span>Bookings (×20)</span><strong>+${(l.bookings||0)*20}</strong></div>
+      <div class="sbr"><span>Logins (×3)</span><strong>+${(l.logins||0)*3}</strong></div>
     </div>
-
-    <div class="st">Activity timeline</div>
-    ${acts.length?acts.map(a=>`<div class="ai">
-      <div class="ad" style="background:${ac[a.action]||'#888'}"></div>
-      <div><div class="at">${fmtAct(a)}</div><div class="atm">${ago(a.timestamp)}</div></div>
-    </div>`).join(''):'<div style="font-size:12px;color:var(--hnt);padding:8px 0">No activity yet</div>'}
-    <div style="height:2rem"></div>
+    <div class="dp-section">
+      <div class="dp-section-title">Move stage</div>
+      <div class="stage-selector">${STAGE_ORDER.map(st=>`<button class="stage-opt sel-${st} ${stage===st?'':'opacity-60'}" onclick="setStage('${l.user_id}','${st}')" style="${stage!==st?'opacity:.55':'font-weight:700'}">${st.charAt(0).toUpperCase()+st.slice(1)}</button>`).join('')}</div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-section-title">Stats</div>
+      <div class="stats-grid">
+        <div class="stat-box"><div class="stat-num">${l.visits||0}</div><div class="stat-lbl">Visits</div></div>
+        <div class="stat-box"><div class="stat-num">${l.ai_chats||0}</div><div class="stat-lbl">AI chats</div></div>
+        <div class="stat-box"><div class="stat-num">${l.trips_planned||0}</div><div class="stat-lbl">Trips</div></div>
+        <div class="stat-box"><div class="stat-num">${l.bookings||0}</div><div class="stat-lbl">Bookings</div></div>
+        <div class="stat-box"><div class="stat-num">${l.searches||0}</div><div class="stat-lbl">Searches</div></div>
+        <div class="stat-box"><div class="stat-num">${l.logins||0}</div><div class="stat-lbl">Logins</div></div>
+      </div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-section-title">Contact info</div>
+      <div class="info-grid">
+        <span class="info-label">Phone</span><span class="info-val">${l.phone||'—'}</span>
+        <span class="info-label">Instagram</span><span class="info-val" style="color:#ad1457">${l.instagram_handle?'@'+l.instagram_handle:'—'}</span>
+        <span class="info-label">LinkedIn</span><span class="info-val" style="font-size:11px;color:#0077b5">${l.linkedin_url||'—'}</span>
+        <span class="info-label">Source</span><span class="info-val">${l.source||'organic'}</span>
+        <span class="info-label">Joined</span><span class="info-val">${l.first_seen?new Date(l.first_seen).toLocaleDateString('en-IN'):'—'}</span>
+        <span class="info-label">Last active</span><span class="info-val">${ago(l.last_activity)}</span>
+      </div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-section-title">Reach out</div>
+      ${hasWA?`<div class="soc-action wa" onclick="openWAModal('${l.user_id}','${name}','${l.phone||''}')"><div class="soc-icon wa">📱</div><div><div style="font-weight:600">WhatsApp</div><div style="font-size:11px;opacity:.8">${l.phone||''}</div></div></div>`:'<div style="font-size:12px;color:var(--hnt);padding:6px 0">Add phone number to enable WhatsApp</div>'}
+      ${hasIG?`<a class="soc-action ig" href="https://instagram.com/${l.instagram_handle}" target="_blank"><div class="soc-icon ig">📸</div><div><div style="font-weight:600">Open Instagram</div><div style="font-size:11px;opacity:.8">@${l.instagram_handle}</div></div></a>`:''}
+      ${hasLI?`<a class="soc-action li" href="${l.linkedin_url}" target="_blank"><div class="soc-icon li">💼</div><div><div style="font-weight:600">LinkedIn profile</div><div style="font-size:11px;opacity:.8">View profile</div></div></a>`:''}
+      ${l.email?`<a class="soc-action email" href="mailto:${l.email}"><div class="soc-icon email">✉️</div><div><div style="font-weight:600">Send email</div><div style="font-size:11px;opacity:.8">${l.email}</div></div></a>`:''}
+    </div>
+    <div style="height:1rem"></div>
   `;
 }
 
-function fmtAct(a){
-  const d=a.detail||{};
-  switch(a.action){
-    case 'login':   return 'Logged in';
-    case 'signup':  return 'Signed up on TTT';
-    case 'chat':    return 'AI chat: '+(d.query||'').slice(0,60);
-    case 'trip':    return 'Planned trip to '+(d.destination||'unknown');
-    case 'search':  return 'Searched: '+(d.query||'').slice(0,50);
-    case 'booking': return 'Booked '+(d.service||'')+(d.amount?' — ₹'+d.amount:'');
-    case 'visit':   return 'Visited '+(a.detail?.page||'page');
-    default:        return a.action;
-  }
+function renderDpActivities(l){
+  const acts=(l.recent_activities||[]);
+  document.getElementById('dpBody').innerHTML=`
+    <div style="margin-bottom:.75rem;font-size:12px;color:var(--mut)">${acts.length} recent activities</div>
+    ${acts.length?acts.map(a=>{
+      const color=ACT_COLORS[a.action]||'#888';
+      const d=a.detail||{};
+      let text='',badge='';
+      if(a.action==='login'||a.action==='signup'){text=a.action==='signup'?'Signed up on TTT':'Logged in';badge=`<span class="act-badge" style="background:#F3EEF9;color:#6B3FA0">${a.action}</span>`}
+      else if(a.action==='chat'){text='AI chat: '+(d.query||'').slice(0,80);badge=`<span class="act-badge" style="background:#EBF4FC;color:#1A6CA8">chat</span>`}
+      else if(a.action==='trip'){text='Planned trip to '+(d.destination||'unknown');badge=`<span class="act-badge" style="background:#FEF6E4;color:#C87D0A">trip</span>`}
+      else if(a.action==='search'){text='Searched: '+(d.query||'').slice(0,60);badge=`<span class="act-badge" style="background:#E8F6EF;color:#1A7A4A">search</span>`}
+      else if(a.action==='booking'){text='Booked: '+(d.listing||d.service||'')+(d.amount?' — ₹'+d.amount:'');badge=`<span class="act-badge" style="background:#FDF0EF;color:#C0392B">booking</span>`}
+      else if(a.action==='visit'){text='Visited: '+(a.page_url||d.page||'page');badge=`<span class="act-badge" style="background:#F5F5F5;color:#888">visit</span>`}
+      else{text=a.action+(d.query?' — '+String(d.query).slice(0,50):'');badge=`<span class="act-badge" style="background:var(--bg);color:var(--mut)">${a.action}</span>`}
+      return `<div class="act-item">
+        <div class="act-dot" style="background:${color}"></div>
+        <div class="act-content">
+          <div class="act-text">${badge}${text}</div>
+          <div class="act-time">${ago(a.timestamp)}</div>
+        </div>
+      </div>`;
+    }).join(''):'<div class="empty-state" style="padding:2rem">No activities tracked yet.<br><span style="font-size:12px">Activities are tracked when users interact with TTT.</span></div>'}
+  `;
 }
 
-async function savePro(uid){
+function renderDpEdit(l){
+  document.getElementById('dpBody').innerHTML=`
+    <div class="dp-section">
+      <div class="dp-section-title">Profile details</div>
+      <div class="edit-field"><label class="edit-label">Name</label><input class="edit-input" id="e_name" value="${l.full_name||''}"></div>
+      <div class="edit-field"><label class="edit-label">Email</label><input class="edit-input" id="e_email" value="${l.email||''}"></div>
+      <div class="edit-field"><label class="edit-label">Phone/WA</label><input class="edit-input" id="e_phone" placeholder="+91 XXXXX XXXXX" value="${l.phone||''}"></div>
+      <div class="edit-field"><label class="edit-label">Instagram</label><input class="edit-input" id="e_ig" placeholder="@handle" value="${l.instagram_handle?'@'+l.instagram_handle:''}"></div>
+      <div class="edit-field"><label class="edit-label">LinkedIn</label><input class="edit-input" id="e_li" placeholder="linkedin.com/in/..." value="${l.linkedin_url||''}"></div>
+      <div class="edit-field"><label class="edit-label">Source</label>
+        <select class="edit-input" id="e_source">
+          ${['organic','google','instagram','linkedin','referral','whatsapp','direct'].map(s=>`<option ${(l.source||'organic')===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="edit-field"><label class="edit-label">Stage</label>
+        <select class="edit-input" id="e_stage">
+          ${STAGE_ORDER.map(s=>`<option ${(l.stage||'new')===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-section-title">Notes</div>
+      <textarea class="edit-input" id="e_notes" style="min-height:80px">${l.notes||''}</textarea>
+    </div>
+    <button class="btn btn-gold" style="width:100%" onclick="saveLead('${l.user_id}')">Save all changes</button>
+    <div style="height:1rem"></div>
+  `;
+}
+
+function renderDpNotes(l){
+  const notes=allTasks.filter(t=>t.user_id===l.user_id&&t.note);
+  document.getElementById('dpBody').innerHTML=`
+    <div class="dp-section">
+      <div class="dp-section-title">Add note</div>
+      <textarea class="edit-input" id="noteText" placeholder="Write a note..." style="min-height:70px;width:100%"></textarea>
+      <button class="btn btn-gold btn-sm" style="margin-top:8px" onclick="addNote('${l.user_id}')">Save note</button>
+    </div>
+    <div class="dp-section">
+      <div class="dp-section-title">Notes history</div>
+      ${notes.length?notes.map(n=>`<div class="note-item"><div class="note-text">${n.text}</div><div class="note-meta">Admin · ${ago(n.created_at)}</div></div>`).join('')
+       :'<div style="font-size:12px;color:var(--hnt)">No notes yet</div>'}
+    </div>
+    <div style="height:1rem"></div>
+  `;
+}
+
+async function saveLead(uid){
   const ig=(document.getElementById('e_ig').value||'').replace('@','');
   const payload={
+    full_name:        document.getElementById('e_name').value,
+    email:            document.getElementById('e_email').value,
     phone:            document.getElementById('e_phone').value,
-    instagram_handle: ig||'',
+    instagram_handle: ig,
     linkedin_url:     document.getElementById('e_li').value,
+    source:           document.getElementById('e_source').value,
+    stage:            document.getElementById('e_stage').value,
     notes:            document.getElementById('e_notes').value,
   };
   try{
     await fetch(`/api/crm/lead/${encodeURIComponent(uid)}?admin_key=${KEY}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     showToast('Saved ✓');
-    loadLeads();
-    openDet(uid);
+    await loadLeads();
+    await openLead(uid);
   }catch(e){showToast('Error saving')}
 }
 
-function openWA(uid,name,phone){
-  waUserId=uid; waPhone=phone;
-  document.getElementById('waRecip').textContent=name+(phone?' ('+phone+')':'');
-  document.getElementById('waTxt').value=
-    `Hi ${name}! 👋\n\nI'm reaching out from *The Trip Theory* — India's first AI Travel Concierge.\n\nWe noticed you've been exploring some amazing destinations on our platform. We'd love to help you plan your perfect trip!\n\n✈️ Visit: thetriptheory.com\n\nWhere would you like to go next? 🌏`;
-  document.getElementById('waMod').classList.add('open');
+async function setStage(uid,stage){
+  try{
+    await fetch(`/api/crm/lead/${encodeURIComponent(uid)}?admin_key=${KEY}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({stage})});
+    showToast('Stage updated → '+stage);
+    const l=allLeads.find(x=>x.user_id===uid);
+    if(l){l.stage=stage;if(currentLead?.user_id===uid)currentLead.stage=stage;}
+    renderLeads();renderPipeline();renderDpTab();
+  }catch(e){showToast('Error')}
 }
 
-async function sendWA(){
-  const msg=document.getElementById('waTxt').value;
-  if(!waPhone){showToast('No phone number for this lead');return}
-  const num=waPhone.replace(/\D/g,'');
-  const link=`https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
-  window.open(link,'_blank');
+// ── Tasks ──────────────────────────────────────────────────
+function renderTasks(){
+  const f=document.getElementById('taskFilter')?.value||'all';
+  const today=new Date().toISOString().slice(0,10);
+  let tasks=[...allTasks];
+  if(f==='pending') tasks=tasks.filter(t=>!t.done);
+  else if(f==='overdue') tasks=tasks.filter(t=>!t.done&&t.due&&t.due<today);
+  else if(f==='done') tasks=tasks.filter(t=>t.done);
+  const overdue=allTasks.filter(t=>!t.done&&t.due&&t.due<today).length;
+  const badge=document.getElementById('task-badge');
+  if(overdue>0){badge.textContent=overdue;badge.style.display='inline'}else{badge.style.display='none'}
+  const list=document.getElementById('tasksList');
+  if(!tasks.length){list.innerHTML='<div class="empty-state">No tasks yet. Add follow-up reminders for your leads!</div>';return}
+  list.innerHTML=tasks.map(t=>{
+    const overdue=!t.done&&t.due&&t.due<today;
+    const lead=allLeads.find(l=>l.user_id===t.user_id);
+    return `<div class="task-row" onclick="openLead('${t.user_id||''}')">
+      <div class="check ${t.done?'done':''}" onclick="event.stopPropagation();toggleTask('${t.id}')">${t.done?'✓':''}</div>
+      <div class="task-info">
+        <div class="task-title" style="${t.done?'text-decoration:line-through;color:var(--hnt)':''}${t.priority==='urgent'?';color:var(--hot)':t.priority==='high'?';color:var(--warm)':''}">${t.priority==='urgent'?'🚨 ':t.priority==='high'?'⚡ ':''}${t.text}</div>
+        <div class="task-sub">${lead?'For: '+(lead.full_name||lead.email||'Unknown'):'General task'}</div>
+      </div>
+      ${t.due?`<span class="task-due-tag ${overdue?'overdue':''} ${t.done?'done':''}">${t.done?'Done':overdue?'Overdue':t.due}</span>`:''}
+    </div>`;
+  }).join('');
+}
+
+function openAddTask(){
+  document.getElementById('taskLeadId').value='';
+  document.getElementById('taskDue').value=new Date(Date.now()+86400000).toISOString().slice(0,10);
+  document.getElementById('taskMod').classList.add('open');
+}
+function openAddTaskForLead(uid){
+  document.getElementById('taskLeadId').value=uid||'';
+  document.getElementById('taskDue').value=new Date(Date.now()+86400000).toISOString().slice(0,10);
+  document.getElementById('taskMod').classList.add('open');
+}
+function saveTask(){
+  const text=document.getElementById('taskTitle').value.trim();
+  if(!text){showToast('Enter task description');return}
+  allTasks.push({id:'t'+Date.now(),text,due:document.getElementById('taskDue').value,priority:document.getElementById('taskPriority').value,user_id:document.getElementById('taskLeadId').value,done:false,created_at:new Date().toISOString()});
+  try{localStorage.setItem('ttt_crm_tasks',JSON.stringify(allTasks));}catch{}
+  document.getElementById('taskTitle').value='';
+  document.getElementById('taskMod').classList.remove('open');
+  renderTasks();showToast('Task added ✓');
+}
+function toggleTask(id){
+  const t=allTasks.find(x=>x.id===id);
+  if(t){t.done=!t.done;try{localStorage.setItem('ttt_crm_tasks',JSON.stringify(allTasks));}catch{}renderTasks();}
+}
+function addNote(uid){
+  const text=document.getElementById('noteText').value.trim();
+  if(!text)return;
+  allTasks.push({id:'n'+Date.now(),text,user_id:uid,note:true,created_at:new Date().toISOString()});
+  try{localStorage.setItem('ttt_crm_tasks',JSON.stringify(allTasks));}catch{}
+  showToast('Note saved ✓');
+  renderDpNotes(currentLead);
+}
+
+// ── Analytics ───────────────────────────────────────────────
+function updateAnalytics(){
+  if(!allLeads.length) return;
+  // Funnel
+  const stageCount={};STAGE_ORDER.forEach(s=>stageCount[s]=0);
+  allLeads.forEach(l=>{const s=l.stage||'new';if(stageCount[s]!==undefined)stageCount[s]++;});
+  const max=Math.max(...Object.values(stageCount),1);
+  document.getElementById('funnelChart').innerHTML=STAGE_ORDER.map(s=>{
+    const col=STAGE_COLORS[s];const pct=Math.round(stageCount[s]/max*100);
+    return `<div class="funnel-bar">
+      <span class="funnel-label">${s.charAt(0).toUpperCase()+s.slice(1)}</span>
+      <div class="funnel-track"><div class="funnel-fill" style="width:${pct}%;background:${col.bar}">${stageCount[s]>0?stageCount[s]:''}</div></div>
+      <span class="funnel-count" style="color:${col.bar}">${stageCount[s]}</span>
+    </div>`;
+  }).join('');
+  // Sources pie
+  const srcCount={};
+  allLeads.forEach(l=>{const s=l.source||'organic';srcCount[s]=(srcCount[s]||0)+1;});
+  const srcEntries=Object.entries(srcCount).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  if(charts.source) charts.source.destroy();
+  charts.source=new Chart(document.getElementById('sourceChart'),{type:'doughnut',data:{labels:srcEntries.map(e=>e[0]),datasets:[{data:srcEntries.map(e=>e[1]),backgroundColor:['#B8860B','#1D9E75','#378ADD','#E24B4A','#9C6DD6','#E8A020'],borderWidth:0}]},options:{plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:8}}},cutout:'60%'}});
+  // Score distribution bar
+  const bins=[0,0,0,0,0];// 0-19, 20-39, 40-59, 60-79, 80-100
+  allLeads.forEach(l=>{const s=l.score||0;bins[Math.min(Math.floor(s/20),4)]++;});
+  if(charts.score) charts.score.destroy();
+  charts.score=new Chart(document.getElementById('scoreChart'),{type:'bar',data:{labels:['0–19','20–39','40–59','60–79','80–100'],datasets:[{data:bins,backgroundColor:['#B8D8F0','#85B7EB','#E8C84A','#EF9F27','#D85A30'],borderWidth:0,borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(0,0,0,.05)'}},x:{grid:{display:false}}}}});
+  // Activity breakdown
+  const actCounts={visits:0,chats:0,trips:0,bookings:0,searches:0};
+  allLeads.forEach(l=>{actCounts.visits+=(l.visits||0);actCounts.chats+=(l.ai_chats||0);actCounts.trips+=(l.trips_planned||0);actCounts.bookings+=(l.bookings||0);actCounts.searches+=(l.searches||0);});
+  if(charts.activity) charts.activity.destroy();
+  charts.activity=new Chart(document.getElementById('activityChart'),{type:'bar',data:{labels:['Visits','AI Chats','Trips','Bookings','Searches'],datasets:[{data:Object.values(actCounts),backgroundColor:['#A8A49C','#378ADD','#E8A020','#C0392B','#1D9E75'],borderWidth:0,borderRadius:4}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,grid:{color:'rgba(0,0,0,.05)'}},y:{grid:{display:false}}}}});
+  // Live feed
+  const allActs=[];
+  allLeads.forEach(l=>{(l.recent_activities||[]).forEach(a=>allActs.push({...a,lead_name:l.full_name||l.email||'Someone'}));});
+  allActs.sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+  const feed=document.getElementById('actFeed');
+  if(feed) feed.innerHTML=allActs.slice(0,30).map(a=>{
+    const d=a.detail||{};
+    let text=a.action;
+    if(a.action==='chat') text='Asked: '+(d.query||'').slice(0,50);
+    else if(a.action==='booking') text='Booked '+(d.listing||d.service||'a listing');
+    else if(a.action==='trip') text='Planned trip to '+(d.destination||'unknown');
+    else if(a.action==='visit') text='Visited '+(a.page_url||'page');
+    return `<div class="feed-item"><div class="feed-dot" style="background:${ACT_COLORS[a.action]||'#888'}"></div><div class="feed-content"><strong>${a.lead_name}</strong> ${text}</div><span class="feed-time">${ago(a.timestamp)}</span></div>`;
+  }).join('');
+}
+
+// ── WhatsApp ────────────────────────────────────────────────
+let _waPhone='';
+function openWAModal(uid,name,phone){
+  _waPhone=phone;
+  document.getElementById('waTo').textContent='To: '+name+(phone?' ('+phone+')':'');
+  document.getElementById('waTxt').value=`Hi ${name}! 👋\n\nI'm reaching out from *The Trip Theory* — India's first AI Travel Concierge.\n\nWe noticed you've been exploring some amazing destinations. We'd love to help you plan your perfect trip!\n\n✈️ Visit: thetriptheory.com\n\nWhere would you like to go next? 🌏`;
+  document.getElementById('waMod').classList.add('open');
+}
+function sendWA(){
+  if(!_waPhone){showToast('No phone number');return}
+  const num=_waPhone.replace(/\D/g,'');
+  window.open(`https://wa.me/${num}?text=${encodeURIComponent(document.getElementById('waTxt').value)}`, '_blank');
   document.getElementById('waMod').classList.remove('open');
   showToast('WhatsApp opened ✓');
 }
-
-function copyWAText(){
-  navigator.clipboard.writeText(document.getElementById('waTxt').value);
-  showToast('Message copied ✓');
-}
-
+function copyWAText(){navigator.clipboard.writeText(document.getElementById('waTxt').value);showToast('Message copied ✓')}
 function openBulkWA(){document.getElementById('bulkMod').classList.add('open')}
-
-async function runBulk(){
+function runBulk(){
   const t=document.getElementById('bulkTier').value;
-  const msg=document.getElementById('bulkTxt').value;
-  const targets=(t==='all'?all:all.filter(l=>l.tier===t)).filter(l=>l.phone||l.whatsapp_number);
-  if(!targets.length){showToast('No leads with phone numbers in this tier');return}
-  // Open first one, rest copy to clipboard
+  const msg=document.getElementById('bulkMsg').value;
+  const targets=(t==='all'?allLeads:allLeads.filter(l=>l.tier===t)).filter(l=>l.phone||l.whatsapp_number);
+  if(!targets.length){showToast('No leads with phone in this segment');return}
+  const links=targets.map(l=>{const n=(l.phone||'').replace(/\D/g,'');const m=msg.replace(/\{\{name\}\}/g,l.full_name||'Traveller');return `${l.full_name||l.email}: https://wa.me/${n}?text=${encodeURIComponent(m)}`;}).join('\n\n');
+  navigator.clipboard.writeText(links);
   const first=targets[0];
-  const fnum=(first.phone||'').replace(/\D/g,'');
-  const fmsg=msg.replace(/\{\{name\}\}/g,first.full_name||'Traveller');
-  window.open(`https://wa.me/${fnum}?text=${encodeURIComponent(fmsg)}`,'_blank');
-  const allLinks=targets.map(l=>{
-    const n=(l.phone||'').replace(/\D/g,'');
-    const m=msg.replace(/\{\{name\}\}/g,l.full_name||'Traveller');
-    return `${l.full_name||l.email}: https://wa.me/${n}?text=${encodeURIComponent(m)}`;
-  }).join('\n\n');
-  navigator.clipboard.writeText(allLinks);
+  window.open(`https://wa.me/${(first.phone||'').replace(/\D/g,'')}?text=${encodeURIComponent(msg.replace(/\{\{name\}\}/g,first.full_name||'Traveller'))}`,'_blank');
   document.getElementById('bulkMod').classList.remove('open');
-  showToast(`${targets.length} WA links copied to clipboard ✓`);
+  showToast(`${targets.length} WA links copied ✓`);
 }
 
-function setTier(t,el){
-  tier=t;
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+// ── Misc ────────────────────────────────────────────────────
+function setTier(t,el){tier=t;document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderLeads()}
+function switchPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
-  render();
+  if(id==='analytics') setTimeout(updateAnalytics,100);
 }
-
-function closeDet(){document.getElementById('ov').classList.remove('open')}
-
+function toggleSelectAll(cb){document.querySelectorAll('.row-check').forEach(c=>c.checked=cb.checked)}
 function exportCSV(){
   const arr=getFiltered();
-  const rows=[['Name','Email','Phone','Instagram','LinkedIn','Score','Tier','Visits','AI Chats','Trips','Bookings','Source','Last Active']];
-  arr.forEach(l=>rows.push([l.full_name||'',l.email||'',l.phone||'',l.instagram_handle?'@'+l.instagram_handle:'',l.linkedin_url||'',l.score,l.tier,l.visits||0,l.ai_chats||0,l.trips_planned||0,l.bookings||0,l.source||'',l.last_activity||'']));
+  const rows=[['Name','Email','Phone','Instagram','LinkedIn','Score','Tier','Stage','Visits','Chats','Trips','Bookings','Source','Last Active']];
+  arr.forEach(l=>rows.push([l.full_name||'',l.email||'',l.phone||'',l.instagram_handle?'@'+l.instagram_handle:'',l.linkedin_url||'',l.score,l.tier,l.stage||'new',l.visits||0,l.ai_chats||0,l.trips_planned||0,l.bookings||0,l.source||'',l.last_activity||'']));
   const csv=rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
-  const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download='ttt-crm-'+new Date().toISOString().slice(0,10)+'.csv';
-  a.click();
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='ttt-crm-'+new Date().toISOString().slice(0,10)+'.csv';a.click();
   showToast('Exported '+arr.length+' leads ✓');
 }
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>{t.style.display='none'},2500)}
 
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.style.display='block';
-  setTimeout(()=>{t.style.display='none'},2500);
-}
+// Load tasks from localStorage
+try{allTasks=JSON.parse(localStorage.getItem('ttt_crm_tasks')||'[]');}catch{allTasks=[];}
 </script>
 </body>
 </html>
