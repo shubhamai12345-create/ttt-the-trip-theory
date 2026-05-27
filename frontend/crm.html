@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TTT CRM — CEO Command Centre</title>
+<style>
+:root{--gold:#B8860B;--gold-l:#FDF6E7;--gold-d:#7A5400;--bg:#FAFAF8;--sur:#FFFFFF;--bdr:#E8E4DC;--txt:#1A1A1A;--mut:#6B6860;--hnt:#A8A49C;--hot:#C0392B;--hot-bg:#FDF0EF;--warm:#C87D0A;--warm-bg:#FEF6E4;--cold:#1A6CA8;--cold-bg:#EBF4FC;--grn:#1A7A4A;--grn-bg:#E9F7EF;--rad:10px;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Georgia',serif;background:var(--bg);color:var(--txt);min-height:100vh}
+#loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh}
+.lcard{background:var(--sur);border:1px solid var(--bdr);border-radius:16px;padding:3rem 2.5rem;width:380px;text-align:center}
+.llogo{font-size:30px;font-weight:700;color:var(--gold);letter-spacing:3px;margin-bottom:4px}
+.lsub{font-size:11px;color:var(--hnt);letter-spacing:1px;text-transform:uppercase;margin-bottom:2rem}
+.lcard input{width:100%;padding:12px 16px;border:1px solid var(--bdr);border-radius:var(--rad);font-size:14px;margin-bottom:12px;background:var(--bg);font-family:'Georgia',serif;outline:none}
+.lcard input:focus{border-color:var(--gold)}
+.lbtn{width:100%;padding:12px;background:var(--gold);color:#fff;border:none;border-radius:var(--rad);font-size:14px;cursor:pointer;letter-spacing:1px;font-family:'Georgia',serif}
+.lbtn:hover{background:var(--gold-d)}
+.lerr{color:var(--hot);font-size:12px;margin-top:8px}
+#app{display:none}
+.topbar{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:50}
+.logo{font-size:20px;font-weight:700;color:var(--gold);letter-spacing:2px}
+.live-badge{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--grn);background:var(--grn-bg);padding:4px 12px;border-radius:20px}
+.ldot{width:7px;height:7px;background:var(--grn);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.main{padding:2rem;max-width:1400px;margin:0 auto}
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:2rem}
+.mc{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--rad);padding:1.25rem 1rem;text-align:center}
+.ml{font-size:11px;color:var(--mut);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+.mv{font-size:28px;font-weight:700}
+.ms{font-size:11px;color:var(--hnt);margin-top:4px}
+.controls{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap}
+.srch{flex:1;min-width:200px;max-width:300px;position:relative}
+.srch input{width:100%;padding:9px 12px 9px 34px;border:1px solid var(--bdr);border-radius:var(--rad);font-size:13px;background:var(--sur);font-family:'Georgia',serif;outline:none}
+.srch input:focus{border-color:var(--gold)}
+.srch-ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--hnt);font-size:16px}
+.tabs{display:flex;gap:4px}
+.tab{padding:7px 14px;font-size:12px;border:1px solid var(--bdr);border-radius:20px;cursor:pointer;background:var(--sur);color:var(--mut);font-family:'Georgia',serif}
+.tab.active{background:var(--txt);color:#fff;border-color:var(--txt)}
+.tab.hot.active{background:var(--hot);border-color:var(--hot)}
+.tab.warm.active{background:var(--warm);border-color:var(--warm)}
+.tab.cold.active{background:var(--cold);border-color:var(--cold)}
+select.srt{padding:8px 12px;border:1px solid var(--bdr);border-radius:var(--rad);font-size:12px;background:var(--sur);font-family:'Georgia',serif;color:var(--mut);outline:none;cursor:pointer}
+.btn-sm{padding:8px 14px;font-size:12px;border:1px solid var(--bdr);border-radius:var(--rad);background:var(--sur);cursor:pointer;font-family:'Georgia',serif;color:var(--mut)}
+.btn-sm:hover{border-color:var(--gold);color:var(--gold-d)}
+.btn-gold{background:var(--gold);color:#fff;border:none;border-radius:var(--rad);padding:8px 16px;font-size:12px;cursor:pointer;font-family:'Georgia',serif}
+.btn-gold:hover{background:var(--gold-d)}
+.tw{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--rad);overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:11px 14px;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--mut);border-bottom:1px solid var(--bdr);background:var(--bg);font-weight:400}
+td{padding:12px 14px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAF3;cursor:pointer}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.nc{display:flex;align-items:center;gap:10px}
+.nn{font-weight:600;font-size:13px}
+.ns{font-size:11px;color:var(--hnt);margin-top:1px}
+.sb-wrap{display:flex;align-items:center;gap:8px}
+.sb{height:5px;flex:1;border-radius:3px;background:var(--bdr);overflow:hidden}
+.sf{height:100%;border-radius:3px;transition:width .4s}
+.sn{font-size:13px;font-weight:700;min-width:28px}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:.3px}
+.bh{background:var(--hot-bg);color:var(--hot)}
+.bw{background:var(--warm-bg);color:var(--warm)}
+.bc{background:var(--cold-bg);color:var(--cold)}
+/* social icons in table */
+.soc-row{display:flex;gap:5px}
+.soc-ic{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:1px solid var(--bdr);background:var(--bg);color:var(--mut);text-decoration:none;cursor:default;transition:all .2s}
+.soc-ic.ig-active{background:#fce4ec;border-color:#e91e8c;color:#ad1457;cursor:pointer}
+.soc-ic.ig-active:hover{background:#e91e8c;color:#fff}
+.soc-ic.wa-active{background:#e8f5e9;border-color:#25D366;color:#1B5E20;cursor:pointer}
+.soc-ic.wa-active:hover{background:#25D366;color:#fff}
+.soc-ic.li-active{background:#e3f2fd;border-color:#0077b5;color:#01579b;cursor:pointer}
+.soc-ic.li-active:hover{background:#0077b5;color:#fff}
+.act-btn{font-size:11px;padding:5px 10px;border:1px solid var(--bdr);border-radius:6px;background:var(--sur);cursor:pointer;color:var(--mut);font-family:'Georgia',serif;white-space:nowrap}
+.act-btn:hover{border-color:var(--gold);color:var(--gold-d)}
+.empty{text-align:center;padding:4rem;color:var(--hnt);font-size:14px}
+/* Detail panel */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:none;justify-content:flex-end}
+.ov.open{display:flex}
+.dp{width:420px;height:100vh;background:var(--sur);border-left:1px solid var(--bdr);overflow-y:auto;padding:1.5rem;animation:si .25s ease}
+@keyframes si{from{transform:translateX(60px);opacity:0}to{transform:translateX(0);opacity:1}}
+.dc{float:right;background:none;border:none;font-size:24px;cursor:pointer;color:var(--hnt);line-height:1;padding:0}
+.dav{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;margin:1rem auto .75rem}
+.dn{text-align:center;font-size:17px;font-weight:700}
+.de{text-align:center;font-size:12px;color:var(--mut);margin-top:3px}
+.bsv{font-size:52px;font-weight:700;text-align:center;margin:1rem 0 2px}
+.bsl{text-align:center;font-size:12px;color:var(--mut);margin-bottom:1rem}
+.sbk{background:var(--bg);border-radius:var(--rad);padding:1rem;border:1px solid var(--bdr)}
+.sbr{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;color:var(--mut)}
+.sbr span:last-child{font-weight:700;color:var(--txt)}
+.st{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin:1.5rem 0 .75rem;padding-bottom:6px;border-bottom:1px solid var(--bdr)}
+.ir{display:flex;gap:8px;padding:5px 0;font-size:12px;align-items:center}
+.il{color:var(--hnt);min-width:80px;flex-shrink:0;font-size:11px}
+.iv{color:var(--txt)}
+/* big social buttons in detail */
+.soc-btn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border-radius:var(--rad);font-size:13px;cursor:pointer;text-decoration:none;font-family:'Georgia',serif;transition:all .2s;margin-bottom:8px;border:1px solid var(--bdr)}
+.soc-btn.ig{background:#fce4ec;border-color:#e91e8c;color:#ad1457}
+.soc-btn.ig:hover{background:#e91e8c;color:#fff}
+.soc-btn.wa{background:#e8f5e9;border-color:#25D366;color:#1B5E20}
+.soc-btn.wa:hover{background:#25D366;color:#fff}
+.soc-btn.li{background:#e3f2fd;border-color:#0077b5;color:#01579b}
+.soc-btn.li:hover{background:#0077b5;color:#fff}
+.soc-btn.email{background:var(--bg);border-color:var(--bdr);color:var(--mut)}
+.soc-btn.email:hover{border-color:var(--gold);color:var(--gold-d)}
+.soc-btn span{font-size:20px}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sx{background:var(--bg);border:1px solid var(--bdr);border-radius:var(--rad);padding:10px;text-align:center}
+.sxn{font-size:22px;font-weight:700}
+.sxl{font-size:10px;color:var(--hnt);text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+.ai{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--bdr)}
+.ad{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.at{font-size:12px;color:var(--mut);line-height:1.5}
+.atm{font-size:11px;color:var(--hnt);margin-top:2px}
+.ein{width:100%;padding:8px 10px;border:1px solid var(--bdr);border-radius:6px;font-size:12px;background:var(--bg);font-family:'Georgia',serif;color:var(--txt);margin-bottom:8px;outline:none}
+.ein:focus{border-color:var(--gold)}
+.sbtn{padding:8px 20px;background:var(--gold);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Georgia',serif}
+.notes-area{width:100%;padding:8px 10px;border:1px solid var(--bdr);border-radius:6px;font-size:12px;background:var(--bg);font-family:'Georgia',serif;color:var(--txt);outline:none;resize:vertical;min-height:70px}
+.notes-area:focus{border-color:var(--gold)}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;background:var(--gold-l);color:var(--gold-d);margin:2px}
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--txt);color:#fff;padding:10px 20px;border-radius:var(--rad);font-size:13px;z-index:200;display:none;animation:fu .3s ease}
+@keyframes fu{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+/* WA modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--sur);border-radius:16px;padding:2rem;width:500px;max-width:95vw}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:1rem}
+.modal textarea{width:100%;padding:12px;border:1px solid var(--bdr);border-radius:var(--rad);font-size:13px;font-family:'Georgia',serif;outline:none;resize:vertical;min-height:140px}
+.modal textarea:focus{border-color:var(--gold)}
+.modal-actions{display:flex;gap:8px;margin-top:1rem;justify-content:flex-end}
+@media(max-width:900px){.metrics{grid-template-columns:repeat(3,1fr)}.dp{width:100%}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="lcard">
+    <div class="llogo">TTT</div>
+    <div class="lsub">CRM · CEO Command Centre</div>
+    <input type="password" id="keyIn" placeholder="Enter admin key" onkeydown="if(event.key==='Enter')login()">
+    <button class="lbtn" onclick="login()">ACCESS CRM</button>
+    <div class="lerr" id="lerr"></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div>
+      <span class="logo">TTT</span>
+      <span style="font-size:11px;color:var(--hnt);margin-left:10px;letter-spacing:.5px">CRM · CEO COMMAND CENTRE</span>
+    </div>
+    <div class="topbar-right">
+      <div class="live-badge"><div class="ldot"></div><span id="liveCount">Live</span></div>
+      <span id="lastUp" style="font-size:11px;color:var(--hnt)"></span>
+      <button class="btn-sm" onclick="loadAll()">↻ Refresh</button>
+      <button class="btn-gold" onclick="exportCSV()">↓ Export</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="metrics">
+      <div class="mc"><div class="ml">Total leads</div><div class="mv" id="m0">—</div></div>
+      <div class="mc"><div class="ml">🔥 Hot</div><div class="mv" id="m1" style="color:var(--hot)">—</div><div class="ms">75+ score</div></div>
+      <div class="mc"><div class="ml">🟡 Warm</div><div class="mv" id="m2" style="color:var(--warm)">—</div><div class="ms">40–74</div></div>
+      <div class="mc"><div class="ml">🔵 Cold</div><div class="mv" id="m3" style="color:var(--cold)">—</div><div class="ms">0–39</div></div>
+      <div class="mc"><div class="ml">Bookings</div><div class="mv" id="m4" style="color:var(--grn)">—</div></div>
+      <div class="mc"><div class="ml">Avg score</div><div class="mv" id="m5" style="color:var(--gold-d)">—</div></div>
+    </div>
+
+    <div class="controls">
+      <div class="srch">
+        <span class="srch-ic">⌕</span>
+        <input type="text" id="si" placeholder="Search leads..." oninput="render()">
+      </div>
+      <div class="tabs">
+        <button class="tab active" onclick="setTier('all',this)">All</button>
+        <button class="tab hot"   onclick="setTier('hot',this)">🔥 Hot</button>
+        <button class="tab warm"  onclick="setTier('warm',this)">🟡 Warm</button>
+        <button class="tab cold"  onclick="setTier('cold',this)">🔵 Cold</button>
+      </div>
+      <select class="srt" id="srt" onchange="render()">
+        <option value="score">By score</option>
+        <option value="recent">Most recent</option>
+        <option value="activity">Most active</option>
+        <option value="name">Name A–Z</option>
+      </select>
+      <button class="btn-sm" onclick="openBulkWA()">📱 Bulk WhatsApp</button>
+    </div>
+
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th>Lead</th><th>Contact</th><th>Social reach</th>
+          <th style="width:150px">Lead score</th><th>Status</th>
+          <th>Visits</th><th>Chats</th><th>Last active</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="tb"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Detail panel -->
+<div class="ov" id="ov" onclick="if(event.target===this)closeDet()">
+  <div class="dp" id="dp"></div>
+</div>
+
+<!-- WhatsApp message modal -->
+<div class="modal-bg" id="waMod">
+  <div class="modal">
+    <h3>📱 WhatsApp Message</h3>
+    <div style="font-size:12px;color:var(--mut);margin-bottom:10px">To: <span id="waRecip" style="font-weight:600;color:var(--txt)"></span></div>
+    <textarea id="waTxt"></textarea>
+    <div class="modal-actions">
+      <button class="btn-sm" onclick="document.getElementById('waMod').classList.remove('open')">Cancel</button>
+      <button class="btn-gold" onclick="sendWA()">Open WhatsApp ↗</button>
+      <button class="btn-sm" onclick="copyWAText()">Copy text</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk WA modal -->
+<div class="modal-bg" id="bulkMod">
+  <div class="modal">
+    <h3>📱 Bulk WhatsApp Campaign</h3>
+    <div style="font-size:12px;color:var(--mut);margin-bottom:8px">Use <code style="background:var(--bg);padding:2px 5px;border-radius:4px">{{name}}</code> for personalisation</div>
+    <select class="srt" style="width:100%;margin-bottom:10px" id="bulkTier">
+      <option value="all">All leads</option>
+      <option value="hot">Hot leads only 🔥</option>
+      <option value="warm">Warm leads only 🟡</option>
+      <option value="cold">Cold leads only 🔵</option>
+    </select>
+    <textarea id="bulkTxt" style="width:100%;padding:12px;border:1px solid var(--bdr);border-radius:var(--rad);font-size:13px;font-family:'Georgia',serif;outline:none;resize:vertical;min-height:120px">Hi {{name}}! 👋 Your next adventure awaits — plan it with India's first AI Travel Concierge at thetriptheory.com ✈️</textarea>
+    <div class="modal-actions">
+      <button class="btn-sm" onclick="document.getElementById('bulkMod').classList.remove('open')">Cancel</button>
+      <button class="btn-gold" onclick="runBulk()">Generate WA links ↗</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const COLORS=[{bg:'#FDF0EF',c:'#7B1A14'},{bg:'#EEF8F4',c:'#0B4F30'},{bg:'#EEF4FD',c:'#103A6A'},{bg:'#FDF6E7',c:'#6B430A'},{bg:'#F3EEF8',c:'#4A1E7A'},{bg:'#FEF0F5',c:'#7A1840'},{bg:'#FFFBE6',c:'#6B5A00'}];
+let KEY='', all=[], tier='all', waUserId='', waPhone='';
+
+function login(){
+  KEY=document.getElementById('keyIn').value.trim();
+  if(!KEY){document.getElementById('lerr').textContent='Enter admin key';return}
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+  loadAll();
+  setInterval(loadAll,30000);
+}
+
+async function loadAll(){
+  await Promise.all([loadMetrics(),loadLeads()]);
+  document.getElementById('lastUp').textContent='Updated '+new Date().toLocaleTimeString('en-IN');
+}
+
+async function loadMetrics(){
+  try{
+    const r=await fetch(`/api/crm/metrics?admin_key=${KEY}`);
+    const d=await r.json();
+    document.getElementById('m0').textContent=d.total_leads||0;
+    document.getElementById('m1').textContent=d.hot||0;
+    document.getElementById('m2').textContent=d.warm||0;
+    document.getElementById('m3').textContent=d.cold||0;
+    document.getElementById('m4').textContent=d.total_bookings||0;
+    document.getElementById('m5').textContent=d.avg_score||0;
+    document.getElementById('liveCount').textContent=(d.live_now||0)+' live now';
+  }catch(e){}
+}
+
+async function loadLeads(){
+  try{
+    const srt=document.getElementById('srt')?.value||'score';
+    const r=await fetch(`/api/crm/leads?admin_key=${KEY}&sort=${srt}&limit=500`);
+    const d=await r.json();
+    all=d.leads||[];
+    render();
+  }catch(e){
+    document.getElementById('tb').innerHTML='<tr><td colspan="9"><div class="empty">Error — check admin key</div></td></tr>';
+  }
+}
+
+function getFiltered(){
+  const s=(document.getElementById('si')?.value||'').toLowerCase();
+  const srt=document.getElementById('srt')?.value||'score';
+  let arr=[...all];
+  if(s) arr=arr.filter(l=>(l.full_name||'').toLowerCase().includes(s)||(l.email||'').toLowerCase().includes(s)||(l.phone||'').includes(s));
+  if(tier!=='all') arr=arr.filter(l=>l.tier===tier);
+  if(srt==='score') arr.sort((a,b)=>b.score-a.score);
+  else if(srt==='recent') arr.sort((a,b)=>new Date(b.last_activity)-new Date(a.last_activity));
+  else if(srt==='activity') arr.sort((a,b)=>(b.ai_chats+b.visits)-(a.ai_chats+a.visits));
+  else arr.sort((a,b)=>(a.full_name||a.email||'').localeCompare(b.full_name||b.email||''));
+  return arr;
+}
+
+function sc(s){return s>=75?'#C0392B':s>=40?'#C87D0A':'#1A6CA8'}
+function ini(n){if(!n)return'?';return n.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()}
+function ago(iso){
+  if(!iso)return'—';
+  const m=Math.floor((Date.now()-new Date(iso))/60000);
+  if(m<1)return'Just now';if(m<60)return m+'m ago';
+  const h=Math.floor(m/60);if(h<24)return h+'h ago';
+  return Math.floor(h/24)+'d ago';
+}
+
+function render(){
+  const arr=getFiltered();
+  if(!arr.length){document.getElementById('tb').innerHTML='<tr><td colspan="9"><div class="empty">No leads found</div></td></tr>';return}
+  document.getElementById('tb').innerHTML=arr.map((l,i)=>{
+    const col=COLORS[i%COLORS.length];
+    const s=l.score||0;
+    const tc={hot:'bh',warm:'bw',cold:'bc'}[l.tier]||'bc';
+    const name=l.full_name||l.email||'Unknown';
+    const hasIG=!!l.instagram_handle;
+    const hasWA=!!(l.phone||l.whatsapp_number);
+    const hasLI=!!l.linkedin_url;
+    return `<tr onclick="openDet('${l.user_id}')">
+      <td><div class="nc">
+        <div class="av" style="background:${col.bg};color:${col.c}">${ini(name)}</div>
+        <div><div class="nn">${name}</div><div class="ns">${l.source||'organic'}</div></div>
+      </div></td>
+      <td style="font-size:12px;color:var(--mut);line-height:1.8">${l.email||'—'}<br>${l.phone||''}</td>
+      <td><div class="soc-row">
+        <a class="soc-ic ${hasIG?'ig-active':''}" onclick="event.stopPropagation()" ${hasIG?`href="https://instagram.com/${l.instagram_handle}" target="_blank" title="@${l.instagram_handle}"`:'title="No Instagram"'}>ig</a>
+        <span class="soc-ic ${hasWA?'wa-active':''}" onclick="event.stopPropagation();${hasWA?`openWA('${l.user_id}','${name}','${l.phone||''}')`:''}" title="${hasWA?'Send WhatsApp':'No phone'}">wa</span>
+        <a class="soc-ic ${hasLI?'li-active':''}" onclick="event.stopPropagation()" ${hasLI?`href="${l.linkedin_url}" target="_blank" title="View LinkedIn"`:'title="No LinkedIn"'}>in</a>
+      </div></td>
+      <td><div class="sb-wrap">
+        <div class="sb"><div class="sf" style="width:${s}%;background:${sc(s)}"></div></div>
+        <span class="sn" style="color:${sc(s)}">${s}</span>
+      </div></td>
+      <td><span class="badge ${tc}">${l.tier.charAt(0).toUpperCase()+l.tier.slice(1)}</span></td>
+      <td style="font-size:13px;text-align:center">${l.visits||0}</td>
+      <td style="font-size:13px;text-align:center">${l.ai_chats||0}</td>
+      <td style="font-size:12px;color:var(--hnt)">${ago(l.last_activity)}</td>
+      <td style="white-space:nowrap">
+        ${hasWA?`<button class="act-btn" onclick="event.stopPropagation();openWA('${l.user_id}','${name}','${l.phone||''}')">📱 WA</button> `:''}
+        ${hasIG?`<a class="act-btn" href="https://instagram.com/${l.instagram_handle}" target="_blank" onclick="event.stopPropagation()" style="text-decoration:none">📸 IG</a>`:''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function openDet(uid){
+  document.getElementById('ov').classList.add('open');
+  document.getElementById('dp').innerHTML='<div style="padding:3rem;text-align:center;color:var(--hnt)">Loading...</div>';
+  try{
+    const r=await fetch(`/api/crm/lead/${encodeURIComponent(uid)}?admin_key=${KEY}`);
+    const l=await r.json();
+    renderDet(l);
+  }catch(e){document.getElementById('dp').innerHTML='<div style="padding:2rem;color:var(--hot)">Error loading lead.</div>'}
+}
+
+function renderDet(l){
+  const s=l.score||0;const tc={hot:'bh',warm:'bw',cold:'bc'}[l.tier]||'bc';
+  const name=l.full_name||l.email||'Unknown';
+  const col=COLORS[name.charCodeAt(0)%COLORS.length];
+  const ac={login:'#888',chat:'#1A6CA8',trip:'#C0392B',search:'#C87D0A',booking:'#1A7A4A',visit:'#A8A49C',signup:'#7F77DD'};
+  const acts=(l.recent_activities||[]).slice(0,15);
+  const hasIG=!!l.instagram_handle;
+  const hasWA=!!(l.phone||l.whatsapp_number);
+  const hasLI=!!l.linkedin_url;
+  document.getElementById('dp').innerHTML=`
+    <button class="dc" onclick="closeDet()">×</button>
+    <div class="dav" style="background:${col.bg};color:${col.c}">${ini(name)}</div>
+    <div class="dn">${name}</div>
+    <div class="de">${l.email||''}</div>
+    <div style="text-align:center;margin-top:8px"><span class="badge ${tc}">${l.tier.charAt(0).toUpperCase()+l.tier.slice(1)} lead</span></div>
+    <div class="bsv" style="color:${sc(s)}">${s}</div>
+    <div class="bsl">Lead score</div>
+    <div class="sbk">
+      <div class="sbr"><span>Page visits (×1.5)</span><span>+${Math.round((l.visits||0)*1.5)}</span></div>
+      <div class="sbr"><span>AI chats (×4)</span><span>+${(l.ai_chats||0)*4}</span></div>
+      <div class="sbr"><span>Trips planned (×6)</span><span>+${(l.trips_planned||0)*6}</span></div>
+      <div class="sbr"><span>Bookings (×20)</span><span>+${(l.bookings||0)*20}</span></div>
+    </div>
+
+    <div class="st">Reach out</div>
+    ${hasWA?`<a class="soc-btn wa" href="javascript:void(0)" onclick="openWA('${l.user_id}','${name}','${l.phone||''}')"><span>📱</span><div><div style="font-weight:600;font-size:13px">WhatsApp</div><div style="font-size:11px;opacity:.8">${l.phone||''}</div></div></a>`:'<div style="font-size:12px;color:var(--hnt);margin-bottom:8px">No phone — add below to enable WhatsApp</div>'}
+    ${hasIG?`<a class="soc-btn ig" href="https://instagram.com/${l.instagram_handle}" target="_blank"><span>📸</span><div><div style="font-weight:600;font-size:13px">Instagram</div><div style="font-size:11px;opacity:.8">@${l.instagram_handle}</div></div></a>`:''}
+    ${hasLI?`<a class="soc-btn li" href="${l.linkedin_url}" target="_blank"><span>💼</span><div><div style="font-weight:600;font-size:13px">LinkedIn</div><div style="font-size:11px;opacity:.8">View profile</div></div></a>`:''}
+    ${l.email?`<a class="soc-btn email" href="mailto:${l.email}"><span>✉️</span><div><div style="font-weight:600;font-size:13px">Email</div><div style="font-size:11px;opacity:.8">${l.email}</div></div></a>`:''}
+
+    <div class="st">Contact info</div>
+    <div class="ir"><span class="il">Phone</span><span class="iv">${l.phone||'—'}</span></div>
+    <div class="ir"><span class="il">Instagram</span><span class="iv" style="color:#ad1457">${l.instagram_handle?'@'+l.instagram_handle:'—'}</span></div>
+    <div class="ir"><span class="il">LinkedIn</span><span class="iv" style="font-size:11px;color:#0077b5">${l.linkedin_url||'—'}</span></div>
+    <div class="ir"><span class="il">Source</span><span class="iv">${l.source||'organic'}</span></div>
+    <div class="ir"><span class="il">Joined</span><span class="iv">${l.first_seen?new Date(l.first_seen).toLocaleDateString('en-IN'):'—'}</span></div>
+
+    <div class="st">Edit profile</div>
+    <input class="ein" id="e_phone"    placeholder="Phone / WhatsApp number" value="${l.phone||''}">
+    <input class="ein" id="e_ig"       placeholder="Instagram handle (e.g. @username)" value="${l.instagram_handle?'@'+l.instagram_handle:''}">
+    <input class="ein" id="e_li"       placeholder="LinkedIn URL" value="${l.linkedin_url||''}">
+    <textarea class="notes-area" id="e_notes" placeholder="Add notes...">${l.notes||''}</textarea>
+    <button class="sbtn" onclick="savePro('${l.user_id}')">Save changes</button>
+
+    <div class="st">Stats</div>
+    <div class="sg">
+      <div class="sx"><div class="sxn">${l.visits||0}</div><div class="sxl">Visits</div></div>
+      <div class="sx"><div class="sxn">${l.ai_chats||0}</div><div class="sxl">AI Chats</div></div>
+      <div class="sx"><div class="sxn">${l.trips_planned||0}</div><div class="sxl">Trips planned</div></div>
+      <div class="sx"><div class="sxn" style="color:var(--grn)">${l.bookings||0}</div><div class="sxl">Bookings</div></div>
+    </div>
+
+    <div class="st">Activity timeline</div>
+    ${acts.length?acts.map(a=>`<div class="ai">
+      <div class="ad" style="background:${ac[a.action]||'#888'}"></div>
+      <div><div class="at">${fmtAct(a)}</div><div class="atm">${ago(a.timestamp)}</div></div>
+    </div>`).join(''):'<div style="font-size:12px;color:var(--hnt);padding:8px 0">No activity yet</div>'}
+    <div style="height:2rem"></div>
+  `;
+}
+
+function fmtAct(a){
+  const d=a.detail||{};
+  switch(a.action){
+    case 'login':   return 'Logged in';
+    case 'signup':  return 'Signed up on TTT';
+    case 'chat':    return 'AI chat: '+(d.query||'').slice(0,60);
+    case 'trip':    return 'Planned trip to '+(d.destination||'unknown');
+    case 'search':  return 'Searched: '+(d.query||'').slice(0,50);
+    case 'booking': return 'Booked '+(d.service||'')+(d.amount?' — ₹'+d.amount:'');
+    case 'visit':   return 'Visited '+(a.detail?.page||'page');
+    default:        return a.action;
+  }
+}
+
+async function savePro(uid){
+  const ig=(document.getElementById('e_ig').value||'').replace('@','');
+  const payload={
+    phone:            document.getElementById('e_phone').value,
+    instagram_handle: ig||'',
+    linkedin_url:     document.getElementById('e_li').value,
+    notes:            document.getElementById('e_notes').value,
+  };
+  try{
+    await fetch(`/api/crm/lead/${encodeURIComponent(uid)}?admin_key=${KEY}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    showToast('Saved ✓');
+    loadLeads();
+    openDet(uid);
+  }catch(e){showToast('Error saving')}
+}
+
+function openWA(uid,name,phone){
+  waUserId=uid; waPhone=phone;
+  document.getElementById('waRecip').textContent=name+(phone?' ('+phone+')':'');
+  document.getElementById('waTxt').value=
+    `Hi ${name}! 👋\n\nI'm reaching out from *The Trip Theory* — India's first AI Travel Concierge.\n\nWe noticed you've been exploring some amazing destinations on our platform. We'd love to help you plan your perfect trip!\n\n✈️ Visit: thetriptheory.com\n\nWhere would you like to go next? 🌏`;
+  document.getElementById('waMod').classList.add('open');
+}
+
+async function sendWA(){
+  const msg=document.getElementById('waTxt').value;
+  if(!waPhone){showToast('No phone number for this lead');return}
+  const num=waPhone.replace(/\D/g,'');
+  const link=`https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+  window.open(link,'_blank');
+  document.getElementById('waMod').classList.remove('open');
+  showToast('WhatsApp opened ✓');
+}
+
+function copyWAText(){
+  navigator.clipboard.writeText(document.getElementById('waTxt').value);
+  showToast('Message copied ✓');
+}
+
+function openBulkWA(){document.getElementById('bulkMod').classList.add('open')}
+
+async function runBulk(){
+  const t=document.getElementById('bulkTier').value;
+  const msg=document.getElementById('bulkTxt').value;
+  const targets=(t==='all'?all:all.filter(l=>l.tier===t)).filter(l=>l.phone||l.whatsapp_number);
+  if(!targets.length){showToast('No leads with phone numbers in this tier');return}
+  // Open first one, rest copy to clipboard
+  const first=targets[0];
+  const fnum=(first.phone||'').replace(/\D/g,'');
+  const fmsg=msg.replace(/\{\{name\}\}/g,first.full_name||'Traveller');
+  window.open(`https://wa.me/${fnum}?text=${encodeURIComponent(fmsg)}`,'_blank');
+  const allLinks=targets.map(l=>{
+    const n=(l.phone||'').replace(/\D/g,'');
+    const m=msg.replace(/\{\{name\}\}/g,l.full_name||'Traveller');
+    return `${l.full_name||l.email}: https://wa.me/${n}?text=${encodeURIComponent(m)}`;
+  }).join('\n\n');
+  navigator.clipboard.writeText(allLinks);
+  document.getElementById('bulkMod').classList.remove('open');
+  showToast(`${targets.length} WA links copied to clipboard ✓`);
+}
+
+function setTier(t,el){
+  tier=t;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function closeDet(){document.getElementById('ov').classList.remove('open')}
+
+function exportCSV(){
+  const arr=getFiltered();
+  const rows=[['Name','Email','Phone','Instagram','LinkedIn','Score','Tier','Visits','AI Chats','Trips','Bookings','Source','Last Active']];
+  arr.forEach(l=>rows.push([l.full_name||'',l.email||'',l.phone||'',l.instagram_handle?'@'+l.instagram_handle:'',l.linkedin_url||'',l.score,l.tier,l.visits||0,l.ai_chats||0,l.trips_planned||0,l.bookings||0,l.source||'',l.last_activity||'']));
+  const csv=rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='ttt-crm-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  showToast('Exported '+arr.length+' leads ✓');
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';
+  setTimeout(()=>{t.style.display='none'},2500);
+}
+</script>
+</body>
+</html>
