@@ -540,7 +540,14 @@ import re as _re
 _otp_store: Dict[str, dict] = {}  # contact → {code, expires_at, attempts}
 
 # ── Activity Tracking ─────────────────────────────────────────────────────────
-_activity_log: List[dict] = []   # every user action
+_activity_log: List[dict] = []   # every user action  (loaded from _db below)
+# ── Restore persisted activities from DB (survives redeploys) ────────────────
+def _restore_activity_log():
+    global _activity_log
+    saved = _db.get("activity_log", [])
+    if saved:
+        _activity_log.extend(saved)
+        print(f"[CRM] Restored {len(saved)} activities from DB")
 _search_log:   List[dict] = []   # search queries
 _chat_log:     List[dict] = []   # chat messages (metadata only)
 _login_log:    List[dict] = []   # login events
@@ -562,13 +569,29 @@ def get_live_count() -> int:
     return sum(1 for v in _live_visitors.values() if v['last_seen'] > cutoff)
 
 def log_activity(user_id: str, action: str, detail: dict = {}):
-    _activity_log.append({
+    _entry = {
         "id":        str(uuid.uuid4())[:8],
         "user_id":   user_id,
         "action":    action,
         "detail":    detail,
         "timestamp": datetime.now().isoformat(),
-    })
+    }
+    _activity_log.append(_entry)
+    # Persist to DB for CRM (keep last 5000)
+    _db["activity_log"] = _activity_log[-5000:]
+    # Update CRM lead score
+    _db.setdefault("lead_scores", {})
+    _ls = _db["lead_scores"].setdefault(user_id, {"visits":0,"ai_chats":0,"trips_planned":0,"bookings":0,"searches":0,"logins":0,"last_activity":""})
+    if action == "visit":               _ls["visits"] += 1
+    elif action == "chat":              _ls["ai_chats"] += 1
+    elif action in ("trip","itinerary"):_ls["trips_planned"] += 1
+    elif action == "booking":           _ls["bookings"] += 1
+    elif action == "search":            _ls["searches"] += 1
+    elif action in ("login","signup"):  _ls["logins"] += 1
+    _ls["last_activity"] = _entry["timestamp"]
+    _ls["score"] = min(100, int(_ls["visits"]*1.5 + _ls["ai_chats"]*4 + _ls["trips_planned"]*6 + _ls["bookings"]*20 + _ls["searches"]*2 + _ls["logins"]*3))
+    if len(_activity_log) % 5 == 0:
+        _save_db()
     if len(_activity_log) > 5000:
         _activity_log.pop(0)
 OTP_EXPIRY_SECONDS = 600          # 10 minutes
@@ -1250,6 +1273,8 @@ _partners: Dict[str, dict]   = _db.get("partners", {})
 _listings: Dict[str, dict]   = _db.get("listings", {})
 _bookings: Dict[str, dict]   = _db.get("bookings", {})
 _users:    Dict[str, dict]   = _db.get("users", {})
+# Load persisted activity log from DB
+_activity_log_db: List[dict] = _db.get("activity_log", [])
 _follow_requests: List[dict] = _db.get("follow_requests", [])
 SIGNUPS_LOG: List[dict]      = _db.get("signups", [])
 
@@ -3021,7 +3046,15 @@ def _get_tier(score: int) -> str:
     return "cold"
 
 def _build_lead(uid: str, user: dict) -> dict:
+    # Use persisted score from _db if available (survives redeploys)
+    _persisted = _db.get("lead_scores", {}).get(uid, {})
     stats = _calc_score(uid)
+    # Merge persisted counts (they accumulate across sessions)
+    for k in ("visits","ai_chats","trips_planned","bookings","searches","logins"):
+        if _persisted.get(k, 0) > stats.get(k, 0):
+            stats[k] = _persisted[k]
+    # Recalculate score with merged data
+    stats["score"] = min(100, int(stats["visits"]*1.5 + stats["ai_chats"]*4 + stats["trips_planned"]*6 + stats["bookings"]*20 + stats["searches"]*2 + stats["logins"]*3))
     score = stats["score"]
     extra = _crm_extra.get(uid, {})
     acts  = sorted(
