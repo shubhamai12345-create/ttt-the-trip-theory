@@ -2982,3 +2982,320 @@ async def admin_full_summary(key: str = Query("")):
         "recent_chats":     list(reversed(_chat_log[-10:])),
     }
 
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TTT CRM — Lead Management, Activity Tracking, WhatsApp & Instagram API
+# ═══════════════════════════════════════════════════════════════════════════
+
+import urllib.parse
+
+# ── CRM in-memory store (persisted in _db) ──────────────────────────────────
+_crm_activities: List[dict] = []          # all tracked activities
+_crm_notes: Dict[str, List[dict]] = {}    # user_id → [notes]
+_crm_tags:  Dict[str, List[str]]  = {}    # user_id → [tags]
+_crm_extra: Dict[str, dict]       = {}    # user_id → {linkedin, instagram, whatsapp, notes}
+
+# ── Score calculator ─────────────────────────────────────────────────────────
+def _calc_score(user_id: str) -> dict:
+    acts = [a for a in _activity_log if a.get("user_id") == user_id]
+    visits   = sum(1 for a in acts if a.get("action") == "visit")
+    chats    = sum(1 for a in acts if a.get("action") == "chat")
+    trips    = sum(1 for a in acts if a.get("action") in ("trip", "itinerary"))
+    bookings = sum(1 for a in acts if a.get("action") == "booking")
+    searches = sum(1 for a in acts if a.get("action") == "search")
+    logins   = sum(1 for a in acts if a.get("action") in ("login", "signup"))
+    score = min(100, int(visits*1.5 + chats*4 + trips*6 + bookings*20 + searches*2 + logins*3))
+    return {
+        "score": score,
+        "visits": visits,
+        "ai_chats": chats,
+        "trips_planned": trips,
+        "bookings": bookings,
+        "searches": searches,
+        "logins": logins,
+    }
+
+def _get_tier(score: int) -> str:
+    if score >= 75: return "hot"
+    if score >= 40: return "warm"
+    return "cold"
+
+def _build_lead(uid: str, user: dict) -> dict:
+    stats = _calc_score(uid)
+    score = stats["score"]
+    extra = _crm_extra.get(uid, {})
+    acts  = sorted(
+        [a for a in _activity_log if a.get("user_id") == uid],
+        key=lambda x: x.get("timestamp",""), reverse=True
+    )
+    ig_raw = user.get("instagram_handle") or extra.get("instagram_handle") or ""
+    ig_handle = ig_raw.lstrip("@") if ig_raw else ""
+    phone = user.get("phone") or extra.get("phone") or ""
+    wa_number = phone.replace("+","").replace(" ","").replace("-","")
+
+    return {
+        "user_id":          uid,
+        "full_name":        user.get("name") or extra.get("full_name") or "",
+        "email":            user.get("email") or "",
+        "phone":            phone,
+        "whatsapp_number":  wa_number,
+        "linkedin_url":     user.get("linkedin_url") or extra.get("linkedin_url") or "",
+        "instagram_handle": ig_handle,
+        "instagram_url":    f"https://instagram.com/{ig_handle}" if ig_handle else "",
+        "source":           user.get("source") or extra.get("source") or "organic",
+        "score":            score,
+        "tier":             _get_tier(score),
+        "notes":            extra.get("notes",""),
+        "tags":             _crm_tags.get(uid, []),
+        "first_seen":       user.get("created_at",""),
+        "last_activity":    acts[0].get("timestamp","") if acts else user.get("created_at",""),
+        **stats,
+        "recent_activities": acts[:15],
+    }
+
+
+# ── 1. CRM: Get all leads ────────────────────────────────────────────────────
+@app.get("/api/crm/leads")
+async def crm_leads(
+    admin_key: str = Query(""),
+    tier:      str = Query(""),
+    sort:      str = Query("score"),
+    search:    str = Query(""),
+    limit:     int = Query(200),
+):
+    if admin_key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    leads = [_build_lead(uid, u) for uid, u in _users.items()]
+
+    if search:
+        s = search.lower()
+        leads = [l for l in leads if
+                 s in (l["full_name"] or "").lower() or
+                 s in (l["email"] or "").lower() or
+                 s in (l["phone"] or "")]
+
+    if tier in ("hot","warm","cold"):
+        leads = [l for l in leads if l["tier"] == tier]
+
+    if sort == "score":    leads.sort(key=lambda x: x["score"], reverse=True)
+    elif sort == "recent": leads.sort(key=lambda x: x["last_activity"], reverse=True)
+    elif sort == "activity":leads.sort(key=lambda x: x["ai_chats"]+x["visits"], reverse=True)
+    elif sort == "name":   leads.sort(key=lambda x: (x["full_name"] or x["email"] or "").lower())
+
+    leads = leads[:limit]
+    return {
+        "leads": leads,
+        "total": len(leads),
+        "hot":   sum(1 for l in leads if l["tier"]=="hot"),
+        "warm":  sum(1 for l in leads if l["tier"]=="warm"),
+        "cold":  sum(1 for l in leads if l["tier"]=="cold"),
+    }
+
+
+# ── 2. CRM: Single lead detail ───────────────────────────────────────────────
+@app.get("/api/crm/lead/{user_id}")
+async def crm_lead_detail(user_id: str, admin_key: str = Query("")):
+    if admin_key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    user = _users.get(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    return _build_lead(user_id, user)
+
+
+# ── 3. CRM: Update lead (phone, LinkedIn, Instagram, notes, tags) ────────────
+@app.patch("/api/crm/lead/{user_id}")
+async def crm_update_lead(user_id: str, data: dict, admin_key: str = Query("")):
+    if admin_key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    if user_id not in _users:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    # Update user record
+    for field in ("name","email","phone","linkedin_url","instagram_handle"):
+        if field in data:
+            _users[user_id][field] = data[field]
+    # Update extra CRM fields
+    if user_id not in _crm_extra:
+        _crm_extra[user_id] = {}
+    for field in ("notes","source","full_name","linkedin_url","instagram_handle","phone"):
+        if field in data:
+            _crm_extra[user_id][field] = data[field]
+    if "tags" in data:
+        _crm_tags[user_id] = data["tags"]
+    _save_db()
+    return {"status": "updated", "lead": _build_lead(user_id, _users[user_id])}
+
+
+# ── 4. CRM: Log activity (called by frontend tracker) ───────────────────────
+@app.post("/api/crm/activity")
+async def crm_log_activity(data: dict):
+    user_id  = data.get("user_id", "anon")
+    act_type = data.get("activity_type", "visit")
+    log_activity(user_id, act_type, data.get("activity_data", {}))
+    # Sync profile if provided
+    if "profile" in data and user_id in _users:
+        for f in ("name","phone","instagram_handle","linkedin_url"):
+            if data["profile"].get(f):
+                _users[user_id][f] = data["profile"][f]
+        _save_db()
+    return {"status": "ok"}
+
+
+# ── 5. CRM: Metrics summary ──────────────────────────────────────────────────
+@app.get("/api/crm/metrics")
+async def crm_metrics(admin_key: str = Query("")):
+    if admin_key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    leads = [_build_lead(uid, u) for uid, u in _users.items()]
+    total_bookings = sum(l["bookings"] for l in leads)
+    avg_score = int(sum(l["score"] for l in leads)/len(leads)) if leads else 0
+    return {
+        "total_leads":    len(leads),
+        "hot":            sum(1 for l in leads if l["tier"]=="hot"),
+        "warm":           sum(1 for l in leads if l["tier"]=="warm"),
+        "cold":           sum(1 for l in leads if l["tier"]=="cold"),
+        "total_bookings": total_bookings,
+        "avg_score":      avg_score,
+        "new_this_week":  len([l for l in leads if l["first_seen"] > (datetime.now().isoformat()[:10])]),
+        "live_now":       get_live_count(),
+    }
+
+
+# ── 6. CRM: Sync profile on login/signup ────────────────────────────────────
+@app.post("/api/crm/sync-profile")
+async def crm_sync_profile(data: dict):
+    uid = data.get("user_id") or data.get("email")
+    if not uid: return {"status": "skipped"}
+    # Find matching user
+    target = None
+    for u_id, u in _users.items():
+        if u.get("email") == uid or u_id == uid:
+            target = u_id; break
+    if target:
+        for f in ("name","phone","instagram_handle","linkedin_url","source"):
+            if data.get(f): _users[target][f] = data[f]
+        _save_db()
+    return {"status": "synced"}
+
+
+# ── 7. WhatsApp API — generate link & send ───────────────────────────────────
+@app.get("/api/crm/whatsapp/link")
+async def whatsapp_link(
+    admin_key: str = Query(""),
+    user_id:   str = Query(""),
+    message:   str = Query(""),
+):
+    """Returns a click-to-open WhatsApp link for a lead."""
+    if admin_key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    user  = _users.get(user_id, {})
+    extra = _crm_extra.get(user_id, {})
+    phone = user.get("phone") or extra.get("phone") or ""
+    wa_number = phone.replace("+","").replace(" ","").replace("-","")
+
+    if not wa_number:
+        raise HTTPException(status_code=400, detail="No phone number for this lead")
+
+    name = user.get("name") or "Traveller"
+    if not message:
+        message = (
+            f"Hi {name}! 👋\n\n"
+            "I'm reaching out from *The Trip Theory* — India's first AI Travel Concierge.\n\n"
+            "We noticed you've been exploring some amazing destinations on our platform. "
+            "We'd love to help you plan your perfect trip!\n\n"
+            "✈️ Visit: thetriptheory.com\n\n"
+            "Where would you like to go next? 🌏"
+        )
+
+    encoded = urllib.parse.quote(message)
+    wa_link = f"https://wa.me/{wa_number}?text={encoded}"
+    return {
+        "whatsapp_link": wa_link,
+        "phone":         phone,
+        "message":       message,
+        "lead_name":     name,
+    }
+
+
+@app.post("/api/crm/whatsapp/bulk")
+async def whatsapp_bulk(data: dict, admin_key: str = Query("")):
+    """Generate WhatsApp links for multiple leads at once."""
+    if admin_key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    user_ids = data.get("user_ids", [])
+    message_template = data.get("message", "")
+    results = []
+
+    for uid in user_ids:
+        user  = _users.get(uid, {})
+        extra = _crm_extra.get(uid, {})
+        phone = user.get("phone") or extra.get("phone") or ""
+        if not phone:
+            results.append({"user_id": uid, "status": "no_phone"})
+            continue
+        wa_number = phone.replace("+","").replace(" ","").replace("-","")
+        name = user.get("name") or "Traveller"
+        msg = message_template.replace("{{name}}", name) if message_template else (
+            f"Hi {name}! 👋 Your next adventure awaits — plan it with India's first AI Travel Concierge at thetriptheory.com ✈️"
+        )
+        encoded = urllib.parse.quote(msg)
+        results.append({
+            "user_id":       uid,
+            "name":          name,
+            "phone":         phone,
+            "whatsapp_link": f"https://wa.me/{wa_number}?text={encoded}",
+            "status":        "ready",
+        })
+
+    return {"results": results, "total": len(results), "ready": sum(1 for r in results if r["status"]=="ready")}
+
+
+# ── 8. Instagram API — profile link & data ──────────────────────────────────
+@app.get("/api/crm/instagram/link")
+async def instagram_link(admin_key: str = Query(""), user_id: str = Query("")):
+    """Returns the Instagram profile URL for a lead."""
+    if admin_key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    user  = _users.get(user_id, {})
+    extra = _crm_extra.get(user_id, {})
+    handle = (user.get("instagram_handle") or extra.get("instagram_handle") or "").lstrip("@")
+    if not handle:
+        raise HTTPException(status_code=400, detail="No Instagram handle for this lead")
+    return {
+        "instagram_handle": handle,
+        "instagram_url":    f"https://instagram.com/{handle}",
+        "instagram_app_url":f"instagram://user?username={handle}",
+    }
+
+
+# ── 9. CRM: Add note to a lead ───────────────────────────────────────────────
+@app.post("/api/crm/lead/{user_id}/note")
+async def crm_add_note(user_id: str, data: dict, admin_key: str = Query("")):
+    if admin_key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    if user_id not in _crm_notes:
+        _crm_notes[user_id] = []
+    note = {
+        "id":        str(uuid.uuid4())[:8],
+        "text":      data.get("text",""),
+        "author":    data.get("author","Admin"),
+        "created_at": datetime.now().isoformat(),
+    }
+    _crm_notes[user_id].append(note)
+    return {"status": "added", "note": note}
+
+
+# ── 10. CRM Dashboard page ──────────────────────────────────────────────────
+@app.get("/crm")
+async def crm_dashboard():
+    crm_file = os.path.join(frontend_dir, "crm.html")
+    if os.path.exists(crm_file):
+        return FileResponse(crm_file, headers={"Cache-Control": "no-store"})
+    return HTMLResponse("<h2>CRM dashboard not found. Add frontend/crm.html</h2>", status_code=404)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# END CRM
+# ══════════════════════════════════════════════════════════════════════════════
