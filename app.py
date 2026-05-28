@@ -315,8 +315,8 @@ Be warm and professional. Make them feel like joining TTT is the right decision.
 # Core API Endpoints
 # ─────────────────────────────────────────────
 
-@app.get("/")
-async def root():
+@app.get("/app")
+async def app_page():
     index = os.path.join(frontend_dir, "index.html")
     if os.path.exists(index):
         return FileResponse(index, headers={
