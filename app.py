@@ -1,3 +1,4 @@
+# TTT Build: 2026-05-28 11:48:34 UTC
 """
 TTT – The Trip Theory
 Agentic AI Travel Concierge Platform
