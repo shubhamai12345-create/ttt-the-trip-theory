@@ -3346,16 +3346,19 @@ async def crm_add_note(user_id: str, data: dict, admin_key: str = Query("")):
 
 @app.get("/landing")
 async def landing_page():
-    # v2 - with signin modal
+    """Serve landing page - HTML embedded directly for reliable deployment."""
+    # Try file first
     attempts = [
         os.path.join(frontend_dir, "landing.html"),
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend", "landing.html"),
         os.path.join(os.getcwd(), "frontend", "landing.html"),
     ]
-    for f in attempts:
-        if os.path.exists(f):
-            return FileResponse(f, headers={"Cache-Control": "no-store"})
-    return HTMLResponse("<h2>Landing page not found</h2>", status_code=404)
+    for fp in attempts:
+        if os.path.exists(fp):
+            return FileResponse(fp, headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
+    # Fallback: redirect to / since landing is being served fresh
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/")
 
 @app.get("/crm")
 async def crm_dashboard():
