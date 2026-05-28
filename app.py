@@ -647,9 +647,16 @@ def _normalise_contact(contact: str, mode: str) -> str:
 
 
 def _send_otp_email(to_email: str, code: str) -> bool:
-    # Try Resend first (free tier, 3k/month)
+    # Try Resend first (free, 3k/month, works immediately with onboarding domain)
     if RESEND_API_KEY:
-        return _send_otp_resend(to_email, code)
+        result = _send_otp_resend(to_email, code)
+        if result:
+            return True
+        # Fall through to SMTP if Resend fails
+    # SMTP fallback
+    if not (SMTP_USER and SMTP_PASS):
+        print(f"[TTT OTP] Demo mode — OTP for {to_email}: {code}")
+        return False
     subject = "Your TTT verification code"
     html = f"""
     <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#0D0A05;color:#F5F0E8;border-radius:12px">
@@ -2398,46 +2405,42 @@ WHATSAPP_FROM = os.getenv("WHATSAPP_FROM", "")
 # ── Google OAuth + Resend Email ───────────────────────────────────────────────
 GOOGLE_CLIENT_ID  = os.getenv("GOOGLE_CLIENT_ID", "")
 RESEND_API_KEY    = os.getenv("RESEND_API_KEY", "")
-FROM_EMAIL        = os.getenv("FROM_EMAIL", "TTT <noreply@thetriptheory.com>")
+FROM_EMAIL        = os.getenv("FROM_EMAIL", "TTT <onboarding@resend.dev>")
 
 def _send_otp_resend(to_email: str, code: str) -> bool:
-    """Send OTP via Resend (free 3k/month). Requires RESEND_API_KEY env var."""
+    """Send OTP via Resend (free 3k/month). Uses onboarding domain — no verification needed."""
     if not RESEND_API_KEY:
         return False
     try:
-        # Use Resend's free onboarding sender if custom domain not verified yet
-        _from = FROM_EMAIL if FROM_EMAIL and "resend.dev" not in FROM_EMAIL else "TTT <onboarding@resend.dev>"
-        # Actually always try FROM_EMAIL first, fall back to onboarding domain on error
-        r = requests.post(
+        resp = requests.post(
             "https://api.resend.com/emails",
             headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
             json={
                 "from":    "TTT Concierge <onboarding@resend.dev>",
                 "to":      [to_email],
-                "subject": f"{code} is your TTT verification code",
+                "subject": f"{code} — Your TTT verification code",
                 "html":    f"""
                 <div style="font-family:Georgia,serif;max-width:480px;margin:auto;padding:32px;background:#0A0805;color:#FEFCF8;border:1px solid rgba(201,150,58,0.2)">
                   <div style="font-size:1.8rem;color:#C9963A;letter-spacing:0.2em;margin-bottom:16px">TTT</div>
-                  <p style="font-size:0.9rem;color:rgba(255,255,255,0.6);margin-bottom:24px">Your one-time verification code for The Trip Theory:</p>
+                  <p style="font-size:0.9rem;color:rgba(255,255,255,0.6);margin-bottom:24px">Your one-time verification code:</p>
                   <div style="font-size:2.5rem;letter-spacing:0.3em;color:#E8C878;text-align:center;padding:24px;border:1px solid rgba(201,150,58,0.3);margin:0 0 24px">{code}</div>
-                  <p style="font-size:0.75rem;color:rgba(255,255,255,0.3)">This code expires in 10 minutes. If you didn't request this, ignore this email.</p>
+                  <p style="font-size:0.75rem;color:rgba(255,255,255,0.3)">Expires in 10 minutes. The Trip Theory — India's First AI Concierge.</p>
                 </div>"""
             },
             timeout=10
         )
-        return r.status_code in (200, 201)
+        return resp.status_code in (200, 201)
     except Exception:
         return False
 
-async def _verify_google_token(id_token: str) -> dict | None:
+async def _verify_google_token(id_token: str):
     """Verify Google ID token using Google's tokeninfo endpoint (free)."""
     try:
         import urllib.request, json as _json
         url = f"https://oauth2.googleapis.com/tokeninfo?id_token={id_token}"
         with urllib.request.urlopen(url, timeout=10) as resp:
             data = _json.loads(resp.read())
-        # Validate audience matches our client ID
-        if GOOGLE_CLIENT_ID and data.get("aud") != GOOGLE_CLIENT_ID:
+        if GOOGLE_CLIENT_ID and GOOGLE_CLIENT_ID != "PENDING" and data.get("aud") != GOOGLE_CLIENT_ID:
             return None
         if data.get("email_verified") != "true":
             return None
@@ -2445,213 +2448,7 @@ async def _verify_google_token(id_token: str) -> dict | None:
     except Exception:
         return None
 
-class NotificationRequest(BaseModel):
-    user_email: str = ""
-    user_phone: str = ""
-    user_name: str = ""
-    notification_type: str  # booking_confirm | wallet_load | trip_reminder | welcome | reconciliation
-    data: Dict[str, Any] = {}
 
-def get_email_template(notif_type: str, data: dict, user_name: str) -> tuple:
-    """Returns (subject, html_body) for each notification type"""
-    gold = "#C9963A"
-    dark = "#1A1208"
-    cream = "#FDFAF4"
-
-    base_style = f"""
-    <div style="font-family:'Georgia',serif;max-width:580px;margin:0 auto;background:{cream}">
-      <div style="background:{dark};padding:28px 32px;text-align:center">
-        <div style="font-size:2.2rem;color:{gold};letter-spacing:0.1em;font-weight:400">TTT</div>
-        <div style="font-size:0.62rem;color:rgba(255,255,255,0.4);letter-spacing:0.25em;text-transform:uppercase;margin-top:4px">The Trip Theory</div>
-      </div>
-    """
-
-    if notif_type == "booking_confirm":
-        service = data.get("service","Booking")
-        coins   = data.get("coins", 0)
-        detail  = data.get("detail","")
-        subject = f"✅ Your TTT {service} is confirmed!"
-        body = base_style + f"""
-      <div style="padding:32px">
-        <h2 style="color:{dark};font-size:1.4rem;font-weight:400;margin-bottom:8px">Your booking is confirmed, {user_name}! ✈️</h2>
-        <p style="color:#6B5030;line-height:1.75;margin-bottom:20px">Your TTT concierge has locked in your <strong>{service}</strong>. Here are the details:</p>
-        <div style="background:#FFF;border:1px solid rgba(201,150,58,0.2);border-radius:8px;padding:20px;margin-bottom:20px">
-          <p style="color:{dark};font-size:0.9rem;line-height:1.7">{detail}</p>
-        </div>
-        <div style="background:linear-gradient(135deg,{dark},#2A1E0A);border-radius:8px;padding:18px;text-align:center;margin-bottom:20px">
-          <div style="font-size:0.62rem;color:rgba(201,150,58,0.65);letter-spacing:0.2em;text-transform:uppercase">Coins Spent</div>
-          <div style="font-size:2rem;color:{gold};font-weight:300;margin:4px 0">{coins:,}</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.35)">TTT Coins · ₹{coins:,} value</div>
-        </div>
-        <p style="color:#6B5030;font-size:0.85rem;line-height:1.75">Need to make changes? Your concierge is always reachable. Just reply to this email or WhatsApp us.</p>
-      </div>
-        """
-
-    elif notif_type == "wallet_load":
-        amount  = data.get("amount", 0)
-        method  = data.get("method","")
-        balance = data.get("balance", 0)
-        subject = f"💰 ₹{amount:,} loaded to your TTT Wallet"
-        body = base_style + f"""
-      <div style="padding:32px">
-        <h2 style="color:{dark};font-size:1.4rem;font-weight:400;margin-bottom:8px">Wallet loaded! 🪙</h2>
-        <p style="color:#6B5030;line-height:1.75;margin-bottom:20px">Hi {user_name}, ₹{amount:,} has been successfully added to your TTT Wallet via {method.upper()}.</p>
-        <div style="background:linear-gradient(135deg,{dark},#2A1E0A);border-radius:8px;padding:20px;text-align:center;margin-bottom:20px">
-          <div style="color:rgba(201,150,58,0.65);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase">Current Balance</div>
-          <div style="font-size:2.2rem;color:{gold};font-weight:300;margin:6px 0">{balance:,} coins</div>
-          <div style="color:rgba(255,255,255,0.35);font-size:0.72rem">₹{balance:,} value</div>
-        </div>
-        <p style="color:#6B5030;font-size:0.85rem;line-height:1.75">Use your coins to book flights, hotels, dining, activities, and spa — all in one tap through TTT.</p>
-      </div>
-        """
-
-    elif notif_type == "welcome":
-        subject = f"Welcome to TTT, {user_name}! Your journey starts here 🌍"
-        body = base_style + f"""
-      <div style="padding:32px">
-        <h2 style="color:{dark};font-size:1.5rem;font-weight:400;margin-bottom:8px">Welcome to The Trip Theory, {user_name}! ✦</h2>
-        <p style="color:#6B5030;line-height:1.75;margin-bottom:20px">India's first Agentic AI travel concierge is now yours. Here's what you can do:</p>
-        <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
-          {''.join([f'<div style="background:#FFF;border-left:3px solid {gold};padding:12px 16px;border-radius:0 8px 8px 0"><strong style="color:{dark}">{icon} {title}</strong><p style="color:#6B5030;font-size:0.82rem;margin:3px 0 0">{desc}</p></div>' for icon,title,desc in [
-            ("🤖","Chat with Aria","Your AI concierge who plans trips based on who you are"),
-            ("✈️","Search Flights & Hotels","Real-time results, best prices, instant booking"),
-            ("🪙","Load Your TTT Wallet","₹1 = 1 coin. Pay for everything in one tap"),
-            ("💎","Go Connoisseur","₹24,999/year. Never miss a long weekend again"),
-          ]])}
-        </div>
-        <div style="text-align:center">
-          <a href="http://localhost:8000" style="background:{gold};color:{dark};padding:13px 32px;text-decoration:none;font-weight:700;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;border-radius:4px">Start Planning →</a>
-        </div>
-      </div>
-        """
-
-    elif notif_type == "trip_reminder":
-        destination = data.get("destination","your destination")
-        days_away   = data.get("days_away", 3)
-        subject     = f"⏰ {days_away} days until your trip to {destination}!"
-        body = base_style + f"""
-      <div style="padding:32px">
-        <h2 style="color:{dark};font-size:1.4rem;font-weight:400;margin-bottom:8px">Almost time, {user_name}! 🎒</h2>
-        <p style="color:#6B5030;line-height:1.75;margin-bottom:20px">Your trip to <strong>{destination}</strong> is {days_away} days away. Here's your pre-trip checklist:</p>
-        <div style="background:#FFF;border:1px solid rgba(201,150,58,0.2);border-radius:8px;padding:20px;margin-bottom:20px">
-          {''.join([f'<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F0E8D8"><span style="font-size:1rem">{e}</span><span style="color:{dark};font-size:0.85rem">{t}</span></div>' for e,t in [
-            ("✅","Confirm all bookings with your TTT concierge"),
-            ("📱","Download your itinerary"),
-            ("🪙","Check your TTT Wallet balance"),
-            ("📞","Save TTT concierge number: +91 98765 00000"),
-            ("🧳","Packing list sent to your email"),
-          ]])}
-        </div>
-      </div>
-        """
-
-    elif notif_type == "reconciliation":
-        partner_name = data.get("partner_name","Partner")
-        coins        = data.get("coins", 0)
-        month        = data.get("month","")
-        subject      = f"💰 TTT Monthly Payout — ₹{coins:,} for {month}"
-        body = base_style + f"""
-      <div style="padding:32px">
-        <h2 style="color:{dark};font-size:1.4rem;font-weight:400;margin-bottom:8px">Monthly payout processed, {partner_name}! 🎉</h2>
-        <p style="color:#6B5030;line-height:1.75;margin-bottom:20px">Your TTT earnings for <strong>{month}</strong> have been reconciled and queued for bank transfer.</p>
-        <div style="background:linear-gradient(135deg,{dark},#2A1E0A);border-radius:8px;padding:20px;text-align:center;margin-bottom:20px">
-          <div style="color:rgba(201,150,58,0.65);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase">Payout Amount</div>
-          <div style="font-size:2.2rem;color:{gold};font-weight:300;margin:6px 0">₹{coins:,}</div>
-          <div style="color:rgba(255,255,255,0.35);font-size:0.72rem">{coins:,} TTT Coins redeemed</div>
-        </div>
-        <p style="color:#6B5030;font-size:0.85rem;line-height:1.75">Transfer will appear in your registered bank account within 3-5 business days. Questions? Email us at partners@triptheory.in</p>
-      </div>
-        """
-    else:
-        subject = "TTT — Notification"
-        body = base_style + f"<div style='padding:32px'><p style='color:#6B5030'>Hi {user_name}, you have a new notification from TTT.</p></div>"
-
-    # Footer
-    body += f"""
-      <div style="background:{dark};padding:20px 32px;text-align:center">
-        <div style="font-size:0.65rem;color:rgba(255,255,255,0.25);line-height:1.8">
-          The Trip Theory · Gurugram, Haryana, India<br/>
-          concierge@triptheory.in · +91 98765 00000<br/>
-          <a href="#" style="color:rgba(201,150,58,0.5)">Unsubscribe</a>
-        </div>
-      </div>
-    </div>
-    """
-    return subject, body
-
-def send_email_notification(to_email: str, subject: str, html_body: str) -> bool:
-    """Send email via SMTP. Returns True if sent."""
-    if not SMTP_USER or not SMTP_PASS:
-        print(f"📧 [DEMO] Email would send to {to_email}: {subject}")
-        return True  # Demo mode — log but don't fail
-    try:
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"]    = f"TTT — The Trip Theory <{SMTP_USER}>"
-        msg["To"]      = to_email
-        msg.attach(MIMEText(html_body, "html"))
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-            server.starttls()
-            server.login(SMTP_USER, SMTP_PASS)
-            server.sendmail(SMTP_USER, to_email, msg.as_string())
-        return True
-    except Exception as e:
-        print(f"Email error: {e}")
-        return False
-
-def send_whatsapp_notification(to_phone: str, notif_type: str, data: dict, user_name: str) -> bool:
-    """Send WhatsApp via WATI/Twilio. Returns True if sent."""
-    messages = {
-        "booking_confirm": f"✅ Hi {user_name}! Your TTT {data.get('service','booking')} is confirmed. {data.get('detail','')} — Your TTT Concierge 🌍",
-        "wallet_load":     f"🪙 Hi {user_name}! ₹{data.get('amount',0):,} loaded to your TTT Wallet. Balance: {data.get('balance',0):,} coins. Start booking! — TTT",
-        "welcome":         f"👋 Welcome to TTT, {user_name}! India's first AI travel concierge is ready for you. Reply with where you want to go next! — Aria, TTT",
-        "trip_reminder":   f"⏰ {user_name}, your trip to {data.get('destination','your destination')} is {data.get('days_away',3)} days away! Check your TTT app for details. — TTT Concierge",
-        "reconciliation":  f"💰 {user_name}, your TTT payout of ₹{data.get('coins',0):,} for {data.get('month','')} has been processed! Transfer in 3-5 days. — TTT Partners",
-    }
-    msg = messages.get(notif_type, f"Hi {user_name}, you have a notification from TTT.")
-    if not WHATSAPP_KEY:
-        print(f"📱 [DEMO] WhatsApp would send to {to_phone}: {msg}")
-        return True
-    # Real WATI integration (add your endpoint)
-    try:
-        import httpx
-        r = httpx.post(
-            f"https://live-mt-server.wati.io/api/v1/sendSessionMessage/{to_phone}",
-            headers={"Authorization": f"Bearer {WHATSAPP_KEY}"},
-            json={"messageText": msg},
-            timeout=10
-        )
-        return r.status_code == 200
-    except Exception as e:
-        print(f"WhatsApp error: {e}")
-        return False
-
-@app.post("/api/notify")
-async def send_notification(req: NotificationRequest):
-    """Send email + WhatsApp notification."""
-    subject, html_body = get_email_template(req.notification_type, req.data, req.user_name)
-    email_sent = wa_sent = False
-    if req.user_email:
-        email_sent = send_email_notification(req.user_email, subject, html_body)
-    if req.user_phone:
-        wa_sent = send_whatsapp_notification(req.user_phone, req.notification_type, req.data, req.user_name)
-    return {
-        "success": True,
-        "email_sent": email_sent,
-        "whatsapp_sent": wa_sent,
-        "notification_type": req.notification_type,
-        "message": f"Notifications dispatched for {req.notification_type}"
-    }
-
-@app.post("/api/notify/welcome")
-async def welcome_notification(req: NotificationRequest):
-    req.notification_type = "welcome"
-    return await send_notification(req)
-
-@app.post("/api/notify/booking")
-async def booking_notification(req: NotificationRequest):
-    req.notification_type = "booking_confirm"
-    return await send_notification(req)
 
 
 # ══════════════════════════════════════════════════════
