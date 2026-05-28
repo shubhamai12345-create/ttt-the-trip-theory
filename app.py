@@ -3346,19 +3346,1663 @@ async def crm_add_note(user_id: str, data: dict, admin_key: str = Query("")):
 
 @app.get("/landing")
 async def landing_page():
-    """Serve landing page - HTML embedded directly for reliable deployment."""
-    # Try file first
-    attempts = [
-        os.path.join(frontend_dir, "landing.html"),
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend", "landing.html"),
-        os.path.join(os.getcwd(), "frontend", "landing.html"),
-    ]
-    for fp in attempts:
-        if os.path.exists(fp):
-            return FileResponse(fp, headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
-    # Fallback: redirect to / since landing is being served fresh
-    from fastapi.responses import RedirectResponse
-    return RedirectResponse(url="/")
+    """Landing page with sign-in modal — v4 inline."""
+    # Inline HTML ensures Railway always serves latest version
+    html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Trip Theory — India's First AI Travel Concierge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9963A;
+  --gold-light: #E8C878;
+  --gold-pale: #F5EDD6;
+  --black: #0A0805;
+  --off-black: #1A1410;
+  --dark: #251E16;
+  --warm-grey: #7A7068;
+  --cream: #F8F3EC;
+  --white: #FEFCF8;
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Montserrat', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--black);
+  color: var(--white);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Custom cursor */
+.cursor {
+  width: 8px; height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.15s ease;
+  mix-blend-mode: difference;
+}
+.cursor-ring {
+  width: 36px; height: 36px;
+  border: 1px solid rgba(201,150,58,0.5);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9998;
+  transition: all 0.12s ease;
+}
+body:hover .cursor { transform: scale(1); }
+a:hover ~ .cursor, button:hover ~ .cursor { transform: scale(3); }
+
+/* ── NAV ─────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 28px 60px;
+  background: linear-gradient(to bottom, rgba(10,8,5,0.95) 0%, transparent 100%);
+  backdrop-filter: blur(2px);
+}
+.nav-logo {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 300;
+  letter-spacing: 0.25em;
+  color: var(--gold);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.nav-links {
+  display: flex; gap: 40px; list-style: none;
+}
+.nav-links a {
+  font-family: var(--sans);
+  font-size: 0.65rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.nav-links a:hover { color: var(--gold); }
+.nav-cta {
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--black);
+  background: var(--gold);
+  border: none;
+  padding: 10px 24px;
+  cursor: none;
+  transition: background 0.3s, transform 0.2s;
+  text-decoration: none;
+}
+.nav-cta:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+/* ── HERO ─────────────────────────────────────── */
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 700px;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 60px 80px;
+  overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background: 
+    linear-gradient(160deg, rgba(10,8,5,0.3) 0%, rgba(10,8,5,0.7) 60%, rgba(10,8,5,0.95) 100%),
+    url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1800&q=80') center/cover no-repeat;
+  transform: scale(1.05);
+  animation: slowZoom 20s ease-out forwards;
+}
+@keyframes slowZoom {
+  from { transform: scale(1.05); }
+  to   { transform: scale(1.0); }
+}
+.hero-grain {
+  position: absolute; inset: 0; opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px;
+  pointer-events: none;
+}
+.hero-content {
+  position: relative; z-index: 2;
+  max-width: 820px;
+  animation: heroIn 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+@keyframes heroIn {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-tag {
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 12px;
+}
+.hero-tag::before {
+  content: '';
+  display: block;
+  width: 32px; height: 1px;
+  background: var(--gold);
+}
+.hero-headline {
+  font-family: var(--serif);
+  font-size: clamp(3.2rem, 7vw, 6.5rem);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--white);
+  margin-bottom: 28px;
+}
+.hero-headline em {
+  font-style: italic;
+  color: var(--gold-light);
+}
+.hero-sub {
+  font-size: 0.78rem;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  line-height: 1.9;
+  color: rgba(255,255,255,0.55);
+  max-width: 480px;
+  margin-bottom: 48px;
+}
+.hero-actions {
+  display: flex; align-items: center; gap: 32px;
+}
+.btn-primary {
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--black);
+  background: var(--gold);
+  border: none;
+  padding: 16px 36px;
+  cursor: none;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: var(--gold-light);
+  transform: translateX(-101%);
+  transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+.btn-primary:hover::after { transform: translateX(0); }
+.btn-primary span { position: relative; z-index: 1; }
+.btn-ghost {
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+  padding-bottom: 2px;
+  transition: all 0.3s;
+}
+.btn-ghost:hover { color: var(--gold); border-color: var(--gold); }
+
+.hero-scroll {
+  position: absolute;
+  bottom: 40px; right: 60px;
+  display: flex; align-items: center; gap: 14px;
+  font-size: 0.58rem;
+  font-weight: 300;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  writing-mode: vertical-rl;
+  animation: heroIn 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.8s both;
+}
+.hero-scroll::after {
+  content: '';
+  width: 1px; height: 48px;
+  background: linear-gradient(to bottom, rgba(201,150,58,0.6), transparent);
+  animation: scrollLine 2s ease-in-out infinite;
+}
+@keyframes scrollLine {
+  0%, 100% { opacity: 0.6; transform: scaleY(1); }
+  50%       { opacity: 1;   transform: scaleY(0.6); }
+}
+
+/* ── MARQUEE ─────────────────────────────────── */
+.marquee-strip {
+  background: var(--gold);
+  padding: 12px 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.marquee-inner {
+  display: inline-block;
+  animation: marquee 25s linear infinite;
+}
+.marquee-item {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--black);
+  padding: 0 40px;
+}
+.marquee-item::before {
+  content: '✦';
+  margin-right: 40px;
+  opacity: 0.5;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── SECTION BASE ────────────────────────────── */
+section { padding: 120px 60px; }
+.section-label {
+  font-size: 0.58rem;
+  font-weight: 400;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 14px;
+}
+.section-label::before {
+  content: '';
+  display: block;
+  width: 28px; height: 1px;
+  background: var(--gold);
+}
+.section-headline {
+  font-family: var(--serif);
+  font-size: clamp(2.4rem, 5vw, 4.5rem);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.section-headline em { font-style: italic; color: var(--gold-light); }
+
+/* ── INTRO / MANIFESTO ───────────────────────── */
+.intro {
+  background: var(--cream);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  padding: 120px 60px;
+}
+.intro-left .section-label { color: var(--warm-grey); }
+.intro-left .section-label::before { background: var(--warm-grey); }
+.intro-left .section-headline { color: var(--off-black); }
+.intro-right {
+  border-left: 1px solid rgba(10,8,5,0.1);
+  padding-left: 60px;
+}
+.intro-right p {
+  font-size: 0.88rem;
+  font-weight: 300;
+  line-height: 2;
+  color: var(--warm-grey);
+  margin-bottom: 20px;
+}
+.intro-right p strong {
+  font-weight: 500;
+  color: var(--off-black);
+}
+.intro-stat {
+  margin-top: 48px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  border-top: 1px solid rgba(10,8,5,0.1);
+  padding-top: 32px;
+}
+.intro-stat-item {
+  padding-right: 24px;
+  border-right: 1px solid rgba(10,8,5,0.1);
+}
+.intro-stat-item:last-child { border-right: none; padding-left: 24px; padding-right: 0; }
+.intro-stat-item:nth-child(2) { padding-left: 24px; padding-right: 24px; }
+.intro-stat-num {
+  font-family: var(--serif);
+  font-size: 2.8rem;
+  font-weight: 300;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.intro-stat-label {
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--warm-grey);
+}
+
+/* ── HOW IT WORKS ────────────────────────────── */
+.how {
+  background: var(--off-black);
+  padding: 120px 60px;
+}
+.how-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  margin-bottom: 80px;
+}
+.how-desc {
+  font-size: 0.82rem;
+  font-weight: 300;
+  line-height: 2;
+  color: rgba(255,255,255,0.45);
+  padding-top: 60px;
+}
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+}
+.step {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(201,150,58,0.1);
+  padding: 40px 32px;
+  transition: all 0.4s;
+  position: relative;
+  overflow: hidden;
+}
+.step::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 1px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s;
+}
+.step:hover { background: rgba(201,150,58,0.05); }
+.step:hover::before { transform: scaleX(1); }
+.step-num {
+  font-family: var(--serif);
+  font-size: 3.5rem;
+  font-weight: 300;
+  color: rgba(201,150,58,0.2);
+  line-height: 1;
+  margin-bottom: 24px;
+  transition: color 0.4s;
+}
+.step:hover .step-num { color: rgba(201,150,58,0.5); }
+.step-title {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 300;
+  color: var(--white);
+  margin-bottom: 12px;
+}
+.step-desc {
+  font-size: 0.72rem;
+  font-weight: 300;
+  line-height: 1.9;
+  color: rgba(255,255,255,0.4);
+}
+
+/* ── DESTINATIONS / AI SHOWCASE ──────────────── */
+.destinations {
+  background: var(--black);
+  padding: 120px 0;
+}
+.destinations-header {
+  padding: 0 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 60px;
+}
+.destinations-header .section-headline { color: var(--white); }
+.destinations-link {
+  font-size: 0.62rem;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201,150,58,0.3);
+  padding-bottom: 3px;
+  transition: all 0.3s;
+}
+.destinations-link:hover { border-color: var(--gold); }
+.dest-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 340px 260px;
+  gap: 4px;
+  padding: 0 60px;
+}
+.dest-card {
+  position: relative;
+  overflow: hidden;
+  cursor: none;
+}
+.dest-card:first-child {
+  grid-row: 1 / 3;
+}
+.dest-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.16,1,0.3,1);
+  filter: brightness(0.75);
+}
+.dest-card:hover .dest-img {
+  transform: scale(1.06);
+  filter: brightness(0.6);
+}
+.dest-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(10,8,5,0.85) 0%, transparent 60%);
+}
+.dest-info {
+  position: absolute;
+  bottom: 28px; left: 28px; right: 28px;
+}
+.dest-name {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  font-weight: 300;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+.dest-sub {
+  font-size: 0.6rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+}
+.dest-ai-tag {
+  position: absolute;
+  top: 20px; right: 20px;
+  font-size: 0.55rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--black);
+  background: var(--gold);
+  padding: 5px 10px;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: all 0.3s;
+}
+.dest-card:hover .dest-ai-tag { opacity: 1; transform: translateY(0); }
+
+/* ── AI FEATURES ─────────────────────────────── */
+.features {
+  background: var(--cream);
+  padding: 120px 60px;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin-top: 72px;
+}
+.feature-card {
+  background: var(--white);
+  padding: 52px 40px;
+  border: 1px solid rgba(10,8,5,0.06);
+  transition: all 0.4s;
+  position: relative;
+}
+.feature-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.feature-card:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(10,8,5,0.08); }
+.feature-card:hover::after { transform: scaleX(1); }
+.feature-icon {
+  font-size: 1.6rem;
+  margin-bottom: 28px;
+  display: block;
+}
+.feature-title {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: var(--off-black);
+  margin-bottom: 14px;
+  line-height: 1.2;
+}
+.feature-desc {
+  font-size: 0.76rem;
+  font-weight: 300;
+  line-height: 1.9;
+  color: var(--warm-grey);
+}
+
+/* ── AI CHAT DEMO ────────────────────────────── */
+.ai-demo {
+  background: var(--off-black);
+  padding: 120px 60px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 100px;
+  align-items: center;
+}
+.ai-demo-text .section-headline { color: var(--white); margin-bottom: 24px; }
+.ai-demo-text p {
+  font-size: 0.82rem;
+  font-weight: 300;
+  line-height: 2;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 40px;
+}
+.ai-window {
+  background: #12100C;
+  border: 1px solid rgba(201,150,58,0.15);
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+}
+.ai-window-header {
+  background: rgba(201,150,58,0.08);
+  border-bottom: 1px solid rgba(201,150,58,0.12);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.6rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.ai-window-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: rgba(201,150,58,0.4);
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink {
+  0%,100%{opacity:1} 50%{opacity:0.3}
+}
+.ai-messages { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.ai-msg {
+  display: flex;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: msgIn 0.5s ease forwards;
+}
+.ai-msg:nth-child(1) { animation-delay: 0.5s; }
+.ai-msg:nth-child(2) { animation-delay: 1.2s; }
+.ai-msg:nth-child(3) { animation-delay: 2.2s; }
+.ai-msg:nth-child(4) { animation-delay: 3.4s; }
+@keyframes msgIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+.ai-msg-avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+.user-avatar { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); }
+.ai-avatar { background: var(--gold); color: var(--black); font-weight: 700; font-size: 0.6rem; letter-spacing: 0.05em; }
+.ai-msg-bubble {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 2px;
+  padding: 12px 16px;
+  font-size: 0.74rem;
+  font-weight: 300;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.7);
+  max-width: 85%;
+}
+.ai-msg.user .ai-msg-bubble {
+  background: rgba(201,150,58,0.08);
+  border-color: rgba(201,150,58,0.15);
+  color: rgba(255,255,255,0.8);
+}
+.ai-msg-bubble strong { color: var(--gold-light); font-weight: 400; }
+.ai-typing {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+}
+.ai-typing span {
+  width: 5px; height: 5px;
+  background: var(--gold);
+  border-radius: 50%;
+  animation: typing 1.2s ease infinite;
+  opacity: 0.5;
+}
+.ai-typing span:nth-child(2) { animation-delay: 0.2s; }
+.ai-typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing { 0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)} }
+
+/* ── TESTIMONIALS ────────────────────────────── */
+.testimonials {
+  background: var(--black);
+  padding: 120px 60px;
+  position: relative;
+  overflow: hidden;
+}
+.testimonials::before {
+  content: '"';
+  font-family: var(--serif);
+  font-size: 40vw;
+  font-weight: 300;
+  color: rgba(201,150,58,0.03);
+  position: absolute;
+  top: -10%;
+  left: -5%;
+  line-height: 1;
+  pointer-events: none;
+}
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  margin-top: 72px;
+  position: relative;
+}
+.tcard {
+  border: 1px solid rgba(201,150,58,0.1);
+  padding: 44px 36px;
+  position: relative;
+  transition: all 0.4s;
+}
+.tcard:hover {
+  border-color: rgba(201,150,58,0.3);
+  background: rgba(201,150,58,0.02);
+}
+.tcard-stars {
+  color: var(--gold);
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  margin-bottom: 20px;
+}
+.tcard-text {
+  font-family: var(--serif);
+  font-size: 1.08rem;
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.75;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 28px;
+}
+.tcard-author {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.tcard-avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: rgba(201,150,58,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-size: 1rem;
+  color: var(--gold);
+}
+.tcard-name {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--white);
+  letter-spacing: 0.08em;
+}
+.tcard-meta {
+  font-size: 0.62rem;
+  font-weight: 300;
+  color: var(--warm-grey);
+  letter-spacing: 0.1em;
+  margin-top: 2px;
+}
+
+/* ── CTA FULL ─────────────────────────────────── */
+.cta-full {
+  position: relative;
+  height: 70vh;
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+}
+.cta-bg {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(rgba(10,8,5,0.5), rgba(10,8,5,0.7)),
+    url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1600&q=80') center/cover no-repeat;
+}
+.cta-content {
+  position: relative;
+  z-index: 2;
+  max-width: 700px;
+  padding: 0 40px;
+}
+.cta-headline {
+  font-family: var(--serif);
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  font-weight: 300;
+  line-height: 1.1;
+  color: var(--white);
+  margin-bottom: 24px;
+}
+.cta-headline em { font-style: italic; color: var(--gold-light); }
+.cta-sub {
+  font-size: 0.78rem;
+  font-weight: 300;
+  line-height: 1.9;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 44px;
+  letter-spacing: 0.05em;
+}
+.cta-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+/* ── FOOTER ─────────────────────────────────── */
+footer {
+  background: var(--off-black) !important;
+  border-top: 1px solid rgba(201,150,58,0.1);
+  padding: 72px 60px 32px;
+}
+.footer-top {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 60px;
+  margin-bottom: 56px;
+}
+.footer-brand-name {
+  font-family: var(--serif);
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  margin-bottom: 16px;
+}
+.footer-brand-tagline {
+  font-size: 0.68rem;
+  font-weight: 300;
+  line-height: 1.9;
+  color: rgba(255,255,255,0.35);
+  max-width: 240px;
+  margin-bottom: 28px;
+}
+.footer-contact a {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 300;
+  color: rgba(255,255,255,0.4);
+  text-decoration: none;
+  margin-bottom: 6px;
+  transition: color 0.3s;
+}
+.footer-contact a:hover { color: var(--gold); }
+.footer-col-title {
+  font-size: 0.58rem;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+.footer-col a {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  text-decoration: none;
+  margin-bottom: 10px;
+  transition: color 0.3s;
+  cursor: none;
+}
+.footer-col a:hover { color: var(--gold-light); }
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.footer-copy {
+  font-size: 0.62rem;
+  font-weight: 300;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 0.1em;
+}
+.footer-legal {
+  display: flex;
+  gap: 28px;
+}
+.footer-legal a {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  transition: color 0.3s;
+}
+.footer-legal a:hover { color: var(--gold); }
+
+/* ── REVEAL ANIMATIONS ───────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── RESPONSIVE ──────────────────────────────── */
+@media (max-width: 1024px) {
+  nav { padding: 20px 30px; }
+  .hero, section, .intro, .ai-demo, .destinations-header, .how { padding-left: 30px; padding-right: 30px; }
+  .dest-grid { padding: 0 30px; }
+  .intro, .how-header, .ai-demo { grid-template-columns: 1fr; gap: 40px; }
+  .how-steps { grid-template-columns: 1fr 1fr; }
+  .dest-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+  .dest-card:first-child { grid-row: auto; grid-column: 1 / -1; height: 340px; }
+  .features-grid, .testimonials-grid { grid-template-columns: 1fr; }
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 40px; }
+}
+@media (max-width: 640px) {
+  nav .nav-links { display: none; }
+  .hero-headline { font-size: 2.8rem; }
+  .how-steps { grid-template-columns: 1fr; }
+  .footer-top { grid-template-columns: 1fr; }
+  section { padding: 72px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ── NAV ────────────────────────────────────── -->
+<nav>
+  <a class="nav-logo" href="#">The Trip Theory</a>
+  <ul class="nav-links">
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#destinations">Destinations</a></li>
+    <li><a href="#ai">The AI</a></li>
+    <li><a href="#stories">Stories</a></li>
+  </ul>
+  <a class="nav-cta" href="https://thetriptheory.com">Start Planning</a>
+</nav>
+
+<!-- ── HERO ───────────────────────────────────── -->
+<section class="hero" id="top">
+  <div class="hero-bg"></div>
+  <div class="hero-grain"></div>
+  <div class="hero-content">
+    <div class="hero-tag">India's First AI Travel Concierge</div>
+    <h1 class="hero-headline">
+      Every journey,<br>
+      <em>perfectly</em> designed<br>
+      by intelligence.
+    </h1>
+    <p class="hero-sub">
+      We don't search. We understand. TTT's AI concierge learns how you travel — your pace, your palette, your budget — and builds journeys that feel handcrafted.
+    </p>
+    <div class="hero-actions">
+      <a href="javascript:void(0)" onclick="openTTTSignin()" class="btn-primary"><span>Begin Your Journey</span></a>
+      <a href="#how" class="btn-ghost">See How It Works</a>
+    </div>
+  </div>
+  <div class="hero-scroll">Scroll</div>
+</section>
+
+<!-- ── MARQUEE ─────────────────────────────────── -->
+<div class="marquee-strip">
+  <div class="marquee-inner">
+    <span class="marquee-item">AI-Curated Itineraries</span>
+    <span class="marquee-item">Luxury Stays</span>
+    <span class="marquee-item">Personalised Concierge</span>
+    <span class="marquee-item">Goa · Rajasthan · Kerala</span>
+    <span class="marquee-item">International Escapes</span>
+    <span class="marquee-item">24 / 7 AI Support</span>
+    <span class="marquee-item">Hidden Experiences</span>
+    <span class="marquee-item">Real-Time Bookings</span>
+    <span class="marquee-item">AI-Curated Itineraries</span>
+    <span class="marquee-item">Luxury Stays</span>
+    <span class="marquee-item">Personalised Concierge</span>
+    <span class="marquee-item">Goa · Rajasthan · Kerala</span>
+    <span class="marquee-item">International Escapes</span>
+    <span class="marquee-item">24 / 7 AI Support</span>
+    <span class="marquee-item">Hidden Experiences</span>
+    <span class="marquee-item">Real-Time Bookings</span>
+  </div>
+</div>
+
+<!-- ── INTRO / MANIFESTO ─────────────────────── -->
+<section class="intro reveal">
+  <div class="intro-left">
+    <div class="section-label">Our Philosophy</div>
+    <h2 class="section-headline" style="color:var(--off-black)">
+      Travel is not<br>a transaction.<br>
+      <em>It's a theory.</em>
+    </h2>
+  </div>
+  <div class="intro-right">
+    <p>Travel agencies give you options. Search engines give you lists. <strong>TTT gives you understanding.</strong> Our AI concierge doesn't just know where to go — it knows how <em>you</em> travel.</p>
+    <p>Built for a new generation of Indian travellers who demand more than templates. Powered by Claude AI. Backed by a network of 300+ curated partners across India and the world.</p>
+    <p>From a ₹15,000 solo weekend in Coorg to a ₹5 lakh honeymoon in the Maldives — every plan is uniquely yours.</p>
+    <div class="intro-stat">
+      <div class="intro-stat-item">
+        <div class="intro-stat-num">300<span style="font-size:1.5rem">+</span></div>
+        <div class="intro-stat-label">Curated partners</div>
+      </div>
+      <div class="intro-stat-item">
+        <div class="intro-stat-num">50<span style="font-size:1.5rem">+</span></div>
+        <div class="intro-stat-label">Destinations</div>
+      </div>
+      <div class="intro-stat-item">
+        <div class="intro-stat-num">∞</div>
+        <div class="intro-stat-label">Possible journeys</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ───────────────────────────── -->
+<section class="how reveal" id="how">
+  <div class="how-header">
+    <div>
+      <div class="section-label">The Process</div>
+      <h2 class="section-headline">
+        Not just a tool.<br>
+        <em>A theory</em><br>
+        of travel.
+      </h2>
+    </div>
+    <p class="how-desc">
+      Four steps. Zero templates. One AI that thinks the way great travel planners do — except it never sleeps, never forgets your preferences, and learns with every conversation.
+    </p>
+  </div>
+  <div class="how-steps">
+    <div class="step reveal">
+      <div class="step-num">01</div>
+      <div class="step-title">Tell Us Who You Are</div>
+      <div class="step-desc">Share your travel identity — style, budget, interests, pace. Our AI builds a living profile that gets sharper with every trip.</div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">02</div>
+      <div class="step-title">Describe Your Dream</div>
+      <div class="step-desc">Speak naturally. "3 days in Goa, not too touristy, ₹30K budget." Our AI understands nuance, not just keywords.</div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">03</div>
+      <div class="step-title">AI Designs Your Journey</div>
+      <div class="step-desc">In seconds, receive a fully personalised itinerary — stays, experiences, routes — curated from our verified partner network.</div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">04</div>
+      <div class="step-title">Book & Go</div>
+      <div class="step-desc">Confirm your trip with one click. Your AI concierge handles every detail — and stays on call for the entire journey.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── DESTINATIONS ───────────────────────────── -->
+<section class="destinations reveal" id="destinations">
+  <div class="destinations-header">
+    <div>
+      <div class="section-label">Handpicked Journeys</div>
+      <h2 class="section-headline">
+        Places that<br>
+        <em>move</em> people.
+      </h2>
+    </div>
+    <a href="javascript:void(0)" onclick="openTTTSignin()" class="destinations-link">Explore all destinations →</a>
+  </div>
+  <div class="dest-grid">
+    <div class="dest-card">
+      <img class="dest-img" src="https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=900&q=80" alt="Rajasthan">
+      <div class="dest-overlay"></div>
+      <div class="dest-ai-tag">AI Curated</div>
+      <div class="dest-info">
+        <div class="dest-name">Rajasthan</div>
+        <div class="dest-sub">Palaces · Desert · Heritage · Culture</div>
+      </div>
+    </div>
+    <div class="dest-card">
+      <img class="dest-img" src="https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&q=80" alt="Kerala">
+      <div class="dest-overlay"></div>
+      <div class="dest-ai-tag">AI Curated</div>
+      <div class="dest-info">
+        <div class="dest-name">Kerala</div>
+        <div class="dest-sub">Backwaters · Wellness · Nature</div>
+      </div>
+    </div>
+    <div class="dest-card">
+      <img class="dest-img" src="https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600&q=80" alt="Goa">
+      <div class="dest-overlay"></div>
+      <div class="dest-ai-tag">AI Curated</div>
+      <div class="dest-info">
+        <div class="dest-name">Goa</div>
+        <div class="dest-sub">Beaches · Hidden Gems · Nightlife</div>
+      </div>
+    </div>
+    <div class="dest-card">
+      <img class="dest-img" src="https://images.unsplash.com/photo-1494548162494-384bba4ab999?w=600&q=80" alt="Spiti Valley">
+      <div class="dest-overlay"></div>
+      <div class="dest-ai-tag">AI Curated</div>
+      <div class="dest-info">
+        <div class="dest-name">Spiti Valley</div>
+        <div class="dest-sub">Mountains · Off-beat · Adventure</div>
+      </div>
+    </div>
+    <div class="dest-card">
+      <img class="dest-img" src="https://images.unsplash.com/photo-1437719417032-8595fd9e9dc6?w=600&q=80" alt="Maldives">
+      <div class="dest-overlay"></div>
+      <div class="dest-ai-tag">AI Curated</div>
+      <div class="dest-info">
+        <div class="dest-name">Maldives</div>
+        <div class="dest-sub">Luxury · Overwater · Romance</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── AI DEMO ─────────────────────────────────── -->
+<section class="ai-demo reveal" id="ai">
+  <div class="ai-demo-text">
+    <div class="section-label">The Intelligence</div>
+    <h2 class="section-headline">
+      The only<br>
+      concierge that<br>
+      <em>never sleeps.</em>
+    </h2>
+    <p>
+      Powered by Claude AI — one of the world's most capable language models — TTT's concierge understands context, nuance, and budget. It's not a chatbot. It's a travel mind.
+    </p>
+    <a href="javascript:void(0)" onclick="openTTTSignin()" class="btn-primary"><span>Talk to the AI</span></a>
+  </div>
+  <div class="ai-window">
+    <div class="ai-window-header">
+      <div class="ai-window-dot"></div>
+      TTT AI Concierge — Live
+    </div>
+    <div class="ai-messages">
+      <div class="ai-msg user">
+        <div class="ai-msg-avatar user-avatar">A</div>
+        <div class="ai-msg-bubble">Plan a 5-day honeymoon in Maldives under ₹2 lakhs for two.</div>
+      </div>
+      <div class="ai-msg">
+        <div class="ai-msg-avatar ai-avatar">TTT</div>
+        <div class="ai-msg-bubble">
+          Perfect timing — I'll design something truly special.<br><br>
+          I'm thinking <strong>Fushifaru or Meeru Island</strong> — both offer overwater villas with private pools at ₹18-22k/night. For 5 nights, that's roughly ₹95-110k on stays, leaving ₹90k for flights, experiences, and dining.<br><br>
+          Shall I build the full itinerary with a sunset dolphin cruise on Day 2?
+        </div>
+      </div>
+      <div class="ai-msg user">
+        <div class="ai-msg-avatar user-avatar">A</div>
+        <div class="ai-msg-bubble">Yes! And we love snorkelling. Add that too.</div>
+      </div>
+      <div class="ai-msg">
+        <div class="ai-msg-avatar ai-avatar">TTT</div>
+        <div class="ai-msg-bubble">
+          <strong>Your 5-Day Maldives Itinerary ✦</strong><br>
+          Day 1 · Arrival + sunset welcome dinner on the water<br>
+          Day 2 · Dolphin cruise at dusk + stargazing<br>
+          Day 3 · Full-day snorkelling — Manta Point + reef<br>
+          Day 4 · Spa day + private beach picnic<br>
+          Day 5 · Departure with a morning kayak<br><br>
+          Total estimate: <strong>₹1,88,000</strong> · Flights included ✓
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── AI FEATURES ─────────────────────────────── -->
+<section class="features reveal">
+  <div class="section-label">What Makes TTT Different</div>
+  <h2 class="section-headline" style="color:var(--off-black)">
+    Intelligence that<br>
+    <em>travels with you.</em>
+  </h2>
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <span class="feature-icon">🧠</span>
+      <div class="feature-title">AI That Knows You</div>
+      <div class="feature-desc">Every conversation teaches the AI more about how you travel. Your second trip plan is sharper than your first. Your tenth is perfect.</div>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">💎</span>
+      <div class="feature-title">Curated, Not Aggregated</div>
+      <div class="feature-desc">300+ hand-verified partners. No paid rankings. No sponsored listings. Every recommendation is earned, not bought.</div>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">⚡</span>
+      <div class="feature-title">Instant. Always.</div>
+      <div class="feature-desc">Full itinerary in seconds. Booking confirmation in minutes. Support available 24/7. Because great travel doesn't wait for office hours.</div>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🗺️</span>
+      <div class="feature-title">Hidden India, Unlocked</div>
+      <div class="feature-desc">Local knowledge baked into the AI. The village café only locals know. The trail that doesn't appear on Google. The resort without a billboard.</div>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">₹</span>
+      <div class="feature-title">Every Budget, Elevated</div>
+      <div class="feature-desc">From ₹15K weekenders to ₹5L luxury escapes — the AI optimises every rupee so you never overpay for average or underspend on extraordinary.</div>
+    </div>
+    <div class="feature-card reveal">
+      <span class="feature-icon">🤝</span>
+      <div class="feature-title">Human When It Matters</div>
+      <div class="feature-desc">Our concierge team backs every AI plan. For complex bookings, special occasions, or peace of mind — a real TTT expert is always one message away.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ───────────────────────────── -->
+<section class="testimonials reveal" id="stories">
+  <div class="section-label">Traveller Stories</div>
+  <h2 class="section-headline">
+    Built on<br>
+    <em>real journeys.</em>
+  </h2>
+  <div class="testimonials-grid">
+    <div class="tcard reveal">
+      <div class="tcard-stars">★★★★★</div>
+      <div class="tcard-text">"I described my dream trip in one message. TTT built an itinerary that felt like it was designed by someone who'd known me for years. Uttarakhand was flawless."</div>
+      <div class="tcard-author">
+        <div class="tcard-avatar">P</div>
+        <div>
+          <div class="tcard-name">Priya Mehta</div>
+          <div class="tcard-meta">Delhi · Uttarakhand Solo Trek</div>
+        </div>
+      </div>
+    </div>
+    <div class="tcard reveal">
+      <div class="tcard-stars">★★★★★</div>
+      <div class="tcard-text">"Our Rajasthan honeymoon was beyond what we imagined. The AI found a heritage haveli in Jodhpur that wasn't on any app. Our friends are still asking how we found it."</div>
+      <div class="tcard-author">
+        <div class="tcard-avatar">R</div>
+        <div>
+          <div class="tcard-name">Rohan & Ananya</div>
+          <div class="tcard-meta">Mumbai · Rajasthan Honeymoon</div>
+        </div>
+      </div>
+    </div>
+    <div class="tcard reveal">
+      <div class="tcard-stars">★★★★★</div>
+      <div class="tcard-text">"As a frequent business traveller, I needed efficiency. TTT planned my Goa long weekend in under 2 minutes. The hidden beach it recommended had maybe 10 people on it."</div>
+      <div class="tcard-author">
+        <div class="tcard-avatar">V</div>
+        <div>
+          <div class="tcard-name">Vikram Singh</div>
+          <div class="tcard-meta">Bengaluru · Goa Weekend</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ─────────────────────────────────────── -->
+<div class="cta-full">
+  <div class="cta-bg"></div>
+  <div class="cta-content reveal">
+    <h2 class="cta-headline">
+      Your next journey<br>
+      begins with a<br>
+      <em>conversation.</em>
+    </h2>
+    <p class="cta-sub">No forms. No waiting. Just tell the AI where you want to go — and let India's most intelligent travel concierge take it from there.</p>
+    <div class="cta-actions">
+      <a href="javascript:void(0)" onclick="openTTTSignin()" class="btn-primary"><span>Start for Free</span></a>
+      <a href="javascript:void(0)" onclick="openTTTSignin()" class="btn-ghost" style="color:rgba(255,255,255,0.5)">Learn more →</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ─────────────────────────────────── -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand-name">TTT</div>
+      <div class="footer-brand-tagline">India's first Agentic AI luxury travel concierge. Built for explorers who refuse ordinary journeys.</div>
+      <div class="footer-contact">
+        <a href="mailto:concierge@thetriptheory.com">✉ concierge@thetriptheory.com</a>
+        <a href="#">📍 Gurugram, Haryana, India</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Product</div>
+      <div class="footer-col">
+        <a href="javascript:void(0)" onclick="openTTTSignin()">Plan a Trip</a>
+        <a href="javascript:void(0)" onclick="openTTTSignin()">AI Concierge</a>
+        <a href="javascript:void(0)" onclick="openTTTSignin()">Marketplace</a>
+        <a href="javascript:void(0)" onclick="openTTTSignin()">For Partners</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Company</div>
+      <div class="footer-col">
+        <a href="#">Our Story</a>
+        <a href="#">The AI</a>
+        <a href="#">Partner Portal</a>
+        <a href="#">Careers</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Legal</div>
+      <div class="footer-col">
+        <a href="#" onclick="document.getElementById('ttt-privacy-modal')&&(document.getElementById('ttt-privacy-modal').style.display='flex')">Privacy Policy</a>
+        <a href="#" onclick="document.getElementById('ttt-terms-modal')&&(document.getElementById('ttt-terms-modal').style.display='flex')">Terms of Service</a>
+        <a href="#" onclick="document.getElementById('ttt-refund-modal')&&(document.getElementById('ttt-refund-modal').style.display='flex')">Cancellation & Refund</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 The Trip Theory Pvt. Ltd. · Gurugram, Haryana, India · Powered by Claude AI</div>
+    <div class="footer-legal">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Refunds</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Custom cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let rx = 0, ry = 0, cx = 0, cy = 0;
+
+document.addEventListener('mousemove', e => {
+  cx = e.clientX; cy = e.clientY;
+  cursor.style.left = cx - 4 + 'px';
+  cursor.style.top = cy - 4 + 'px';
+});
+
+(function animRing() {
+  rx += (cx - rx) * 0.12;
+  ry += (cy - ry) * 0.12;
+  ring.style.left = rx - 18 + 'px';
+  ring.style.top = ry - 18 + 'px';
+  requestAnimationFrame(animRing);
+})();
+
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.transform = 'scale(2.5)';
+    ring.style.transform = 'scale(1.5)';
+    ring.style.borderColor = 'rgba(201,150,58,0.8)';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.transform = 'scale(1)';
+    ring.style.transform = 'scale(1)';
+    ring.style.borderColor = 'rgba(201,150,58,0.5)';
+  });
+});
+
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 80);
+    }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Nav scroll effect
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  if (window.scrollY > 80) {
+    nav.style.background = 'rgba(10,8,5,0.96)';
+    nav.style.backdropFilter = 'blur(12px)';
+    nav.style.borderBottom = '1px solid rgba(201,150,58,0.08)';
+  } else {
+    nav.style.background = 'linear-gradient(to bottom, rgba(10,8,5,0.95) 0%, transparent 100%)';
+    nav.style.backdropFilter = 'blur(2px)';
+    nav.style.borderBottom = 'none';
+  }
+});
+</script>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TTT SIGN-IN MODAL -->
+<!-- ══════════════════════════════════════════ -->
+<style>
+#ttt-signin-overlay{
+  position:fixed;inset:0;background:rgba(10,8,5,0.88);z-index:1000;
+  display:none;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(8px);
+}
+#ttt-signin-overlay.open{display:flex;}
+.ttt-signin-card{
+  background:#151008;border:1px solid rgba(201,150,58,0.2);
+  width:100%;max-width:460px;border-radius:2px;
+  overflow:hidden;position:relative;
+  animation:signinIn .35s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes signinIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.ttt-signin-top{
+  position:relative;height:180px;overflow:hidden;
+  background:linear-gradient(135deg,#1A1208 0%,#0A0805 100%);
+}
+.ttt-signin-top-img{
+  position:absolute;inset:0;
+  background:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=70') center/cover;
+  opacity:0.3;
+}
+.ttt-signin-top-content{
+  position:relative;z-index:2;
+  height:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:20px;text-align:center;
+}
+.ttt-signin-logo{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:2.2rem;font-weight:300;
+  color:#C9963A;letter-spacing:0.25em;
+  margin-bottom:6px;
+}
+.ttt-signin-tagline{
+  font-size:0.58rem;font-weight:300;
+  letter-spacing:0.25em;text-transform:uppercase;
+  color:rgba(255,255,255,0.4);
+}
+.ttt-signin-close{
+  position:absolute;top:14px;right:16px;
+  background:none;border:none;cursor:pointer;
+  color:rgba(255,255,255,0.3);font-size:20px;
+  line-height:1;z-index:10;
+  transition:color .2s;
+}
+.ttt-signin-close:hover{color:rgba(255,255,255,0.7);}
+.ttt-signin-body{padding:32px 36px 36px;}
+.ttt-signin-step{display:none;}
+.ttt-signin-step.active{display:block;}
+.ttt-signin-step-label{
+  font-size:0.58rem;font-weight:400;
+  letter-spacing:0.28em;text-transform:uppercase;
+  color:#C9963A;margin-bottom:10px;
+  display:flex;align-items:center;gap:10px;
+}
+.ttt-signin-step-label::before{
+  content:'';display:block;width:20px;height:1px;background:#C9963A;
+}
+.ttt-signin-title{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:1.6rem;font-weight:300;
+  color:#FEFCF8;margin-bottom:6px;line-height:1.2;
+}
+.ttt-signin-title em{font-style:italic;color:#E8C878;}
+.ttt-signin-sub{
+  font-size:0.72rem;font-weight:300;
+  line-height:1.8;color:rgba(255,255,255,0.4);
+  margin-bottom:24px;
+}
+.ttt-signin-input-wrap{
+  position:relative;margin-bottom:12px;
+}
+.ttt-signin-input{
+  width:100%;padding:13px 16px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(201,150,58,0.2);
+  border-radius:1px;
+  font-family:'Montserrat',sans-serif;
+  font-size:0.82rem;font-weight:300;
+  color:#FEFCF8;outline:none;
+  transition:border .2s;
+  letter-spacing:0.05em;
+}
+.ttt-signin-input::placeholder{color:rgba(255,255,255,0.25);}
+.ttt-signin-input:focus{border-color:rgba(201,150,58,0.6);}
+.ttt-signin-btn{
+  width:100%;padding:14px;
+  background:#C9963A;border:none;
+  font-family:'Montserrat',sans-serif;
+  font-size:0.62rem;font-weight:400;
+  letter-spacing:0.22em;text-transform:uppercase;
+  color:#0A0805;cursor:pointer;
+  margin-top:8px;
+  transition:background .2s;
+  position:relative;overflow:hidden;
+}
+.ttt-signin-btn:hover{background:#E8C878;}
+.ttt-signin-note{
+  font-size:0.62rem;font-weight:300;
+  color:rgba(255,255,255,0.25);
+  text-align:center;margin-top:14px;
+  line-height:1.7;
+}
+.ttt-signin-note a{color:rgba(201,150,58,0.7);text-decoration:none;}
+.ttt-otp-boxes{
+  display:flex;gap:10px;justify-content:center;
+  margin-bottom:12px;
+}
+.ttt-otp-box{
+  width:46px;height:52px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(201,150,58,0.2);
+  border-radius:1px;
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:1.4rem;font-weight:300;
+  color:#FEFCF8;text-align:center;
+  outline:none;transition:border .2s;
+}
+.ttt-otp-box:focus{border-color:rgba(201,150,58,0.7);}
+.ttt-back-btn{
+  background:none;border:none;cursor:pointer;
+  font-family:'Montserrat',sans-serif;
+  font-size:0.6rem;font-weight:300;
+  letter-spacing:0.15em;text-transform:uppercase;
+  color:rgba(255,255,255,0.3);
+  display:flex;align-items:center;gap:6px;
+  padding:0;margin-bottom:16px;
+  transition:color .2s;
+}
+.ttt-back-btn:hover{color:rgba(201,150,58,0.8);}
+.ttt-divider{
+  display:flex;align-items:center;gap:12px;
+  margin:16px 0;
+}
+.ttt-divider::before,.ttt-divider::after{
+  content:'';flex:1;height:1px;
+  background:rgba(255,255,255,0.08);
+}
+.ttt-divider span{
+  font-size:0.6rem;color:rgba(255,255,255,0.25);
+  letter-spacing:0.1em;
+}
+.ttt-guest-btn{
+  width:100%;padding:12px;
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.1);
+  font-family:'Montserrat',sans-serif;
+  font-size:0.62rem;font-weight:300;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:rgba(255,255,255,0.4);cursor:pointer;
+  transition:all .2s;
+}
+.ttt-guest-btn:hover{
+  border-color:rgba(201,150,58,0.3);
+  color:rgba(201,150,58,0.7);
+}
+</style>
+
+<div id="ttt-signin-overlay" onclick="if(event.target===this)closeTTTSignin()">
+  <div class="ttt-signin-card">
+    <div class="ttt-signin-top">
+      <div class="ttt-signin-top-img"></div>
+      <div class="ttt-signin-top-content">
+        <div class="ttt-signin-logo">TTT</div>
+        <div class="ttt-signin-tagline">India's First AI Travel Concierge</div>
+      </div>
+      <button class="ttt-signin-close" onclick="closeTTTSignin()">×</button>
+    </div>
+
+    <div class="ttt-signin-body">
+
+      <!-- Step 1: Enter phone/email -->
+      <div class="ttt-signin-step active" id="ttt-step-1">
+        <div class="ttt-signin-step-label">Begin</div>
+        <div class="ttt-signin-title">Your journey<br><em>starts here.</em></div>
+        <div class="ttt-signin-sub">Enter your phone number or email to receive a one-time code.</div>
+        <div class="ttt-signin-input-wrap">
+          <input class="ttt-signin-input" id="ttt-contact-input"
+            type="text" placeholder="+91 XXXXX XXXXX or email@example.com"
+            autocomplete="off">
+        </div>
+        <button class="ttt-signin-btn" onclick="tttSendOTP()">Continue →</button>
+        <div class="ttt-divider"><span>or</span></div>
+        <button class="ttt-guest-btn" onclick="tttContinueAsGuest()">Continue as guest</button>
+        <div class="ttt-signin-note">
+          By continuing you agree to our
+          <a href="#">Terms of Service</a> &amp; <a href="#">Privacy Policy</a>
+        </div>
+      </div>
+
+      <!-- Step 2: OTP -->
+      <div class="ttt-signin-step" id="ttt-step-2">
+        <button class="ttt-back-btn" onclick="tttGoBack()">← Back</button>
+        <div class="ttt-signin-step-label">Verify</div>
+        <div class="ttt-signin-title">One-time<br><em>code sent.</em></div>
+        <div class="ttt-signin-sub" id="ttt-otp-sub">Enter the 6-digit code we sent you.</div>
+        <div class="ttt-otp-boxes">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp0" oninput="tttOTPNext(0)">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp1" oninput="tttOTPNext(1)">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp2" oninput="tttOTPNext(2)">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp3" oninput="tttOTPNext(3)">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp4" oninput="tttOTPNext(4)">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp5" oninput="tttOTPNext(5)">
+        </div>
+        <button class="ttt-signin-btn" onclick="tttVerifyOTP()">Verify &amp; Enter →</button>
+        <div class="ttt-signin-note">
+          Didn't receive it? <a href="#" onclick="tttGoBack();return false;">Try again</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function openTTTSignin(){
+  document.getElementById('ttt-signin-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeTTTSignin(){
+  document.getElementById('ttt-signin-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function tttGoBack(){
+  document.getElementById('ttt-step-1').classList.add('active');
+  document.getElementById('ttt-step-2').classList.remove('active');
+}
+function tttSendOTP(){
+  const val = document.getElementById('ttt-contact-input').value.trim();
+  if(!val){ document.getElementById('ttt-contact-input').focus(); return; }
+  document.getElementById('ttt-otp-sub').textContent = 'Enter the 6-digit code sent to ' + val;
+  document.getElementById('ttt-step-1').classList.remove('active');
+  document.getElementById('ttt-step-2').classList.add('active');
+  setTimeout(()=>document.getElementById('otp0').focus(), 100);
+  // Call the existing TTT backend
+  fetch('/api/auth/send-otp', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({contact: val})
+  }).catch(()=>{});
+}
+function tttOTPNext(idx){
+  const v = document.getElementById('otp'+idx).value;
+  if(v && idx < 5) document.getElementById('otp'+(idx+1)).focus();
+  // Auto-submit when all filled
+  const all = [0,1,2,3,4,5].map(i=>document.getElementById('otp'+i).value).join('');
+  if(all.length===6) tttVerifyOTP();
+}
+function tttVerifyOTP(){
+  const otp = [0,1,2,3,4,5].map(i=>document.getElementById('otp'+i).value).join('');
+  const contact = document.getElementById('ttt-contact-input').value.trim();
+  if(otp.length<6) return;
+  // Verify with backend then redirect to app
+  fetch('/api/auth/verify-otp', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({contact: contact, otp: otp})
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    if(d.token || d.success){
+      if(d.token) sessionStorage.setItem('ttt_auth', JSON.stringify(d));
+      window.location.href = '/';
+    }
+  })
+  .catch(()=>{
+    // If API fails, still go to the app (dev mode)
+    window.location.href = '/';
+  });
+}
+function tttContinueAsGuest(){
+  closeTTTSignin();
+  window.location.href = '/#guest';
+}
+
+// Enter key on contact input
+document.addEventListener('DOMContentLoaded', ()=>{
+  const inp = document.getElementById('ttt-contact-input');
+  if(inp) inp.addEventListener('keydown', e=>{ if(e.key==='Enter') tttSendOTP(); });
+});
+</script>
+
+</body>
+</html>
+"""
+    return HTMLResponse(content=html, headers={"Cache-Control": "no-store, no-cache"})
 
 @app.get("/crm")
 async def crm_dashboard():
