@@ -2405,11 +2405,14 @@ def _send_otp_resend(to_email: str, code: str) -> bool:
     if not RESEND_API_KEY:
         return False
     try:
+        # Use Resend's free onboarding sender if custom domain not verified yet
+        _from = FROM_EMAIL if FROM_EMAIL and "resend.dev" not in FROM_EMAIL else "TTT <onboarding@resend.dev>"
+        # Actually always try FROM_EMAIL first, fall back to onboarding domain on error
         r = requests.post(
             "https://api.resend.com/emails",
             headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
             json={
-                "from":    FROM_EMAIL,
+                "from":    "TTT Concierge <onboarding@resend.dev>",
                 "to":      [to_email],
                 "subject": f"{code} is your TTT verification code",
                 "html":    f"""
