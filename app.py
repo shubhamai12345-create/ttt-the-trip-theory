@@ -729,10 +729,12 @@ async def send_otp(req: OTPSendRequest):
         sent = _send_otp_sms(contact, code)
 
     # Always return success to avoid contact enumeration; code is logged in demo mode
+    _resend_configured = bool(os.getenv("RESEND_API_KEY", ""))
     return {
         "success": True,
         "message": f"OTP sent to {contact}",
-        "demo":    not (SMTP_USER and SMTP_PASS),  # hint to frontend when in demo mode
+        "demo":    not sent,  # True only if actual delivery failed
+        "sent":    sent,
     }
 
 
