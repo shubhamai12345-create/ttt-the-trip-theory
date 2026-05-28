@@ -944,7 +944,7 @@ footer {
       We don't search. We understand. TTT's AI concierge learns how you travel — your pace, your palette, your budget — and builds journeys that feel handcrafted.
     </p>
     <div class="hero-actions">
-      <a href="https://thetriptheory.com" class="btn-primary"><span>Begin Your Journey</span></a>
+      <a href="javascript:void(0)" onclick="openTTTSignin()" class="btn-primary"><span>Begin Your Journey</span></a>
       <a href="#how" class="btn-ghost">See How It Works</a>
     </div>
   </div>
@@ -1052,7 +1052,7 @@ footer {
         <em>move</em> people.
       </h2>
     </div>
-    <a href="https://thetriptheory.com" class="destinations-link">Explore all destinations →</a>
+    <a href="javascript:void(0)" onclick="openTTTSignin()" class="destinations-link">Explore all destinations →</a>
   </div>
   <div class="dest-grid">
     <div class="dest-card">
@@ -1115,7 +1115,7 @@ footer {
     <p>
       Powered by Claude AI — one of the world's most capable language models — TTT's concierge understands context, nuance, and budget. It's not a chatbot. It's a travel mind.
     </p>
-    <a href="https://thetriptheory.com" class="btn-primary"><span>Talk to the AI</span></a>
+    <a href="javascript:void(0)" onclick="openTTTSignin()" class="btn-primary"><span>Talk to the AI</span></a>
   </div>
   <div class="ai-window">
     <div class="ai-window-header">
@@ -1251,8 +1251,8 @@ footer {
     </h2>
     <p class="cta-sub">No forms. No waiting. Just tell the AI where you want to go — and let India's most intelligent travel concierge take it from there.</p>
     <div class="cta-actions">
-      <a href="https://thetriptheory.com" class="btn-primary"><span>Start for Free</span></a>
-      <a href="https://thetriptheory.com" class="btn-ghost" style="color:rgba(255,255,255,0.5)">Learn more →</a>
+      <a href="javascript:void(0)" onclick="openTTTSignin()" class="btn-primary"><span>Start for Free</span></a>
+      <a href="javascript:void(0)" onclick="openTTTSignin()" class="btn-ghost" style="color:rgba(255,255,255,0.5)">Learn more →</a>
     </div>
   </div>
 </div>
@@ -1271,10 +1271,10 @@ footer {
     <div>
       <div class="footer-col-title">Product</div>
       <div class="footer-col">
-        <a href="https://thetriptheory.com">Plan a Trip</a>
-        <a href="https://thetriptheory.com">AI Concierge</a>
-        <a href="https://thetriptheory.com">Marketplace</a>
-        <a href="https://thetriptheory.com">For Partners</a>
+        <a href="javascript:void(0)" onclick="openTTTSignin()">Plan a Trip</a>
+        <a href="javascript:void(0)" onclick="openTTTSignin()">AI Concierge</a>
+        <a href="javascript:void(0)" onclick="openTTTSignin()">Marketplace</a>
+        <a href="javascript:void(0)" onclick="openTTTSignin()">For Partners</a>
       </div>
     </div>
     <div>
@@ -1363,5 +1363,291 @@ window.addEventListener('scroll', () => {
   }
 });
 </script>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TTT SIGN-IN MODAL -->
+<!-- ══════════════════════════════════════════ -->
+<style>
+#ttt-signin-overlay{
+  position:fixed;inset:0;background:rgba(10,8,5,0.88);z-index:1000;
+  display:none;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(8px);
+}
+#ttt-signin-overlay.open{display:flex;}
+.ttt-signin-card{
+  background:#151008;border:1px solid rgba(201,150,58,0.2);
+  width:100%;max-width:460px;border-radius:2px;
+  overflow:hidden;position:relative;
+  animation:signinIn .35s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes signinIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.ttt-signin-top{
+  position:relative;height:180px;overflow:hidden;
+  background:linear-gradient(135deg,#1A1208 0%,#0A0805 100%);
+}
+.ttt-signin-top-img{
+  position:absolute;inset:0;
+  background:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=70') center/cover;
+  opacity:0.3;
+}
+.ttt-signin-top-content{
+  position:relative;z-index:2;
+  height:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:20px;text-align:center;
+}
+.ttt-signin-logo{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:2.2rem;font-weight:300;
+  color:#C9963A;letter-spacing:0.25em;
+  margin-bottom:6px;
+}
+.ttt-signin-tagline{
+  font-size:0.58rem;font-weight:300;
+  letter-spacing:0.25em;text-transform:uppercase;
+  color:rgba(255,255,255,0.4);
+}
+.ttt-signin-close{
+  position:absolute;top:14px;right:16px;
+  background:none;border:none;cursor:pointer;
+  color:rgba(255,255,255,0.3);font-size:20px;
+  line-height:1;z-index:10;
+  transition:color .2s;
+}
+.ttt-signin-close:hover{color:rgba(255,255,255,0.7);}
+.ttt-signin-body{padding:32px 36px 36px;}
+.ttt-signin-step{display:none;}
+.ttt-signin-step.active{display:block;}
+.ttt-signin-step-label{
+  font-size:0.58rem;font-weight:400;
+  letter-spacing:0.28em;text-transform:uppercase;
+  color:#C9963A;margin-bottom:10px;
+  display:flex;align-items:center;gap:10px;
+}
+.ttt-signin-step-label::before{
+  content:'';display:block;width:20px;height:1px;background:#C9963A;
+}
+.ttt-signin-title{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:1.6rem;font-weight:300;
+  color:#FEFCF8;margin-bottom:6px;line-height:1.2;
+}
+.ttt-signin-title em{font-style:italic;color:#E8C878;}
+.ttt-signin-sub{
+  font-size:0.72rem;font-weight:300;
+  line-height:1.8;color:rgba(255,255,255,0.4);
+  margin-bottom:24px;
+}
+.ttt-signin-input-wrap{
+  position:relative;margin-bottom:12px;
+}
+.ttt-signin-input{
+  width:100%;padding:13px 16px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(201,150,58,0.2);
+  border-radius:1px;
+  font-family:'Montserrat',sans-serif;
+  font-size:0.82rem;font-weight:300;
+  color:#FEFCF8;outline:none;
+  transition:border .2s;
+  letter-spacing:0.05em;
+}
+.ttt-signin-input::placeholder{color:rgba(255,255,255,0.25);}
+.ttt-signin-input:focus{border-color:rgba(201,150,58,0.6);}
+.ttt-signin-btn{
+  width:100%;padding:14px;
+  background:#C9963A;border:none;
+  font-family:'Montserrat',sans-serif;
+  font-size:0.62rem;font-weight:400;
+  letter-spacing:0.22em;text-transform:uppercase;
+  color:#0A0805;cursor:pointer;
+  margin-top:8px;
+  transition:background .2s;
+  position:relative;overflow:hidden;
+}
+.ttt-signin-btn:hover{background:#E8C878;}
+.ttt-signin-note{
+  font-size:0.62rem;font-weight:300;
+  color:rgba(255,255,255,0.25);
+  text-align:center;margin-top:14px;
+  line-height:1.7;
+}
+.ttt-signin-note a{color:rgba(201,150,58,0.7);text-decoration:none;}
+.ttt-otp-boxes{
+  display:flex;gap:10px;justify-content:center;
+  margin-bottom:12px;
+}
+.ttt-otp-box{
+  width:46px;height:52px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(201,150,58,0.2);
+  border-radius:1px;
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:1.4rem;font-weight:300;
+  color:#FEFCF8;text-align:center;
+  outline:none;transition:border .2s;
+}
+.ttt-otp-box:focus{border-color:rgba(201,150,58,0.7);}
+.ttt-back-btn{
+  background:none;border:none;cursor:pointer;
+  font-family:'Montserrat',sans-serif;
+  font-size:0.6rem;font-weight:300;
+  letter-spacing:0.15em;text-transform:uppercase;
+  color:rgba(255,255,255,0.3);
+  display:flex;align-items:center;gap:6px;
+  padding:0;margin-bottom:16px;
+  transition:color .2s;
+}
+.ttt-back-btn:hover{color:rgba(201,150,58,0.8);}
+.ttt-divider{
+  display:flex;align-items:center;gap:12px;
+  margin:16px 0;
+}
+.ttt-divider::before,.ttt-divider::after{
+  content:'';flex:1;height:1px;
+  background:rgba(255,255,255,0.08);
+}
+.ttt-divider span{
+  font-size:0.6rem;color:rgba(255,255,255,0.25);
+  letter-spacing:0.1em;
+}
+.ttt-guest-btn{
+  width:100%;padding:12px;
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.1);
+  font-family:'Montserrat',sans-serif;
+  font-size:0.62rem;font-weight:300;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:rgba(255,255,255,0.4);cursor:pointer;
+  transition:all .2s;
+}
+.ttt-guest-btn:hover{
+  border-color:rgba(201,150,58,0.3);
+  color:rgba(201,150,58,0.7);
+}
+</style>
+
+<div id="ttt-signin-overlay" onclick="if(event.target===this)closeTTTSignin()">
+  <div class="ttt-signin-card">
+    <div class="ttt-signin-top">
+      <div class="ttt-signin-top-img"></div>
+      <div class="ttt-signin-top-content">
+        <div class="ttt-signin-logo">TTT</div>
+        <div class="ttt-signin-tagline">India's First AI Travel Concierge</div>
+      </div>
+      <button class="ttt-signin-close" onclick="closeTTTSignin()">×</button>
+    </div>
+
+    <div class="ttt-signin-body">
+
+      <!-- Step 1: Enter phone/email -->
+      <div class="ttt-signin-step active" id="ttt-step-1">
+        <div class="ttt-signin-step-label">Begin</div>
+        <div class="ttt-signin-title">Your journey<br><em>starts here.</em></div>
+        <div class="ttt-signin-sub">Enter your phone number or email to receive a one-time code.</div>
+        <div class="ttt-signin-input-wrap">
+          <input class="ttt-signin-input" id="ttt-contact-input"
+            type="text" placeholder="+91 XXXXX XXXXX or email@example.com"
+            autocomplete="off">
+        </div>
+        <button class="ttt-signin-btn" onclick="tttSendOTP()">Continue →</button>
+        <div class="ttt-divider"><span>or</span></div>
+        <button class="ttt-guest-btn" onclick="tttContinueAsGuest()">Continue as guest</button>
+        <div class="ttt-signin-note">
+          By continuing you agree to our
+          <a href="#">Terms of Service</a> &amp; <a href="#">Privacy Policy</a>
+        </div>
+      </div>
+
+      <!-- Step 2: OTP -->
+      <div class="ttt-signin-step" id="ttt-step-2">
+        <button class="ttt-back-btn" onclick="tttGoBack()">← Back</button>
+        <div class="ttt-signin-step-label">Verify</div>
+        <div class="ttt-signin-title">One-time<br><em>code sent.</em></div>
+        <div class="ttt-signin-sub" id="ttt-otp-sub">Enter the 6-digit code we sent you.</div>
+        <div class="ttt-otp-boxes">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp0" oninput="tttOTPNext(0)">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp1" oninput="tttOTPNext(1)">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp2" oninput="tttOTPNext(2)">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp3" oninput="tttOTPNext(3)">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp4" oninput="tttOTPNext(4)">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp5" oninput="tttOTPNext(5)">
+        </div>
+        <button class="ttt-signin-btn" onclick="tttVerifyOTP()">Verify &amp; Enter →</button>
+        <div class="ttt-signin-note">
+          Didn't receive it? <a href="#" onclick="tttGoBack();return false;">Try again</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function openTTTSignin(){
+  document.getElementById('ttt-signin-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeTTTSignin(){
+  document.getElementById('ttt-signin-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function tttGoBack(){
+  document.getElementById('ttt-step-1').classList.add('active');
+  document.getElementById('ttt-step-2').classList.remove('active');
+}
+function tttSendOTP(){
+  const val = document.getElementById('ttt-contact-input').value.trim();
+  if(!val){ document.getElementById('ttt-contact-input').focus(); return; }
+  document.getElementById('ttt-otp-sub').textContent = 'Enter the 6-digit code sent to ' + val;
+  document.getElementById('ttt-step-1').classList.remove('active');
+  document.getElementById('ttt-step-2').classList.add('active');
+  setTimeout(()=>document.getElementById('otp0').focus(), 100);
+  // Call the existing TTT backend
+  fetch('/api/auth/send-otp', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({contact: val})
+  }).catch(()=>{});
+}
+function tttOTPNext(idx){
+  const v = document.getElementById('otp'+idx).value;
+  if(v && idx < 5) document.getElementById('otp'+(idx+1)).focus();
+  // Auto-submit when all filled
+  const all = [0,1,2,3,4,5].map(i=>document.getElementById('otp'+i).value).join('');
+  if(all.length===6) tttVerifyOTP();
+}
+function tttVerifyOTP(){
+  const otp = [0,1,2,3,4,5].map(i=>document.getElementById('otp'+i).value).join('');
+  const contact = document.getElementById('ttt-contact-input').value.trim();
+  if(otp.length<6) return;
+  // Verify with backend then redirect to app
+  fetch('/api/auth/verify-otp', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({contact: contact, otp: otp})
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    if(d.token || d.success){
+      if(d.token) sessionStorage.setItem('ttt_auth', JSON.stringify(d));
+      window.location.href = '/';
+    }
+  })
+  .catch(()=>{
+    // If API fails, still go to the app (dev mode)
+    window.location.href = '/';
+  });
+}
+function tttContinueAsGuest(){
+  closeTTTSignin();
+  window.location.href = '/#guest';
+}
+
+// Enter key on contact input
+document.addEventListener('DOMContentLoaded', ()=>{
+  const inp = document.getElementById('ttt-contact-input');
+  if(inp) inp.addEventListener('keydown', e=>{ if(e.key==='Enter') tttSendOTP(); });
+});
+</script>
+
 </body>
 </html>
