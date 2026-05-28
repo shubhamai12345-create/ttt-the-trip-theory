@@ -926,7 +926,7 @@ footer {
     <li><a href="#ai">The AI</a></li>
     <li><a href="#stories">Stories</a></li>
   </ul>
-  <a class="nav-cta" href="https://thetriptheory.com">Start Planning</a>
+  <a class="nav-cta" href="javascript:void(0)" onclick="openTTTSignin()">Start Planning</a>
 </nav>
 
 <!-- ── HERO ───────────────────────────────────── -->
@@ -1367,287 +1367,444 @@ window.addEventListener('scroll', () => {
 <!-- ══════════════════════════════════════════ -->
 <!-- TTT SIGN-IN MODAL -->
 <!-- ══════════════════════════════════════════ -->
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TTT SIGN-IN MODAL v3 — Google + Email OTP -->
+<!-- ══════════════════════════════════════════ -->
+
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
 <style>
 #ttt-signin-overlay{
-  position:fixed;inset:0;background:rgba(10,8,5,0.88);z-index:1000;
+  position:fixed;inset:0;background:rgba(10,8,5,0.92);z-index:10000;
   display:none;align-items:center;justify-content:center;padding:20px;
-  backdrop-filter:blur(8px);
+  backdrop-filter:blur(10px);
 }
 #ttt-signin-overlay.open{display:flex;}
-.ttt-signin-card{
-  background:#151008;border:1px solid rgba(201,150,58,0.2);
-  width:100%;max-width:460px;border-radius:2px;
+.ttt-sc{
+  background:#0F0C08;border:1px solid rgba(201,150,58,0.25);
+  width:100%;max-width:440px;border-radius:2px;
   overflow:hidden;position:relative;
-  animation:signinIn .35s cubic-bezier(0.16,1,0.3,1);
+  animation:scIn .35s cubic-bezier(0.16,1,0.3,1);
+  box-shadow:0 40px 120px rgba(0,0,0,0.8);
 }
-@keyframes signinIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-.ttt-signin-top{
-  position:relative;height:180px;overflow:hidden;
-  background:linear-gradient(135deg,#1A1208 0%,#0A0805 100%);
+@keyframes scIn{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+.ttt-sc-top{
+  position:relative;height:130px;overflow:hidden;
 }
-.ttt-signin-top-img{
+.ttt-sc-top-bg{
   position:absolute;inset:0;
-  background:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=70') center/cover;
-  opacity:0.3;
+  background:url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&q=60') center/cover;
+  opacity:0.25;
 }
-.ttt-signin-top-content{
-  position:relative;z-index:2;
-  height:100%;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  padding:20px;text-align:center;
+.ttt-sc-top-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(10,8,5,0.6),rgba(26,18,8,0.4));
 }
-.ttt-signin-logo{
+.ttt-sc-top-text{
+  position:relative;z-index:2;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.ttt-sc-logo{
   font-family:'Cormorant Garamond',Georgia,serif;
-  font-size:2.2rem;font-weight:300;
-  color:#C9963A;letter-spacing:0.25em;
-  margin-bottom:6px;
+  font-size:2rem;font-weight:300;color:#C9963A;
+  letter-spacing:0.3em;margin-bottom:4px;
 }
-.ttt-signin-tagline{
-  font-size:0.58rem;font-weight:300;
-  letter-spacing:0.25em;text-transform:uppercase;
-  color:rgba(255,255,255,0.4);
+.ttt-sc-sub{
+  font-size:0.55rem;font-weight:300;letter-spacing:0.3em;
+  text-transform:uppercase;color:rgba(255,255,255,0.35);
 }
-.ttt-signin-close{
-  position:absolute;top:14px;right:16px;
+.ttt-sc-x{
+  position:absolute;top:12px;right:14px;z-index:10;
   background:none;border:none;cursor:pointer;
-  color:rgba(255,255,255,0.3);font-size:20px;
-  line-height:1;z-index:10;
-  transition:color .2s;
+  color:rgba(255,255,255,0.3);font-size:18px;
+  width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;transition:all .2s;
 }
-.ttt-signin-close:hover{color:rgba(255,255,255,0.7);}
-.ttt-signin-body{padding:32px 36px 36px;}
-.ttt-signin-step{display:none;}
-.ttt-signin-step.active{display:block;}
-.ttt-signin-step-label{
-  font-size:0.58rem;font-weight:400;
-  letter-spacing:0.28em;text-transform:uppercase;
-  color:#C9963A;margin-bottom:10px;
+.ttt-sc-x:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);}
+.ttt-sc-body{padding:28px 32px 32px;}
+
+/* Steps */
+.ttt-sc-step{display:none;}
+.ttt-sc-step.on{display:block;}
+.ttt-sc-label{
+  font-size:0.55rem;font-weight:400;letter-spacing:0.3em;
+  text-transform:uppercase;color:#C9963A;margin-bottom:10px;
   display:flex;align-items:center;gap:10px;
 }
-.ttt-signin-step-label::before{
-  content:'';display:block;width:20px;height:1px;background:#C9963A;
-}
-.ttt-signin-title{
+.ttt-sc-label::before{content:'';width:18px;height:1px;background:#C9963A;}
+.ttt-sc-h{
   font-family:'Cormorant Garamond',Georgia,serif;
-  font-size:1.6rem;font-weight:300;
-  color:#FEFCF8;margin-bottom:6px;line-height:1.2;
+  font-size:1.55rem;font-weight:300;color:#FEFCF8;
+  margin-bottom:6px;line-height:1.2;
 }
-.ttt-signin-title em{font-style:italic;color:#E8C878;}
-.ttt-signin-sub{
-  font-size:0.72rem;font-weight:300;
-  line-height:1.8;color:rgba(255,255,255,0.4);
-  margin-bottom:24px;
+.ttt-sc-h em{font-style:italic;color:#E8C878;}
+.ttt-sc-desc{
+  font-size:0.7rem;font-weight:300;line-height:1.8;
+  color:rgba(255,255,255,0.35);margin-bottom:22px;
 }
-.ttt-signin-input-wrap{
-  position:relative;margin-bottom:12px;
-}
-.ttt-signin-input{
-  width:100%;padding:13px 16px;
+
+/* Google button */
+.ttt-google-btn{
+  width:100%;padding:12px 16px;
   background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:2px;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  cursor:pointer;transition:all .2s;margin-bottom:10px;
+}
+.ttt-google-btn:hover{
+  background:rgba(255,255,255,0.08);
+  border-color:rgba(255,255,255,0.2);
+}
+.ttt-google-btn svg{flex-shrink:0;}
+.ttt-google-btn span{
+  font-family:'Montserrat',sans-serif;
+  font-size:0.72rem;font-weight:400;
+  letter-spacing:0.1em;color:rgba(255,255,255,0.75);
+}
+
+/* Divider */
+.ttt-or{
+  display:flex;align-items:center;gap:12px;margin:14px 0;
+}
+.ttt-or::before,.ttt-or::after{
+  content:'';flex:1;height:1px;background:rgba(255,255,255,0.07);
+}
+.ttt-or span{
+  font-size:0.58rem;color:rgba(255,255,255,0.2);
+  letter-spacing:0.15em;text-transform:uppercase;
+}
+
+/* Input */
+.ttt-inp{
+  width:100%;padding:12px 14px;
+  background:rgba(255,255,255,0.03);
   border:1px solid rgba(201,150,58,0.2);
-  border-radius:1px;
+  border-radius:2px;
   font-family:'Montserrat',sans-serif;
-  font-size:0.82rem;font-weight:300;
-  color:#FEFCF8;outline:none;
-  transition:border .2s;
-  letter-spacing:0.05em;
+  font-size:0.8rem;font-weight:300;color:#FEFCF8;
+  outline:none;transition:border .2s;letter-spacing:0.04em;
+  margin-bottom:10px;box-sizing:border-box;
 }
-.ttt-signin-input::placeholder{color:rgba(255,255,255,0.25);}
-.ttt-signin-input:focus{border-color:rgba(201,150,58,0.6);}
-.ttt-signin-btn{
-  width:100%;padding:14px;
-  background:#C9963A;border:none;
-  font-family:'Montserrat',sans-serif;
-  font-size:0.62rem;font-weight:400;
-  letter-spacing:0.22em;text-transform:uppercase;
-  color:#0A0805;cursor:pointer;
-  margin-top:8px;
-  transition:background .2s;
-  position:relative;overflow:hidden;
+.ttt-inp::placeholder{color:rgba(255,255,255,0.2);}
+.ttt-inp:focus{border-color:rgba(201,150,58,0.55);}
+
+/* Primary button */
+.ttt-btn{
+  width:100%;padding:13px;background:#C9963A;border:none;
+  font-family:'Montserrat',sans-serif;font-size:0.6rem;font-weight:400;
+  letter-spacing:0.22em;text-transform:uppercase;color:#0A0805;
+  cursor:pointer;transition:background .2s;margin-top:4px;
 }
-.ttt-signin-btn:hover{background:#E8C878;}
-.ttt-signin-note{
-  font-size:0.62rem;font-weight:300;
-  color:rgba(255,255,255,0.25);
-  text-align:center;margin-top:14px;
-  line-height:1.7;
+.ttt-btn:hover{background:#E8C878;}
+.ttt-btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+/* Error */
+.ttt-err{
+  font-size:0.65rem;color:#E07070;
+  text-align:center;margin-top:8px;min-height:18px;
 }
-.ttt-signin-note a{color:rgba(201,150,58,0.7);text-decoration:none;}
-.ttt-otp-boxes{
-  display:flex;gap:10px;justify-content:center;
-  margin-bottom:12px;
+
+/* OTP boxes */
+.ttt-otp-row{
+  display:flex;gap:8px;justify-content:center;margin-bottom:12px;
 }
 .ttt-otp-box{
-  width:46px;height:52px;
-  background:rgba(255,255,255,0.04);
+  width:44px;height:50px;
+  background:rgba(255,255,255,0.03);
   border:1px solid rgba(201,150,58,0.2);
-  border-radius:1px;
-  font-family:'Cormorant Garamond',Georgia,serif;
-  font-size:1.4rem;font-weight:300;
-  color:#FEFCF8;text-align:center;
-  outline:none;transition:border .2s;
+  border-radius:2px;font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:1.4rem;font-weight:300;color:#FEFCF8;
+  text-align:center;outline:none;transition:border .2s;
+  box-sizing:border-box;
 }
-.ttt-otp-box:focus{border-color:rgba(201,150,58,0.7);}
-.ttt-back-btn{
+.ttt-otp-box:focus{border-color:rgba(201,150,58,0.65);}
+
+/* Back + note */
+.ttt-back{
   background:none;border:none;cursor:pointer;
-  font-family:'Montserrat',sans-serif;
-  font-size:0.6rem;font-weight:300;
+  font-family:'Montserrat',sans-serif;font-size:0.58rem;font-weight:300;
   letter-spacing:0.15em;text-transform:uppercase;
-  color:rgba(255,255,255,0.3);
-  display:flex;align-items:center;gap:6px;
-  padding:0;margin-bottom:16px;
-  transition:color .2s;
+  color:rgba(255,255,255,0.25);padding:0;margin-bottom:16px;
+  display:flex;align-items:center;gap:6px;transition:color .2s;
 }
-.ttt-back-btn:hover{color:rgba(201,150,58,0.8);}
-.ttt-divider{
-  display:flex;align-items:center;gap:12px;
-  margin:16px 0;
+.ttt-back:hover{color:rgba(201,150,58,0.8);}
+.ttt-note{
+  font-size:0.6rem;font-weight:300;color:rgba(255,255,255,0.2);
+  text-align:center;margin-top:14px;line-height:1.7;
 }
-.ttt-divider::before,.ttt-divider::after{
-  content:'';flex:1;height:1px;
-  background:rgba(255,255,255,0.08);
-}
-.ttt-divider span{
-  font-size:0.6rem;color:rgba(255,255,255,0.25);
-  letter-spacing:0.1em;
-}
-.ttt-guest-btn{
-  width:100%;padding:12px;
-  background:transparent;
-  border:1px solid rgba(255,255,255,0.1);
-  font-family:'Montserrat',sans-serif;
-  font-size:0.62rem;font-weight:300;
+.ttt-note a{color:rgba(201,150,58,0.55);text-decoration:none;}
+.ttt-note a:hover{color:#C9963A;}
+
+/* Guest button */
+.ttt-ghost{
+  width:100%;padding:11px;background:transparent;
+  border:1px solid rgba(255,255,255,0.08);
+  font-family:'Montserrat',sans-serif;font-size:0.6rem;font-weight:300;
   letter-spacing:0.18em;text-transform:uppercase;
-  color:rgba(255,255,255,0.4);cursor:pointer;
-  transition:all .2s;
+  color:rgba(255,255,255,0.3);cursor:pointer;
+  transition:all .2s;margin-top:8px;
 }
-.ttt-guest-btn:hover{
-  border-color:rgba(201,150,58,0.3);
-  color:rgba(201,150,58,0.7);
+.ttt-ghost:hover{border-color:rgba(201,150,58,0.25);color:rgba(201,150,58,0.6);}
+
+/* Success step */
+.ttt-success-icon{
+  font-size:2rem;text-align:center;margin-bottom:12px;
+}
+.ttt-success-msg{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:1.4rem;font-weight:300;color:#FEFCF8;
+  text-align:center;margin-bottom:8px;line-height:1.3;
+}
+.ttt-success-sub{
+  font-size:0.7rem;color:rgba(255,255,255,0.35);
+  text-align:center;margin-bottom:20px;
 }
 </style>
 
-<div id="ttt-signin-overlay" onclick="if(event.target===this)closeTTTSignin()">
-  <div class="ttt-signin-card">
-    <div class="ttt-signin-top">
-      <div class="ttt-signin-top-img"></div>
-      <div class="ttt-signin-top-content">
-        <div class="ttt-signin-logo">TTT</div>
-        <div class="ttt-signin-tagline">India's First AI Travel Concierge</div>
+<!-- MODAL HTML -->
+<div id="ttt-signin-overlay" onclick="if(event.target===this)_tttClose()">
+  <div class="ttt-sc">
+    <!-- Header image -->
+    <div class="ttt-sc-top">
+      <div class="ttt-sc-top-bg"></div>
+      <div class="ttt-sc-top-overlay"></div>
+      <div class="ttt-sc-top-text">
+        <div class="ttt-sc-logo">TTT</div>
+        <div class="ttt-sc-sub">India's First AI Travel Concierge</div>
       </div>
-      <button class="ttt-signin-close" onclick="closeTTTSignin()">×</button>
+      <button class="ttt-sc-x" onclick="_tttClose()">✕</button>
     </div>
 
-    <div class="ttt-signin-body">
+    <div class="ttt-sc-body">
 
-      <!-- Step 1: Enter phone/email -->
-      <div class="ttt-signin-step active" id="ttt-step-1">
-        <div class="ttt-signin-step-label">Begin</div>
-        <div class="ttt-signin-title">Your journey<br><em>starts here.</em></div>
-        <div class="ttt-signin-sub">Enter your phone number or email to receive a one-time code.</div>
-        <div class="ttt-signin-input-wrap">
-          <input class="ttt-signin-input" id="ttt-contact-input"
-            type="text" placeholder="+91 XXXXX XXXXX or email@example.com"
-            autocomplete="off">
-        </div>
-        <button class="ttt-signin-btn" onclick="tttSendOTP()">Continue →</button>
-        <div class="ttt-divider"><span>or</span></div>
-        <button class="ttt-guest-btn" onclick="tttContinueAsGuest()">Continue as guest</button>
-        <div class="ttt-signin-note">
-          By continuing you agree to our
-          <a href="#">Terms of Service</a> &amp; <a href="#">Privacy Policy</a>
-        </div>
+      <!-- STEP 1: Choose method -->
+      <div class="ttt-sc-step on" id="ttt-s1">
+        <div class="ttt-sc-label">Begin</div>
+        <div class="ttt-sc-h">Your journey<br><em>starts here.</em></div>
+        <div class="ttt-sc-desc">Sign in to unlock your personalised AI travel concierge.</div>
+
+        <!-- Google Sign-In -->
+        <button class="ttt-google-btn" onclick="_tttGoogleSignin()">
+          <svg width="18" height="18" viewBox="0 0 18 18">
+            <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
+            <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
+            <path fill="#FBBC05" d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"/>
+            <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.962L3.964 6.294C4.672 4.167 6.656 3.58 9 3.58z"/>
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+
+        <div class="ttt-or"><span>or use email</span></div>
+
+        <input class="ttt-inp" id="ttt-email-inp"
+          type="email" placeholder="Enter your email address"
+          autocomplete="email" onkeydown="if(event.key==='Enter')_tttSend()">
+        <button class="ttt-btn" onclick="_tttSend()" id="ttt-send-btn">Send Verification Code →</button>
+        <div class="ttt-err" id="ttt-err1"></div>
+
+        <button class="ttt-ghost" onclick="_tttGuest()">Continue as guest →</button>
+        <div class="ttt-note">By continuing you agree to our <a href="#">Terms</a> &amp; <a href="#">Privacy Policy</a></div>
       </div>
 
-      <!-- Step 2: OTP -->
-      <div class="ttt-signin-step" id="ttt-step-2">
-        <button class="ttt-back-btn" onclick="tttGoBack()">← Back</button>
-        <div class="ttt-signin-step-label">Verify</div>
-        <div class="ttt-signin-title">One-time<br><em>code sent.</em></div>
-        <div class="ttt-signin-sub" id="ttt-otp-sub">Enter the 6-digit code we sent you.</div>
-        <div class="ttt-otp-boxes">
-          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp0" oninput="tttOTPNext(0)">
-          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp1" oninput="tttOTPNext(1)">
-          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp2" oninput="tttOTPNext(2)">
-          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp3" oninput="tttOTPNext(3)">
-          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp4" oninput="tttOTPNext(4)">
-          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="otp5" oninput="tttOTPNext(5)">
+      <!-- STEP 2: OTP verify -->
+      <div class="ttt-sc-step" id="ttt-s2">
+        <button class="ttt-back" onclick="_tttBack()">← Back</button>
+        <div class="ttt-sc-label">Verify</div>
+        <div class="ttt-sc-h">Check your<br><em>inbox.</em></div>
+        <div class="ttt-sc-desc" id="ttt-otp-desc">Enter the 6-digit code we sent you.</div>
+        <div class="ttt-otp-row">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="o0" oninput="_tttOtp(0)">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="o1" oninput="_tttOtp(1)">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="o2" oninput="_tttOtp(2)">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="o3" oninput="_tttOtp(3)">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="o4" oninput="_tttOtp(4)">
+          <input class="ttt-otp-box" maxlength="1" type="text" inputmode="numeric" id="o5" oninput="_tttOtp(5)">
         </div>
-        <button class="ttt-signin-btn" onclick="tttVerifyOTP()">Verify &amp; Enter →</button>
-        <div class="ttt-signin-note">
-          Didn't receive it? <a href="#" onclick="tttGoBack();return false;">Try again</a>
+        <button class="ttt-btn" onclick="_tttVerify()" id="ttt-verify-btn">Verify &amp; Enter →</button>
+        <div class="ttt-err" id="ttt-err2"></div>
+        <div class="ttt-note">Didn't receive it? <a href="#" onclick="_tttResend();return false;">Resend code</a></div>
+      </div>
+
+      <!-- STEP 3: Success -->
+      <div class="ttt-sc-step" id="ttt-s3">
+        <div class="ttt-success-icon">✦</div>
+        <div class="ttt-success-msg">Welcome to<br>The Trip Theory.</div>
+        <div class="ttt-success-sub" id="ttt-s3-sub">Your AI concierge is ready.</div>
+        <div style="width:100%;height:3px;background:rgba(201,150,58,0.15);border-radius:2px;overflow:hidden;margin-bottom:20px">
+          <div id="ttt-prog" style="height:100%;background:#C9963A;width:0;transition:width 1.5s ease;border-radius:2px"></div>
         </div>
+        <button class="ttt-btn" onclick="window.location.href='/app'">Enter the Concierge →</button>
       </div>
 
     </div>
   </div>
 </div>
 
+<!-- Hidden Google One Tap container -->
+<div id="g_id_onload"
+  data-client_id="__GOOGLE_CLIENT_ID__"
+  data-callback="_tttGoogleCallback"
+  data-auto_prompt="false">
+</div>
+
 <script>
+// ── TTT Auth v3 ─────────────────────────────────────────────────────────────
+var _tttEmail = '';
+
 function openTTTSignin(){
   document.getElementById('ttt-signin-overlay').classList.add('open');
-  document.body.style.overflow='hidden';
+  document.body.style.overflow = 'hidden';
+  // Reset to step 1
+  _tttShowStep('ttt-s1');
+  setTimeout(()=>{ var e=document.getElementById('ttt-email-inp'); if(e)e.focus(); },200);
 }
-function closeTTTSignin(){
+function _tttClose(){
   document.getElementById('ttt-signin-overlay').classList.remove('open');
-  document.body.style.overflow='';
+  document.body.style.overflow = '';
 }
-function tttGoBack(){
-  document.getElementById('ttt-step-1').classList.add('active');
-  document.getElementById('ttt-step-2').classList.remove('active');
-}
-function tttSendOTP(){
-  const val = document.getElementById('ttt-contact-input').value.trim();
-  if(!val){ document.getElementById('ttt-contact-input').focus(); return; }
-  document.getElementById('ttt-otp-sub').textContent = 'Enter the 6-digit code sent to ' + val;
-  document.getElementById('ttt-step-1').classList.remove('active');
-  document.getElementById('ttt-step-2').classList.add('active');
-  setTimeout(()=>document.getElementById('otp0').focus(), 100);
-  // Call the existing TTT backend
-  fetch('/api/auth/send-otp', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({contact: val})
-  }).catch(()=>{});
-}
-function tttOTPNext(idx){
-  const v = document.getElementById('otp'+idx).value;
-  if(v && idx < 5) document.getElementById('otp'+(idx+1)).focus();
-  // Auto-submit when all filled
-  const all = [0,1,2,3,4,5].map(i=>document.getElementById('otp'+i).value).join('');
-  if(all.length===6) tttVerifyOTP();
-}
-function tttVerifyOTP(){
-  const otp = [0,1,2,3,4,5].map(i=>document.getElementById('otp'+i).value).join('');
-  const contact = document.getElementById('ttt-contact-input').value.trim();
-  if(otp.length<6) return;
-  // Verify with backend then redirect to app
-  fetch('/api/auth/verify-otp', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({contact: contact, otp: otp})
-  })
-  .then(r=>r.json())
-  .then(d=>{
-    if(d.token || d.success){
-      if(d.token) sessionStorage.setItem('ttt_auth', JSON.stringify(d));
-      window.location.href = '/';
-    }
-  })
-  .catch(()=>{
-    // If API fails, still go to the app (dev mode)
-    window.location.href = '/';
+function _tttShowStep(id){
+  ['ttt-s1','ttt-s2','ttt-s3'].forEach(s=>{
+    document.getElementById(s).classList.toggle('on', s===id);
   });
 }
-function tttContinueAsGuest(){
-  closeTTTSignin();
-  window.location.href = '/#guest';
+
+// ── Google Sign-In ────────────────────────────────────────────────────────
+function _tttGoogleSignin(){
+  if(window.google && window.google.accounts){
+    google.accounts.id.initialize({
+      client_id: document.getElementById('g_id_onload').dataset.clientId,
+      callback: _tttGoogleCallback,
+      ux_mode: 'popup'
+    });
+    google.accounts.id.prompt((notification)=>{
+      if(notification.isNotDisplayed() || notification.isSkippedMoment()){
+        // Fallback: use renderButton approach
+        google.accounts.oauth2 && google.accounts.oauth2.initTokenClient && null;
+        // Simple popup fallback
+        _tttErr1('Google sign-in unavailable. Please use email below.');
+      }
+    });
+  } else {
+    _tttErr1('Google loading... please try again in a moment.');
+  }
 }
 
-// Enter key on contact input
-document.addEventListener('DOMContentLoaded', ()=>{
-  const inp = document.getElementById('ttt-contact-input');
-  if(inp) inp.addEventListener('keydown', e=>{ if(e.key==='Enter') tttSendOTP(); });
-});
+async function _tttGoogleCallback(response){
+  var idToken = response.credential;
+  if(!idToken){ _tttErr1('Google sign-in failed.'); return; }
+  try {
+    var r = await fetch('/api/auth/google', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({id_token: idToken})
+    });
+    var d = await r.json();
+    if(d.success){
+      if(d.token) sessionStorage.setItem('ttt_token', d.token);
+      if(d.user)  sessionStorage.setItem('ttt_user',  JSON.stringify(d.user));
+      _tttSuccess(d.user?.name || d.user?.email || 'Traveller');
+    } else {
+      _tttErr1(d.detail || 'Google sign-in failed.');
+    }
+  } catch(e){
+    _tttErr1('Network error. Please try again.');
+  }
+}
+
+// ── Email OTP ─────────────────────────────────────────────────────────────
+async function _tttSend(){
+  var email = document.getElementById('ttt-email-inp').value.trim();
+  if(!email || !email.includes('@')){ _tttErr1('Please enter a valid email address.'); return; }
+  _tttEmail = email;
+  var btn = document.getElementById('ttt-send-btn');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  _tttErr1('');
+  try {
+    var r = await fetch('/api/auth/send-otp', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({contact: email, mode: 'email'})
+    });
+    var d = await r.json();
+    if(r.ok){
+      document.getElementById('ttt-otp-desc').textContent = 'Enter the 6-digit code sent to ' + email;
+      _tttShowStep('ttt-s2');
+      setTimeout(()=>document.getElementById('o0').focus(), 100);
+      if(d.demo) _tttErr2('📬 Demo mode — check the Railway logs for your code.');
+    } else {
+      _tttErr1(d.detail || 'Failed to send code. Please try again.');
+    }
+  } catch(e){
+    _tttErr1('Network error. Please try again.');
+  }
+  btn.disabled = false; btn.textContent = 'Send Verification Code →';
+}
+
+async function _tttResend(){
+  var btn = document.getElementById('ttt-send-btn');
+  btn.disabled = true;
+  await _tttSend();
+  btn.disabled = false;
+}
+
+function _tttOtp(idx){
+  var v = document.getElementById('o'+idx).value;
+  if(v && idx < 5) document.getElementById('o'+(idx+1)).focus();
+  var all = [0,1,2,3,4,5].map(i=>document.getElementById('o'+i).value).join('');
+  if(all.length === 6) _tttVerify();
+}
+
+async function _tttVerify(){
+  var otp = [0,1,2,3,4,5].map(i=>document.getElementById('o'+i).value).join('');
+  if(otp.length < 6){ _tttErr2('Please enter all 6 digits.'); return; }
+  var btn = document.getElementById('ttt-verify-btn');
+  btn.disabled = true; btn.textContent = 'Verifying...';
+  _tttErr2('');
+  try {
+    var r = await fetch('/api/auth/verify-otp', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({contact: _tttEmail, otp: otp, mode: 'email'})
+    });
+    var d = await r.json();
+    if(r.ok && d.success){
+      if(d.token) sessionStorage.setItem('ttt_token', d.token);
+      if(d.user)  sessionStorage.setItem('ttt_user',  JSON.stringify(d.user));
+      _tttSuccess(d.user?.name || _tttEmail);
+    } else {
+      _tttErr2(d.detail || 'Incorrect code. Please try again.');
+      [0,1,2,3,4,5].forEach(i=>{ document.getElementById('o'+i).value=''; });
+      document.getElementById('o0').focus();
+    }
+  } catch(e){
+    _tttErr2('Network error. Please try again.');
+  }
+  btn.disabled = false; btn.textContent = 'Verify & Enter →';
+}
+
+function _tttSuccess(name){
+  _tttShowStep('ttt-s3');
+  document.getElementById('ttt-s3-sub').textContent = 'Welcome back, ' + name + '. Your concierge awaits.';
+  setTimeout(()=>{ document.getElementById('ttt-prog').style.width='100%'; }, 100);
+  setTimeout(()=>{ window.location.href = '/app'; }, 1700);
+}
+
+function _tttBack(){
+  _tttShowStep('ttt-s1');
+  [0,1,2,3,4,5].forEach(i=>{ document.getElementById('o'+i).value=''; });
+  _tttErr2('');
+}
+
+function _tttGuest(){
+  _tttClose();
+  window.location.href = '/app#guest';
+}
+
+function _tttErr1(msg){ document.getElementById('ttt-err1').textContent = msg; }
+function _tttErr2(msg){ document.getElementById('ttt-err2').textContent = msg; }
+
+// Keyboard close
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
 </script>
 
 </body>
-</html>
