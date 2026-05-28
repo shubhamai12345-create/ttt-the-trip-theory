@@ -652,20 +652,21 @@ def _send_otp_email(to_email: str, code: str) -> bool:
     _resend_key = os.getenv("RESEND_API_KEY", "")
     if _resend_key:
         try:
-            import requests as _req
-            resp = _req.post(
+            import urllib.request as _ur, json as _json
+            _payload = _json.dumps({
+                "from":    "TTT Concierge <onboarding@resend.dev>",
+                "to":      [to_email],
+                "subject": f"Your TTT verification code",
+                "html":    f'''<div style="font-family:Georgia,serif;max-width:480px;margin:auto;padding:32px;background:#0A0805;color:#FEFCF8;border:1px solid rgba(201,150,58,0.2)"><div style="font-size:1.8rem;color:#C9963A;letter-spacing:0.2em;margin-bottom:16px">TTT</div><p style="font-size:0.9rem;color:rgba(255,255,255,0.6);margin-bottom:24px">Your verification code:</p><div style="font-size:2.5rem;letter-spacing:0.3em;color:#E8C878;text-align:center;padding:24px;border:1px solid rgba(201,150,58,0.3);margin:0 0 24px">{code}</div><p style="font-size:0.75rem;color:rgba(255,255,255,0.3)">Expires in 10 minutes. The Trip Theory.</p></div>'''
+            }).encode()
+            _req = _ur.Request(
                 "https://api.resend.com/emails",
+                data=_payload,
                 headers={"Authorization": f"Bearer {_resend_key}", "Content-Type": "application/json"},
-                json={
-                    "from":    "TTT Concierge <onboarding@resend.dev>",
-                    "to":      [to_email],
-                    "subject": f"Your TTT verification code",
-                    "html":    f"""<div style="font-family:Georgia,serif;max-width:480px;margin:auto;padding:32px;background:#0A0805;color:#FEFCF8;border:1px solid rgba(201,150,58,0.2)"><div style="font-size:1.8rem;color:#C9963A;letter-spacing:0.2em;margin-bottom:16px">TTT</div><p style="font-size:0.9rem;color:rgba(255,255,255,0.6);margin-bottom:24px">Your one-time verification code:</p><div style="font-size:2.5rem;letter-spacing:0.3em;color:#E8C878;text-align:center;padding:24px;border:1px solid rgba(201,150,58,0.3);margin:0 0 24px">{code}</div><p style="font-size:0.75rem;color:rgba(255,255,255,0.3)">Expires in 10 minutes. The Trip Theory.</p></div>"""
-                },
-                timeout=10
+                method="POST"
             )
-            if resp.status_code in (200, 201):
-                return True
+            with _ur.urlopen(_req, timeout=10) as _resp:
+                return _resp.status in (200, 201)
         except Exception as _e:
             print(f"[TTT Resend] Error: {_e}")
     # SMTP fallback
