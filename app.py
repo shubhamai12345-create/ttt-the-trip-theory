@@ -3346,6 +3346,7 @@ async def crm_add_note(user_id: str, data: dict, admin_key: str = Query("")):
 
 @app.get("/landing")
 async def landing_page():
+    # v2 - with signin modal
     attempts = [
         os.path.join(frontend_dir, "landing.html"),
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend", "landing.html"),
@@ -3371,5 +3372,5 @@ async def crm_dashboard():
     return HTMLResponse("<h1>CRM Loading...</h1><script>setTimeout(()=>location.reload(),2000)</script>", 200)
 
 # ══════════════════════════════════════════════════════════════════════════════
-# END CRM
+# END CRM  [landing v2 - signin modal]
 # ══════════════════════════════════════════════════════════════════════════════
