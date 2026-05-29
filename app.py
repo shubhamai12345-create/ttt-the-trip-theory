@@ -2897,6 +2897,98 @@ async def admin_live_visitors(key: str = Query("")):
         "debug_total_sessions": len(_live_visitors),
     }
 
+
+
+@app.get("/api/admin/resend-setup")
+async def resend_domain_setup(key: str = ""):
+    """One-time setup: create domain in Resend and return DNS records."""
+    if key != os.getenv("ADMIN_KEY", "ttt-admin-2024"):
+        raise HTTPException(403, "Invalid admin key")
+    import urllib.request as _ur
+    _resend_key = os.getenv("RESEND_API_KEY", "")
+    if not _resend_key:
+        return {"error": "RESEND_API_KEY not set"}
+    
+    # First try to list existing domains
+    try:
+        _req = _ur.Request(
+            "https://api.resend.com/domains",
+            headers={"Authorization": f"Bearer {_resend_key}", "Content-Type": "application/json", "User-Agent": "TTT-Backend/1.0"},
+            method="GET"
+        )
+        with _ur.urlopen(_req, timeout=10) as _resp:
+            existing = json.loads(_resp.read().decode())
+            # Check if domain already exists
+            for d in existing.get("data", []):
+                if d.get("name") == "thetriptheory.com":
+                    # Get full details
+                    _req2 = _ur.Request(
+                        f"https://api.resend.com/domains/{d['id']}",
+                        headers={"Authorization": f"Bearer {_resend_key}", "Content-Type": "application/json", "User-Agent": "TTT-Backend/1.0"},
+                        method="GET"
+                    )
+                    with _ur.urlopen(_req2, timeout=10) as _resp2:
+                        return {"status": "already_exists", "domain": json.loads(_resp2.read().decode())}
+    except Exception as e:
+        pass
+    
+    # Create domain
+    try:
+        _payload = json.dumps({"name": "thetriptheory.com"}).encode()
+        _req = _ur.Request(
+            "https://api.resend.com/domains",
+            data=_payload,
+            headers={"Authorization": f"Bearer {_resend_key}", "Content-Type": "application/json", "User-Agent": "TTT-Backend/1.0"},
+            method="POST"
+        )
+        with _ur.urlopen(_req, timeout=10) as _resp:
+            result = json.loads(_resp.read().decode())
+            return {"status": "created", "domain": result}
+    except Exception as e:
+        err_body = ""
+        if hasattr(e, "read"):
+            try: err_body = e.read().decode()
+            except: pass
+        return {"error": str(e), "body": err_body}
+
+
+@app.get("/api/admin/resend-verify")
+async def resend_domain_verify(key: str = ""):
+    """Trigger domain verification check in Resend."""
+    if key != os.getenv("ADMIN_KEY", "ttt-admin-2024"):
+        raise HTTPException(403, "Invalid admin key")
+    import urllib.request as _ur
+    _resend_key = os.getenv("RESEND_API_KEY", "")
+    
+    # List domains to find ours
+    try:
+        _req = _ur.Request(
+            "https://api.resend.com/domains",
+            headers={"Authorization": f"Bearer {_resend_key}", "Content-Type": "application/json", "User-Agent": "TTT-Backend/1.0"},
+            method="GET"
+        )
+        with _ur.urlopen(_req, timeout=10) as _resp:
+            domains = json.loads(_resp.read().decode())
+            for d in domains.get("data", []):
+                if d.get("name") == "thetriptheory.com":
+                    # Trigger verify
+                    _req2 = _ur.Request(
+                        f"https://api.resend.com/domains/{d['id']}/verify",
+                        data=b"{}",
+                        headers={"Authorization": f"Bearer {_resend_key}", "Content-Type": "application/json", "User-Agent": "TTT-Backend/1.0"},
+                        method="POST"
+                    )
+                    with _ur.urlopen(_req2, timeout=10) as _resp2:
+                        return {"status": "verification_triggered", "response": json.loads(_resp2.read().decode())}
+            return {"error": "Domain not found in Resend"}
+    except Exception as e:
+        err_body = ""
+        if hasattr(e, "read"):
+            try: err_body = e.read().decode()
+            except: pass
+        return {"error": str(e), "body": err_body}
+
+
 @app.get("/api/admin/full-summary")
 async def admin_full_summary(key: str = Query("")):
     if key != ADMIN_KEY:
