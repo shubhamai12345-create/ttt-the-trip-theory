@@ -1733,7 +1733,7 @@ async function _tttSend(){
       document.getElementById('ttt-otp-desc').textContent = 'Enter the 6-digit code sent to ' + email;
       _tttShowStep('ttt-s2');
       setTimeout(()=>document.getElementById('o0').focus(), 100);
-      if(d.demo) _tttErr2('📬 Demo mode — check the Railway logs for your code.');
+      if(d.demo) _tttErr2('✅ Demo mode — enter any 6 digits to continue.');
     } else {
       _tttErr1(d.detail || 'Failed to send code. Please try again.');
     }
