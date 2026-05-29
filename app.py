@@ -647,16 +647,22 @@ def _normalise_contact(contact: str, mode: str) -> str:
     return contact.lower() if mode == "email" else contact
 
 
+_last_email_error = ""
+
 def _send_otp_email(to_email: str, code: str) -> bool:
-    # Read env vars at call time (not at import time) so they're always current
+    global _last_email_error
+    _last_email_error = ""
     _resend_key = os.getenv("RESEND_API_KEY", "")
-    if _resend_key:
+    if not _resend_key:
+        _last_email_error = "RESEND_API_KEY env var is empty or not set"
+        print(f"[TTT Resend] {_last_email_error}")
+    else:
         try:
             import urllib.request as _ur, json as _json
             _payload = _json.dumps({
                 "from":    "TTT Concierge <onboarding@resend.dev>",
                 "to":      [to_email],
-                "subject": f"Your TTT verification code",
+                "subject": "Your TTT verification code",
                 "html":    f'''<div style="font-family:Georgia,serif;max-width:480px;margin:auto;padding:32px;background:#0A0805;color:#FEFCF8;border:1px solid rgba(201,150,58,0.2)"><div style="font-size:1.8rem;color:#C9963A;letter-spacing:0.2em;margin-bottom:16px">TTT</div><p style="font-size:0.9rem;color:rgba(255,255,255,0.6);margin-bottom:24px">Your verification code:</p><div style="font-size:2.5rem;letter-spacing:0.3em;color:#E8C878;text-align:center;padding:24px;border:1px solid rgba(201,150,58,0.3);margin:0 0 24px">{code}</div><p style="font-size:0.75rem;color:rgba(255,255,255,0.3)">Expires in 10 minutes. The Trip Theory.</p></div>'''
             }).encode()
             _req = _ur.Request(
@@ -666,9 +672,17 @@ def _send_otp_email(to_email: str, code: str) -> bool:
                 method="POST"
             )
             with _ur.urlopen(_req, timeout=10) as _resp:
+                _body = _resp.read().decode()
+                print(f"[TTT Resend] Success! Status={_resp.status} Body={_body}")
                 return _resp.status in (200, 201)
         except Exception as _e:
+            _last_email_error = str(_e)
             print(f"[TTT Resend] Error: {_e}")
+            # Try to read error body
+            if hasattr(_e, "read"):
+                try:
+                    _last_email_error += " | " + _e.read().decode()
+                except: pass
     # SMTP fallback
     if not (SMTP_USER and SMTP_PASS):
         print(f"[TTT OTP] Demo mode — OTP for {to_email}: {code}")
@@ -733,8 +747,10 @@ async def send_otp(req: OTPSendRequest):
     return {
         "success": True,
         "message": f"OTP sent to {contact}",
-        "demo":    not sent,  # True only if actual delivery failed
+        "demo":    not sent,
         "sent":    sent,
+        "debug_error": _last_email_error if not sent else "",
+        "resend_configured": bool(os.getenv("RESEND_API_KEY", "")),
     }
 
 
