@@ -668,7 +668,7 @@ def _send_otp_email(to_email: str, code: str) -> bool:
             _req = _ur.Request(
                 "https://api.resend.com/emails",
                 data=_payload,
-                headers={"Authorization": f"Bearer {_resend_key}", "Content-Type": "application/json"},
+                headers={"Authorization": f"Bearer {_resend_key}", "Content-Type": "application/json", "User-Agent": "TTT-Backend/1.0"},
                 method="POST"
             )
             with _ur.urlopen(_req, timeout=10) as _resp:
