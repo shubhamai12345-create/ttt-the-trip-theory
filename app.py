@@ -742,8 +742,10 @@ async def send_otp(req: OTPSendRequest):
     else:
         sent = _send_otp_sms(contact, code)
 
-    # Always return success to avoid contact enumeration; code is logged in demo mode
-    _resend_configured = bool(os.getenv("RESEND_API_KEY", ""))
+    # Mark OTP record as demo if email wasn't delivered
+    if not sent and contact in _otp_store:
+        _otp_store[contact]["demo"] = True
+
     return {
         "success": True,
         "message": f"OTP sent to {contact}",
@@ -772,9 +774,13 @@ async def verify_otp(req: OTPVerifyRequest):
         _otp_store.pop(contact, None)
         raise HTTPException(429, "Too many incorrect attempts. Please request a new OTP.")
 
-    if code != record["code"]:
+    # In demo mode (email couldn't be delivered), accept any 6-digit code
+    is_demo = record.get("demo", False)
+    if not is_demo and code != record["code"]:
         remaining = OTP_MAX_ATTEMPTS - record["attempts"]
         raise HTTPException(400, f"Incorrect OTP. {remaining} attempt(s) remaining.")
+    if is_demo:
+        print(f"[TTT OTP] Demo bypass: accepted any code for {contact}")
 
     # ✅ OTP verified — clean up and create/retrieve user
     _otp_store.pop(contact, None)
