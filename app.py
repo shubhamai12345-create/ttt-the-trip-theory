@@ -660,7 +660,7 @@ def _send_otp_email(to_email: str, code: str) -> bool:
         try:
             import urllib.request as _ur, json as _json
             _payload = _json.dumps({
-                "from":    "TTT Concierge <onboarding@resend.dev>",
+                "from":    "TTT Concierge <noreply@thetriptheory.com>",
                 "to":      [to_email],
                 "subject": "Your TTT verification code",
                 "html":    f'''<div style="font-family:Georgia,serif;max-width:480px;margin:auto;padding:32px;background:#0A0805;color:#FEFCF8;border:1px solid rgba(201,150,58,0.2)"><div style="font-size:1.8rem;color:#C9963A;letter-spacing:0.2em;margin-bottom:16px">TTT</div><p style="font-size:0.9rem;color:rgba(255,255,255,0.6);margin-bottom:24px">Your verification code:</p><div style="font-size:2.5rem;letter-spacing:0.3em;color:#E8C878;text-align:center;padding:24px;border:1px solid rgba(201,150,58,0.3);margin:0 0 24px">{code}</div><p style="font-size:0.75rem;color:rgba(255,255,255,0.3)">Expires in 10 minutes. The Trip Theory.</p></div>'''
@@ -2456,7 +2456,7 @@ def _send_otp_resend(to_email: str, code: str) -> bool:
             "https://api.resend.com/emails",
             headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
             json={
-                "from":    "TTT Concierge <onboarding@resend.dev>",
+                "from":    "TTT Concierge <noreply@thetriptheory.com>",
                 "to":      [to_email],
                 "subject": f"{code} — Your TTT verification code",
                 "html":    f"""
