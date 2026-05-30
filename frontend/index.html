@@ -2011,6 +2011,8 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
 .view.active { display:flex; }
 #view-app { position:relative; inset:auto; z-index:auto; flex:1; overflow:hidden; align-items:stretch; justify-content:stretch; }
 #view-app.active { display:flex; }
+#view-landing { display:none !important; position:static !important; z-index:auto !important; }
+#view-entry { display:none !important; }
 .onboard-wrap { width:100%; max-width:520px; padding:24px; position:relative; z-index:1; }
 .onboard-card { background:#151009; border:1px solid rgba(201,150,58,0.1); border-radius:14px; padding:32px 28px; }
 .onboard-progress { display:flex; gap:8px; justify-content:center; margin-bottom:24px; }
@@ -4728,6 +4730,7 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
       }
       if (hash === '#guest') { guestLaunch(); }
       else if (hash === '#app') { const auth = sessionStorage.getItem('ttt_auth'); if(auth) enterApp(); }
+      // Don't show view-landing since landing is in #landing-content now
       setDates(); loadPf();
       initOTPBoxes(); initPartnerOTPBoxes();
       checkBackend().then(function(){ loadDests(); }).catch(function(){ loadDests(); });
@@ -5367,6 +5370,7 @@ if('serviceWorker' in navigator){
 <script>
 // ═══ enterApp / exitApp bridge ═══
 function enterApp() {
+  document.body.style.overflow = 'hidden';
   document.getElementById('landing-content').style.display = 'none';
   var appEl = document.getElementById('app-content');
   appEl.style.display = 'flex';
@@ -5391,6 +5395,7 @@ function enterAppAsGuest() {
 }
 
 function exitApp() {
+  document.body.style.overflow = '';
   document.getElementById('app-content').style.display = 'none';
   document.getElementById('app-content').classList.remove('active');
   document.getElementById('landing-content').style.display = '';
