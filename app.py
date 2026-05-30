@@ -2989,6 +2989,80 @@ async def resend_domain_verify(key: str = ""):
         return {"error": str(e), "body": err_body}
 
 
+
+
+@app.get("/api/admin/resend-create-domain")
+async def resend_create_domain(key: str = ""):
+    """One-time: create domain in Resend using full-access key."""
+    if key != os.getenv("ADMIN_KEY", "ttt-admin-2024"):
+        raise HTTPException(403, "Invalid admin key")
+    import urllib.request as _ur
+    _full_key = "re_LgfxQnuc_3fkmApcrmNHq7Bc4jTsBpCQ2"
+    try:
+        _payload = json.dumps({"name": "thetriptheory.com"}).encode()
+        _req = _ur.Request(
+            "https://api.resend.com/domains",
+            data=_payload,
+            headers={"Authorization": f"Bearer {_full_key}", "Content-Type": "application/json", "User-Agent": "TTT-Backend/1.0"},
+            method="POST"
+        )
+        with _ur.urlopen(_req, timeout=15) as _resp:
+            return {"status": "created", "data": json.loads(_resp.read().decode())}
+    except Exception as e:
+        err_body = ""
+        if hasattr(e, "read"):
+            try: err_body = e.read().decode()
+            except: pass
+        return {"error": str(e), "body": err_body}
+
+
+@app.get("/api/admin/resend-get-domain")
+async def resend_get_domain(key: str = "", domain_id: str = ""):
+    """Get domain DNS records from Resend."""
+    if key != os.getenv("ADMIN_KEY", "ttt-admin-2024"):
+        raise HTTPException(403, "Invalid admin key")
+    import urllib.request as _ur
+    _full_key = "re_LgfxQnuc_3fkmApcrmNHq7Bc4jTsBpCQ2"
+    try:
+        _req = _ur.Request(
+            f"https://api.resend.com/domains/{domain_id}",
+            headers={"Authorization": f"Bearer {_full_key}", "Content-Type": "application/json", "User-Agent": "TTT-Backend/1.0"},
+            method="GET"
+        )
+        with _ur.urlopen(_req, timeout=15) as _resp:
+            return json.loads(_resp.read().decode())
+    except Exception as e:
+        err_body = ""
+        if hasattr(e, "read"):
+            try: err_body = e.read().decode()
+            except: pass
+        return {"error": str(e), "body": err_body}
+
+
+@app.get("/api/admin/resend-verify-domain")
+async def resend_verify_domain_endpoint(key: str = "", domain_id: str = ""):
+    """Trigger domain verification in Resend."""
+    if key != os.getenv("ADMIN_KEY", "ttt-admin-2024"):
+        raise HTTPException(403, "Invalid admin key")
+    import urllib.request as _ur
+    _full_key = "re_LgfxQnuc_3fkmApcrmNHq7Bc4jTsBpCQ2"
+    try:
+        _req = _ur.Request(
+            f"https://api.resend.com/domains/{domain_id}/verify",
+            data=b"{}",
+            headers={"Authorization": f"Bearer {_full_key}", "Content-Type": "application/json", "User-Agent": "TTT-Backend/1.0"},
+            method="POST"
+        )
+        with _ur.urlopen(_req, timeout=15) as _resp:
+            return {"status": "verification_triggered", "data": json.loads(_resp.read().decode())}
+    except Exception as e:
+        err_body = ""
+        if hasattr(e, "read"):
+            try: err_body = e.read().decode()
+            except: pass
+        return {"error": str(e), "body": err_body}
+
+
 @app.get("/api/admin/full-summary")
 async def admin_full_summary(key: str = Query("")):
     if key != ADMIN_KEY:
