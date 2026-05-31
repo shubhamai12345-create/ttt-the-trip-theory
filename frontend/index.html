@@ -5369,6 +5369,45 @@ if('serviceWorker' in navigator){
 
 <script>
 // ═══ enterApp / exitApp bridge ═══
+
+// Override showView to work with embedded app
+var _origShowView = null;
+(function() {
+  // Wait for showView to be defined then patch it
+  var _patchInterval = setInterval(function() {
+    if (typeof showView === 'function' && !_origShowView) {
+      _origShowView = showView;
+      window.showView = function(name) {
+        // Skip view-landing (it's hidden, landing is in #landing-content)
+        if (name === 'landing') { exitApp(); return; }
+        // For 'app', just activate view-app without the fixed positioning
+        var el = document.getElementById('view-' + name);
+        if (el) {
+          // Deactivate all views first
+          var allViews = ['entry','login','onboard','landing','app','partner-login','partner-onboard','partner-dash','admin-analytics'];
+          allViews.forEach(function(v) {
+            var ve = document.getElementById('view-' + v);
+            if (ve) ve.classList.remove('active');
+          });
+          el.classList.add('active');
+        }
+        // Handle nav visibility
+        try {
+          var appNav = document.getElementById('app-nav');
+          if (appNav) {
+            if (['partner-login','partner-onboard','partner-dash','admin-analytics'].indexOf(name) >= 0) {
+              appNav.style.display = 'none';
+            } else {
+              appNav.style.display = '';
+            }
+          }
+        } catch(e) {}
+      };
+      clearInterval(_patchInterval);
+    }
+  }, 100);
+})();
+
 function enterApp() {
   document.body.style.overflow = 'hidden';
   document.getElementById('landing-content').style.display = 'none';
@@ -5383,7 +5422,7 @@ function enterApp() {
   }
   // Trigger app init
   showView('app');
-  if (typeof msgs !== 'undefined' && !msgs.length) sendWelcome();
+  try { if (typeof msgs !== 'undefined' && !msgs.length) sendWelcome(); } catch(e) { console.log('sendWelcome error:', e); }
   try { setDates(); loadPf(); } catch(e) {}
   try { checkBackend().then(function(){ loadDests(); }).catch(function(){ loadDests(); }); } catch(e) {}
 }
@@ -5396,9 +5435,13 @@ function enterAppAsGuest() {
 
 function exitApp() {
   document.body.style.overflow = '';
-  document.getElementById('app-content').style.display = 'none';
-  document.getElementById('app-content').classList.remove('active');
-  document.getElementById('landing-content').style.display = '';
+  var appEl = document.getElementById('app-content');
+  if (appEl) { appEl.style.cssText = 'display:none;'; appEl.classList.remove('active'); }
+  var landEl = document.getElementById('landing-content');
+  if (landEl) landEl.style.display = '';
+  // Deactivate all views
+  var views = document.querySelectorAll('.view.active');
+  views.forEach(function(v) { v.classList.remove('active'); });
   window.scrollTo(0, 0);
 }
 
