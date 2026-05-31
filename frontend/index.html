@@ -2085,6 +2085,78 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
   .pf-grid { grid-template-columns:1fr; }
   .persona-grid { grid-template-columns:1fr; }
 }
+
+/* ═══ SCROLL FIX ═══ */
+#app-content {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+#app-content #view-app.active {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  overflow: hidden !important;
+  position: relative !important;
+  inset: auto !important;
+  z-index: auto !important;
+  height: 0 !important;
+  min-height: 0 !important;
+}
+#app-content .app-body {
+  display: flex !important;
+  flex: 1 !important;
+  overflow: hidden !important;
+  min-height: 0 !important;
+}
+#app-content .app-main {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  overflow: hidden !important;
+  min-height: 0 !important;
+}
+#app-content .tab-bar {
+  flex-shrink: 0 !important;
+}
+#app-content .panel.active {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  overflow: hidden !important;
+  min-height: 0 !important;
+}
+#app-content .messages {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  min-height: 0 !important;
+}
+#app-content .suggestions-bar {
+  flex-shrink: 0 !important;
+}
+#app-content .input-bar {
+  flex-shrink: 0 !important;
+}
+#app-content .app-sidebar {
+  overflow-y: auto !important;
+  flex-shrink: 0 !important;
+}
+#app-content #app-nav {
+  flex-shrink: 0 !important;
+}
+/* Scroll panels for other tabs */
+#app-content .scroll-panel {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  min-height: 0 !important;
+}
+#app-content .plan-wrap,
+#app-content .profile-wrap {
+  overflow-y: auto !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+
 </style>
 
 <div id="app-content">
