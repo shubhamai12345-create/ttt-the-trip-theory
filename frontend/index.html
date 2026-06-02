@@ -2113,10 +2113,11 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
   overflow: hidden !important;
   min-height: 0 !important;
 }
-#app-content .app-main {
+#app-content .app-main,
+#app-content main {
   display: flex !important;
   flex-direction: column !important;
-  flex: 1 !important;
+  flex: 1 1 0% !important;
   overflow: hidden !important;
   min-height: 0 !important;
 }
@@ -2130,10 +2131,12 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
   overflow: hidden !important;
   min-height: 0 !important;
 }
-#app-content .messages {
-  flex: 1 !important;
+#app-content .messages,
+#app-content #messages {
+  flex: 1 1 0% !important;
   overflow-y: auto !important;
   min-height: 0 !important;
+  max-height: none !important;
 }
 #app-content .suggestions-bar {
   flex-shrink: 0 !important;
