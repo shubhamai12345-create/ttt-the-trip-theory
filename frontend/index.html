@@ -2088,6 +2088,11 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
 
 /* ═══ SCROLL FIX ═══ */
 #app-content {
+  display: none !important;
+  flex-direction: column;
+  overflow: hidden;
+}
+#app-content.active {
   display: flex !important;
   flex-direction: column !important;
   overflow: hidden !important;
