@@ -5580,4 +5580,18 @@ function exitApp() {
 })();
 </script>
 
+
+<script>
+// Move partner/onboard/admin views to body level so they're not trapped in hidden parents
+(function() {
+  var viewIds = ['view-partner-login', 'view-partner-onboard', 'view-partner-dash', 'view-onboard', 'view-admin-analytics'];
+  viewIds.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && el.parentElement !== document.body) {
+      document.body.appendChild(el);
+    }
+  });
+})();
+</script>
+
 </body>
