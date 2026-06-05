@@ -927,6 +927,7 @@ footer {
     <li><a href="#ai">The AI</a></li>
     <li><a href="#stories">Stories</a></li>
   </ul>
+  <a class="nav-link" href="javascript:void(0)" onclick="openPartnerPortal()" style="color:rgba(245,239,224,0.5);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;margin-right:12px">Partners</a>
   <a class="nav-cta" href="javascript:void(0)" onclick="openTTTSignin()">Start Planning</a>
 </nav>
 
@@ -1275,7 +1276,7 @@ footer {
         <a href="javascript:void(0)" onclick="openTTTSignin()">Plan a Trip</a>
         <a href="javascript:void(0)" onclick="openTTTSignin()">AI Concierge</a>
         <a href="javascript:void(0)" onclick="openTTTSignin()">Marketplace</a>
-        <a href="javascript:void(0)" onclick="openTTTSignin()">For Partners</a>
+        <a href="javascript:void(0)" onclick="openPartnerPortal()">For Partners</a>
       </div>
     </div>
     <div>
@@ -2084,6 +2085,38 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
   .sform-row { grid-template-columns:1fr; }
   .pf-grid { grid-template-columns:1fr; }
   .persona-grid { grid-template-columns:1fr; }
+}
+
+
+/* Partner views - full screen overlays inside app-content */
+#app-content #view-partner-login.active,
+#app-content #view-partner-onboard.active,
+#app-content #view-partner-dash.active,
+#app-content #view-admin-analytics.active {
+  display: flex !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9100 !important;
+  background: #0A0805 !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow-y: auto !important;
+}
+#app-content #view-partner-dash.active {
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  padding: 24px !important;
+}
+#app-content #view-onboard.active {
+  display: flex !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9100 !important;
+  background: #0A0805 !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 /* ═══ SCROLL FIX ═══ */
@@ -4694,9 +4727,9 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
     }
 
     function partnerLogout() {
-      if (partnerPollInterval) clearInterval(partnerPollInterval);
-      partnerSession = null; localStorage.removeItem('ttt_partner');
-      showView('landing'); window.scrollTo(0,0);
+      localStorage.removeItem('ttt_partner');
+      partnerSession = null;
+      exitApp();
     }
 
     // ══════════════════════════════════════════════
@@ -5504,6 +5537,16 @@ function enterApp() {
   try { if (typeof msgs !== 'undefined' && !msgs.length) sendWelcome(); } catch(e) { console.log('sendWelcome error:', e); }
   try { setDates(); loadPf(); } catch(e) {}
   try { checkBackend().then(function(){ loadDests(); }).catch(function(){ loadDests(); }); } catch(e) {}
+}
+
+function openPartnerPortal() {
+  document.getElementById('landing-content').style.display = 'none';
+  document.body.style.overflow = 'hidden';
+  var appEl = document.getElementById('app-content');
+  appEl.style.cssText = 'display:flex; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:9000; background:#0A0805; flex-direction:column;';
+  appEl.classList.add('active');
+  try { _tttClose(); } catch(e) {}
+  showView('partner-login');
 }
 
 function enterAppAsGuest() {
