@@ -2013,6 +2013,8 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
 #view-app { position:relative; z-index:auto; flex:1; overflow:hidden; align-items:stretch; justify-content:stretch; height:0; min-height:0; }
 #view-app.active { display:flex; }
 #view-landing { display:none !important; position:static !important; z-index:auto !important; }
+#view-landing > .view { display:none; position:fixed; inset:0; z-index:9100; background:#0A0805; }
+#view-landing > .view.active { display:flex !important; }
 #view-entry { display:none !important; }
 .onboard-wrap { width:100%; max-width:520px; padding:24px; position:relative; z-index:1; }
 .onboard-card { background:#151009; border:1px solid rgba(201,150,58,0.1); border-radius:14px; padding:32px 28px; }
