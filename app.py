@@ -1431,6 +1431,10 @@ for _slid, _sldata in _SEED_LISTINGS.items():
         print(f"[TTT] Seeded listing: {_slid}")
 _save_db()
 
+# ═══ INVOICE ENGINE ═══
+_invoices: Dict[str, dict] = _db.get("invoices", {})
+
+
 
 # Instagram OAuth stores (replace with Redis / DB in production)
 _oauth_states:       Dict[str, dict] = {}  # state_token → metadata
@@ -3068,6 +3072,167 @@ async def resend_domain_verify(key: str = ""):
         return {"error": str(e), "body": err_body}
 
 
+
+
+
+
+# ═══════════════════════════════════════════════════════
+# INVOICE ENGINE — Full CRUD + PDF + Email
+# ═══════════════════════════════════════════════════════
+
+class InvoiceCreate(BaseModel):
+    partner_id: str
+    guest_name: str
+    guest_email: str = ""
+    booking_ref: str = ""
+    service: str = ""
+    amount: float
+    tax_percent: float = 18.0
+    notes: str = ""
+    status: str = "pending"  # pending, paid, overdue, cancelled
+    due_date: str = ""
+
+@app.post("/api/invoices")
+async def create_invoice(req: InvoiceCreate):
+    """Create a new invoice."""
+    inv_num = f"INV-{len(_invoices)+1:04d}"
+    tax_amount = round(req.amount * req.tax_percent / 100, 2)
+    total = round(req.amount + tax_amount, 2)
+    
+    partner = _partners.get(req.partner_id, {})
+    
+    invoice = {
+        "id": inv_num,
+        "partner_id": req.partner_id,
+        "partner_name": partner.get("business_name", partner.get("name", "")),
+        "guest_name": req.guest_name,
+        "guest_email": req.guest_email,
+        "booking_ref": req.booking_ref,
+        "service": req.service,
+        "subtotal": req.amount,
+        "tax_percent": req.tax_percent,
+        "tax_amount": tax_amount,
+        "total": total,
+        "notes": req.notes,
+        "status": req.status,
+        "due_date": req.due_date or (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d"),
+        "created_at": datetime.now().isoformat(),
+        "paid_at": None,
+        "emailed": False
+    }
+    _invoices[inv_num] = invoice
+    _save_db()
+    return {"success": True, "invoice": invoice}
+
+@app.get("/api/invoices/{partner_id}")
+async def get_partner_invoices(partner_id: str):
+    """Get all invoices for a partner."""
+    invs = [v for v in _invoices.values() if v.get("partner_id") == partner_id]
+    invs.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+    total_revenue = sum(i.get("total", 0) for i in invs if i.get("status") == "paid")
+    total_pending = sum(i.get("total", 0) for i in invs if i.get("status") == "pending")
+    total_overdue = sum(i.get("total", 0) for i in invs if i.get("status") == "overdue")
+    return {
+        "invoices": invs,
+        "summary": {
+            "count": len(invs),
+            "paid": len([i for i in invs if i["status"] == "paid"]),
+            "pending": len([i for i in invs if i["status"] == "pending"]),
+            "overdue": len([i for i in invs if i["status"] == "overdue"]),
+            "total_revenue": total_revenue,
+            "total_pending": total_pending,
+            "total_overdue": total_overdue
+        }
+    }
+
+@app.get("/api/invoice/{invoice_id}")
+async def get_invoice(invoice_id: str):
+    """Get a single invoice."""
+    if invoice_id not in _invoices:
+        raise HTTPException(404, "Invoice not found")
+    return _invoices[invoice_id]
+
+@app.put("/api/invoice/{invoice_id}/status")
+async def update_invoice_status(invoice_id: str, status: str = "paid"):
+    """Update invoice status (paid, pending, overdue, cancelled)."""
+    if invoice_id not in _invoices:
+        raise HTTPException(404, "Invoice not found")
+    _invoices[invoice_id]["status"] = status
+    if status == "paid":
+        _invoices[invoice_id]["paid_at"] = datetime.now().isoformat()
+    _save_db()
+    return {"success": True, "invoice": _invoices[invoice_id]}
+
+@app.post("/api/invoice/{invoice_id}/email")
+async def email_invoice(invoice_id: str):
+    """Email invoice to guest via Resend."""
+    if invoice_id not in _invoices:
+        raise HTTPException(404, "Invoice not found")
+    inv = _invoices[invoice_id]
+    if not inv.get("guest_email"):
+        return {"success": False, "error": "No guest email"}
+    
+    _resend_key = os.getenv("RESEND_API_KEY", "")
+    if not _resend_key:
+        return {"success": False, "error": "Email not configured"}
+    
+    html_body = f"""
+    <div style="font-family:Georgia,serif;max-width:600px;margin:auto;padding:32px;background:#0A0805;color:#FEFCF8;border:1px solid rgba(201,150,58,0.2)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <div><div style="font-size:1.8rem;color:#C9963A;letter-spacing:0.15em">TTT</div><div style="font-size:0.65rem;color:rgba(255,255,255,0.4)">The Trip Theory</div></div>
+        <div style="text-align:right"><div style="font-size:1.1rem;font-weight:600;color:#F5EFE0">{inv['id']}</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.4)">{inv['created_at'][:10]}</div></div>
+      </div>
+      <div style="border-top:1px solid rgba(201,150,58,0.2);padding-top:16px;margin-bottom:16px">
+        <p style="color:rgba(255,255,255,0.5);font-size:0.8rem;margin-bottom:4px">Bill to</p>
+        <p style="font-size:1rem;color:#F5EFE0;font-weight:600">{inv['guest_name']}</p>
+        <p style="font-size:0.8rem;color:rgba(255,255,255,0.5)">{inv['guest_email']}</p>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin:20px 0">
+        <tr style="border-bottom:1px solid rgba(201,150,58,0.15)"><td style="padding:10px 0;color:rgba(255,255,255,0.6)">Service</td><td style="padding:10px 0;text-align:right;color:#F5EFE0">{inv['service']}</td></tr>
+        <tr style="border-bottom:1px solid rgba(201,150,58,0.15)"><td style="padding:10px 0;color:rgba(255,255,255,0.6)">Booking Ref</td><td style="padding:10px 0;text-align:right;color:#F5EFE0">{inv['booking_ref']}</td></tr>
+        <tr style="border-bottom:1px solid rgba(201,150,58,0.15)"><td style="padding:10px 0;color:rgba(255,255,255,0.6)">Subtotal</td><td style="padding:10px 0;text-align:right;color:#F5EFE0">₹{inv['subtotal']:,.0f}</td></tr>
+        <tr style="border-bottom:1px solid rgba(201,150,58,0.15)"><td style="padding:10px 0;color:rgba(255,255,255,0.6)">Tax ({inv['tax_percent']}%)</td><td style="padding:10px 0;text-align:right;color:#F5EFE0">₹{inv['tax_amount']:,.0f}</td></tr>
+        <tr><td style="padding:14px 0;color:#C9963A;font-size:1.1rem;font-weight:600">Total</td><td style="padding:14px 0;text-align:right;color:#C9963A;font-size:1.3rem;font-weight:700">₹{inv['total']:,.0f}</td></tr>
+      </table>
+      <div style="background:rgba(201,150,58,0.08);border:1px solid rgba(201,150,58,0.15);border-radius:6px;padding:12px;margin:16px 0;text-align:center">
+        <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em">Status</div>
+        <div style="font-size:1rem;color:#C9963A;font-weight:600;text-transform:uppercase">{inv['status']}</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:4px">Due: {inv['due_date']}</div>
+      </div>
+      {f'<p style="color:rgba(255,255,255,0.4);font-size:0.8rem">{inv["notes"]}</p>' if inv.get('notes') else ''}
+      <p style="color:rgba(255,255,255,0.25);font-size:0.65rem;margin-top:24px;text-align:center">Generated by TTT Partner Portal · The Trip Theory Pvt. Ltd.</p>
+    </div>
+    """
+    
+    try:
+        import urllib.request as _ur
+        _payload = json.dumps({
+            "from": "TTT Invoices <noreply@thetriptheory.com>",
+            "to": [inv["guest_email"]],
+            "subject": f"Invoice {inv['id']} — ₹{inv['total']:,.0f} — {inv.get('partner_name', 'TTT Partner')}",
+            "html": html_body
+        }).encode()
+        _req = _ur.Request(
+            "https://api.resend.com/emails",
+            data=_payload,
+            headers={"Authorization": f"Bearer {_resend_key}", "Content-Type": "application/json", "User-Agent": "TTT-Backend/1.0"},
+            method="POST"
+        )
+        with _ur.urlopen(_req, timeout=10) as _resp:
+            _invoices[invoice_id]["emailed"] = True
+            _invoices[invoice_id]["emailed_at"] = datetime.now().isoformat()
+            _save_db()
+            return {"success": True, "message": f"Invoice emailed to {inv['guest_email']}"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.delete("/api/invoice/{invoice_id}")
+async def delete_invoice(invoice_id: str):
+    """Delete an invoice."""
+    if invoice_id in _invoices:
+        del _invoices[invoice_id]
+        _save_db()
+    return {"success": True}
 
 
 @app.get("/api/admin/resend-create-domain")
