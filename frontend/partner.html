@@ -3,33 +3,20 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>TTT Partner Portal — Manage Your Business</title>
+<title>TTT Partner Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-:root {
-  --bg:#0A0805; --bg2:#110E08; --bg3:#1A150D; --surface:#151009; --surface2:#1E1710;
-  --gold:#C9963A; --gold-l:#D4A85A; --gold-dim:rgba(201,150,58,0.15); --gold-glow:rgba(201,150,58,0.06);
-  --text:#F5EFE0; --text2:rgba(245,239,224,0.72); --muted:rgba(245,239,224,0.38);
-  --border:rgba(201,150,58,0.10); --border2:rgba(201,150,58,0.18);
-  --green:#34D399; --green-bg:rgba(52,211,153,0.08); --red:#F87171; --red-bg:rgba(248,113,113,0.08);
-  --blue:#60A5FA; --blue-bg:rgba(96,165,250,0.08); --orange:#FBBF24;
-  --font-d:'Cormorant Garamond',serif; --font-b:'DM Sans',sans-serif;
-  --sidebar:240px; --topbar:56px;
-}
+:root{--bg:#0A0805;--bg2:#110E08;--surface:#151009;--surface2:#1E1710;--gold:#C9963A;--gold-l:#D4A85A;--gold-dim:rgba(201,150,58,0.15);--gold-glow:rgba(201,150,58,0.06);--text:#F5EFE0;--text2:rgba(245,239,224,0.72);--muted:rgba(245,239,224,0.38);--border:rgba(201,150,58,0.10);--border2:rgba(201,150,58,0.18);--green:#34D399;--green-bg:rgba(52,211,153,0.08);--red:#F87171;--red-bg:rgba(248,113,113,0.08);--blue:#60A5FA;--blue-bg:rgba(96,165,250,0.08);--orange:#FBBF24;--font-d:'Cormorant Garamond',serif;--font-b:'DM Sans',sans-serif;--sidebar:240px;--topbar:56px}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;overflow:hidden}
 body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:13.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
 ::selection{background:rgba(201,150,58,0.3)}
-::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:rgba(201,150,58,0.18);border-radius:3px}
-
-/* ── LAYOUT ── */
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(201,150,58,0.18);border-radius:3px}
 .shell{display:flex;height:100vh}
 .sidebar{width:var(--sidebar);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .topbar{height:var(--topbar);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
 .content{flex:1;overflow-y:auto;padding:24px}
-
-/* ── SIDEBAR ── */
 .sb-logo{padding:18px 20px;border-bottom:1px solid var(--border)}
 .sb-logo-main{font-family:var(--font-d);font-size:1.4rem;font-weight:600;color:var(--gold)}
 .sb-logo-sub{font-size:0.6rem;color:var(--muted);letter-spacing:0.18em;text-transform:uppercase;margin-top:2px}
@@ -44,123 +31,84 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:
 .sb-avatar{width:32px;height:32px;border-radius:50%;background:var(--gold);color:var(--bg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0}
 .sb-uname{font-size:0.82rem;font-weight:600;color:var(--text)}
 .sb-urole{font-size:0.65rem;color:var(--muted)}
-
-/* ── TOPBAR ── */
-.tb-title{font-family:var(--font-d);font-size:1.25rem;font-weight:500;color:var(--text)}
-.tb-title span{color:var(--gold)}
+.tb-title{font-family:var(--font-d);font-size:1.25rem;font-weight:500;color:var(--text)}.tb-title span{color:var(--gold)}
 .tb-right{display:flex;align-items:center;gap:12px}
-.tb-badge{font-size:0.68rem;padding:4px 10px;border-radius:20px;background:var(--green-bg);color:var(--green)}
+.tb-badge{font-size:0.68rem;padding:4px 10px;border-radius:20px}
 .tb-btn{padding:7px 14px;border:1px solid var(--border2);border-radius:6px;background:transparent;color:var(--text2);font-size:0.72rem;cursor:pointer;font-family:var(--font-b);transition:all 0.2s}
 .tb-btn:hover{border-color:var(--gold);color:var(--gold)}
 .tb-btn.gold{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:600}
-
-/* ── PAGES ── */
-.page{display:none} .page.active{display:block}
-
-/* ── STAT CARDS ── */
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px}
+.page{display:none}.page.active{display:block}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
 .stat-label{font-size:0.65rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:6px}
 .stat-val{font-family:var(--font-d);font-size:1.8rem;font-weight:600;color:var(--text);line-height:1.1}
-.stat-sub{font-size:0.72rem;margin-top:4px}
-.stat-up{color:var(--green)} .stat-down{color:var(--red)} .stat-neutral{color:var(--muted)}
-
-/* ── CARDS / PANELS ── */
+.stat-sub{font-size:0.72rem;margin-top:4px}.stat-up{color:var(--green)}.stat-down{color:var(--red)}.stat-neutral{color:var(--muted)}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
 .card-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.card-title{font-family:var(--font-d);font-size:1.1rem;font-weight:500;color:var(--text)}
-.card-title span{color:var(--gold)}
-
-/* ── TABLES ── */
+.card-title{font-family:var(--font-d);font-size:1.1rem;font-weight:500;color:var(--text)}.card-title span{color:var(--gold)}
 .tbl{width:100%;border-collapse:collapse}
 .tbl th{font-size:0.6rem;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;text-align:left;padding:8px 12px;border-bottom:1px solid var(--border)}
 .tbl td{padding:10px 12px;border-bottom:1px solid rgba(201,150,58,0.05);font-size:0.82rem;color:var(--text2);vertical-align:middle}
-.tbl tr:hover td{background:var(--gold-glow)}
-.tbl .name{font-weight:600;color:var(--text)}
-
-/* ── BADGES ── */
-.badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:0.68rem;font-weight:600;letter-spacing:0.03em}
-.badge.confirmed{background:var(--green-bg);color:var(--green)}
+.tbl tr:hover td{background:var(--gold-glow)}.tbl .name{font-weight:600;color:var(--text)}
+.badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:0.68rem;font-weight:600}
+.badge.confirmed,.badge.active,.badge.completed{background:var(--green-bg);color:var(--green)}
 .badge.pending{background:rgba(251,191,36,0.1);color:var(--orange)}
 .badge.cancelled{background:var(--red-bg);color:var(--red)}
-.badge.completed{background:var(--blue-bg);color:var(--blue)}
-.badge.active{background:var(--green-bg);color:var(--green)}
 .badge.draft{background:rgba(245,239,224,0.06);color:var(--muted)}
-
-/* ── FORMS ── */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.fg{display:flex;flex-direction:column;gap:4px}
-.fg.full{grid-column:1/-1}
+.fg{display:flex;flex-direction:column;gap:4px}.fg.full{grid-column:1/-1}
 .fg label{font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase}
-.fg input,.fg select,.fg textarea{padding:10px 12px;background:var(--bg);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-size:0.85rem;font-family:var(--font-b);outline:none;transition:border-color 0.2s}
+.fg input,.fg select,.fg textarea{padding:10px 12px;background:var(--bg);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-size:0.85rem;font-family:var(--font-b);outline:none}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold)}
 .fg textarea{min-height:80px;resize:vertical}
+.fg input::placeholder,.fg textarea::placeholder{color:var(--muted)}
 .btn{padding:10px 20px;border-radius:7px;font-size:0.75rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:var(--font-b);border:none;transition:all 0.2s}
-.btn-gold{background:var(--gold);color:var(--bg)} .btn-gold:hover{background:var(--gold-l)}
-.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)} .btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+.btn-gold{background:var(--gold);color:var(--bg)}.btn-gold:hover{background:var(--gold-l)}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
 .btn-row{display:flex;gap:10px;margin-top:16px}
-
-/* ── ACTIVITY FEED ── */
+.btn-sm{padding:5px 10px;font-size:0.68rem;border-radius:5px}
 .feed-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(201,150,58,0.05)}
 .feed-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
-.feed-dot.booking{background:var(--green)} .feed-dot.inquiry{background:var(--blue)} .feed-dot.review{background:var(--orange)} .feed-dot.payout{background:var(--gold)}
-.feed-text{font-size:0.82rem;color:var(--text2)} .feed-text strong{color:var(--text)}
+.feed-dot.booking{background:var(--green)}.feed-dot.inquiry{background:var(--blue)}.feed-dot.review{background:var(--orange)}.feed-dot.payout{background:var(--gold)}
+.feed-text{font-size:0.82rem;color:var(--text2)}.feed-text strong{color:var(--text)}
 .feed-time{font-size:0.68rem;color:var(--muted);margin-top:2px}
-
-/* ── CHART PLACEHOLDER ── */
-.chart-area{height:200px;background:var(--bg);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;position:relative;overflow:hidden}
-.chart-bars{display:flex;align-items:flex-end;gap:6px;height:160px;padding:0 20px}
-.chart-bar{width:28px;background:linear-gradient(to top,var(--gold),var(--gold-l));border-radius:3px 3px 0 0;transition:height 0.6s ease}
-.chart-label{font-size:0.58rem;color:var(--muted);text-align:center;margin-top:4px}
-
-/* ── GUEST PROFILE CARDS ── */
-.guest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
-.guest-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;transition:border-color 0.2s;cursor:pointer}
-.guest-card:hover{border-color:var(--gold-dim)}
-.gc-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.gc-av{width:36px;height:36px;border-radius:50%;background:var(--gold-dim);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem}
-.gc-name{font-weight:600;font-size:0.88rem;color:var(--text)}
-.gc-meta{font-size:0.68rem;color:var(--muted)}
-.gc-stats{display:flex;gap:16px;margin-top:8px}
-.gc-stat{font-size:0.72rem;color:var(--text2)}
-.gc-stat span{color:var(--gold);font-weight:600}
-
-/* ── REVIEW CARDS ── */
-.review-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
-.rv-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.rv-guest{font-weight:600;font-size:0.88rem;color:var(--text)}
-.rv-stars{color:var(--gold);font-size:0.85rem;letter-spacing:2px}
-.rv-text{font-size:0.82rem;color:var(--text2);line-height:1.6;margin-bottom:8px}
-.rv-meta{font-size:0.68rem;color:var(--muted)}
-.rv-reply{margin-top:10px;padding:10px 12px;background:var(--bg);border-radius:6px;border-left:2px solid var(--gold)}
-.rv-reply-text{font-size:0.78rem;color:var(--text2)}
-
-/* ── MODAL ── */
+.empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty-icon{font-size:2rem;margin-bottom:8px}.empty-text{font-size:0.88rem;margin-bottom:12px}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:100;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
 .modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:28px;max-width:560px;width:95%;max-height:85vh;overflow-y:auto;position:relative}
 .modal-title{font-family:var(--font-d);font-size:1.3rem;font-weight:500;color:var(--text);margin-bottom:4px}
 .modal-sub{font-size:0.78rem;color:var(--muted);margin-bottom:20px}
 .modal-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer}
-
-/* ── EMPTY STATE ── */
-.empty{text-align:center;padding:48px 20px;color:var(--muted)}
-.empty-icon{font-size:2rem;margin-bottom:8px}
-.empty-text{font-size:0.88rem}
-
-/* ── RESPONSIVE ── */
-@media(max-width:768px){.sidebar{display:none}.content{padding:16px}.form-grid{grid-template-columns:1fr}.stats-row{grid-template-columns:1fr 1fr}}
-
-/* ── LOGIN ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:12px 24px;border-radius:10px;font-size:0.82rem;z-index:999;transition:transform 0.3s;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.loading{text-align:center;padding:32px;color:var(--muted);font-size:0.85rem}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.guest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.guest-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:border-color 0.2s}
+.guest-card:hover{border-color:var(--gold-dim)}
+.gc-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.gc-av{width:36px;height:36px;border-radius:50%;background:var(--gold-dim);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem}
+.gc-name{font-weight:600;font-size:0.88rem;color:var(--text)}
+.gc-meta{font-size:0.68rem;color:var(--muted)}
+.gc-stats{display:flex;gap:16px;margin-top:8px}
+.gc-stat{font-size:0.72rem;color:var(--text2)}.gc-stat b{color:var(--gold)}
+.review-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+.rv-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.rv-guest{font-weight:600;font-size:0.88rem;color:var(--text)}
+.rv-stars{color:var(--gold);font-size:0.85rem;letter-spacing:2px}
+.rv-text{font-size:0.82rem;color:var(--text2);line-height:1.6;margin-bottom:8px}
+.rv-meta{font-size:0.68rem;color:var(--muted)}
 .login-screen{display:flex;align-items:center;justify-content:center;height:100vh;background:var(--bg)}
-.login-box{max-width:400px;width:100%;padding:40px 28px}
+.login-box{max-width:420px;width:100%;padding:40px 28px}
 .login-logo{font-family:var(--font-d);font-size:2rem;font-weight:300;color:var(--gold);text-align:center;margin-bottom:4px}
 .login-sub{font-size:0.65rem;color:var(--muted);letter-spacing:0.18em;text-transform:uppercase;text-align:center;margin-bottom:32px}
+@media(max-width:768px){.sidebar{display:none}.content{padding:16px}.form-grid{grid-template-columns:1fr}.stats-row{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 
-<!-- ═══ LOGIN SCREEN ═══ -->
 <div id="login-screen" class="login-screen">
   <div class="login-box">
     <div class="login-logo">TTT Partners</div>
@@ -168,247 +116,135 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:
     <div class="card" style="margin:0">
       <div style="font-size:0.65rem;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px">✦ Partner Access</div>
       <div class="fg" style="margin-bottom:12px">
-        <label>Business Email</label>
-        <input id="lp-email" type="email" placeholder="partner@business.com"/>
+        <label>Business Email or Partner ID</label>
+        <input id="lp-email" type="text" placeholder="partner@business.com or ttt-hp-001"/>
       </div>
       <div class="fg" style="margin-bottom:14px">
         <label>Access Key</label>
         <input id="lp-key" type="password" placeholder="Your partner key"/>
       </div>
       <button class="btn btn-gold" style="width:100%" onclick="doLogin()">Enter Portal →</button>
+      <div id="login-err" style="color:var(--red);font-size:0.78rem;text-align:center;margin-top:10px"></div>
       <p style="font-size:0.72rem;color:var(--muted);text-align:center;margin-top:12px">
-        Don't have access? <span style="color:var(--gold);cursor:pointer" onclick="doLogin()">Request an invite</span>
+        New partner? <a href="/" style="color:var(--gold)">Apply on thetriptheory.com</a>
       </p>
     </div>
   </div>
 </div>
 
-<!-- ═══ MAIN SHELL ═══ -->
 <div id="app-shell" class="shell" style="display:none">
-  <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="sb-logo">
-      <div class="sb-logo-main">TTT Partners</div>
-      <div class="sb-logo-sub">Business Portal</div>
-    </div>
+    <div class="sb-logo"><div class="sb-logo-main">TTT Partners</div><div class="sb-logo-sub">Business Portal</div></div>
     <div class="sb-section">
       <div class="sb-label">Overview</div>
-      <div class="sb-item active" onclick="nav('dashboard')"><span class="icon">📊</span>Dashboard</div>
-      <div class="sb-item" onclick="nav('listings')"><span class="icon">🏨</span>My Listings</div>
-      <div class="sb-item" onclick="nav('bookings')"><span class="icon">📋</span>Bookings</div>
+      <div class="sb-item active" data-page="dashboard" onclick="nav(this)"><span class="icon">📊</span>Dashboard</div>
+      <div class="sb-item" data-page="listings" onclick="nav(this)"><span class="icon">🏨</span>My Listings</div>
+      <div class="sb-item" data-page="bookings" onclick="nav(this)"><span class="icon">📋</span>Bookings</div>
     </div>
     <div class="sb-section">
       <div class="sb-label">Business</div>
-      <div class="sb-item" onclick="nav('guests')"><span class="icon">👤</span>Guest CRM</div>
-      <div class="sb-item" onclick="nav('financials')"><span class="icon">💰</span>Financials</div>
-      <div class="sb-item" onclick="nav('reviews')"><span class="icon">⭐</span>Reviews</div>
+      <div class="sb-item" data-page="guests" onclick="nav(this)"><span class="icon">👤</span>Guest CRM</div>
+      <div class="sb-item" data-page="wallet" onclick="nav(this)"><span class="icon">💰</span>Wallet & Payouts</div>
     </div>
     <div class="sb-section">
       <div class="sb-label">Tools</div>
-      <div class="sb-item" onclick="nav('itinerary')"><span class="icon">🗺️</span>Itinerary Builder</div>
-      <div class="sb-item" onclick="nav('marketing')"><span class="icon">📣</span>Marketing</div>
-      <div class="sb-item" onclick="nav('settings')"><span class="icon">⚙️</span>Settings</div>
+      <div class="sb-item" data-page="add-listing" onclick="nav(this)"><span class="icon">➕</span>Add Listing</div>
+      <div class="sb-item" data-page="settings" onclick="nav(this)"><span class="icon">⚙️</span>Settings</div>
     </div>
     <div class="sb-bottom">
       <div class="sb-user">
-        <div class="sb-avatar" id="sb-av">U</div>
-        <div>
-          <div class="sb-uname" id="sb-name">Usha Riverside</div>
-          <div class="sb-urole">Premium Partner</div>
-        </div>
+        <div class="sb-avatar" id="sb-av">?</div>
+        <div><div class="sb-uname" id="sb-name">Loading...</div><div class="sb-urole" id="sb-role">Partner</div></div>
       </div>
+      <button class="tb-btn" style="width:100%;margin-top:10px;font-size:0.68rem" onclick="logout()">Sign Out</button>
     </div>
   </aside>
-
-  <!-- MAIN -->
   <div class="main">
     <div class="topbar">
       <div class="tb-title" id="page-title">📊 <span>Dashboard</span></div>
       <div class="tb-right">
-        <span class="tb-badge" id="tb-status">🟢 Live on TTT</span>
-        <button class="tb-btn" onclick="window.location.href='/'">← Back to TTT</button>
-        <button class="tb-btn gold" id="tb-action" onclick="openAddModal()">+ Add Listing</button>
+        <span class="tb-badge" id="tb-status" style="background:var(--green-bg);color:var(--green)">● Live on TTT</span>
+        <button class="tb-btn" onclick="window.location.href='/'">← TTT Home</button>
       </div>
     </div>
     <div class="content">
 
-      <!-- ═══ DASHBOARD ═══ -->
+      <!-- DASHBOARD -->
       <div class="page active" id="pg-dashboard">
-        <div class="stats-row">
-          <div class="stat-card"><div class="stat-label">Total Revenue</div><div class="stat-val">₹4,85,200</div><div class="stat-sub stat-up">↑ 23% vs last month</div></div>
-          <div class="stat-card"><div class="stat-label">Bookings</div><div class="stat-val">47</div><div class="stat-sub stat-up">↑ 12 this week</div></div>
-          <div class="stat-card"><div class="stat-label">Occupancy</div><div class="stat-val">78%</div><div class="stat-sub stat-neutral">Avg. across listings</div></div>
-          <div class="stat-card"><div class="stat-label">Avg. Rating</div><div class="stat-val">4.8</div><div class="stat-sub"><span style="color:var(--gold)">★★★★★</span> (156 reviews)</div></div>
-          <div class="stat-card"><div class="stat-label">Active Listings</div><div class="stat-val">6</div><div class="stat-sub stat-neutral">3 stays · 2 tours · 1 experience</div></div>
-          <div class="stat-card"><div class="stat-label">Repeat Guests</div><div class="stat-val">34%</div><div class="stat-sub stat-up">↑ 8% this quarter</div></div>
-        </div>
+        <div class="stats-row" id="dash-stats"><div class="loading"><span class="spin"></span>Loading dashboard...</div></div>
         <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px">
-          <div class="card">
-            <div class="card-h"><div class="card-title">Revenue — <span>Last 6 Months</span></div></div>
-            <div class="chart-area">
-              <div class="chart-bars" id="rev-chart"></div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-h"><div class="card-title">Recent <span>Activity</span></div></div>
-            <div id="activity-feed"></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-h"><div class="card-title">Upcoming <span>Bookings</span></div><button class="tb-btn" onclick="nav('bookings')">View all →</button></div>
-          <table class="tbl">
-            <thead><tr><th>Guest</th><th>Listing</th><th>Check-in</th><th>Check-out</th><th>Amount</th><th>Status</th></tr></thead>
-            <tbody id="dash-bookings"></tbody>
-          </table>
+          <div class="card"><div class="card-h"><div class="card-title">My <span>Listings</span></div><button class="tb-btn" onclick="navTo('listings')">View All →</button></div><div id="dash-listings"><div class="loading"><span class="spin"></span>Loading...</div></div></div>
+          <div class="card"><div class="card-h"><div class="card-title">Recent <span>Bookings</span></div></div><div id="dash-bookings"><div class="loading"><span class="spin"></span>Loading...</div></div></div>
         </div>
       </div>
 
-      <!-- ═══ LISTINGS ═══ -->
+      <!-- LISTINGS -->
       <div class="page" id="pg-listings">
         <div class="card">
-          <div class="card-h"><div class="card-title">My <span>Listings</span></div><button class="btn btn-gold" onclick="openAddModal()">+ Add New Listing</button></div>
-          <table class="tbl">
-            <thead><tr><th>Name</th><th>Type</th><th>Location</th><th>Price</th><th>Bookings</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="listings-table"></tbody>
-          </table>
+          <div class="card-h"><div class="card-title">My <span>Listings</span></div><button class="btn btn-gold btn-sm" onclick="navTo('add-listing')">+ Add New</button></div>
+          <div id="listings-content"><div class="loading"><span class="spin"></span>Loading listings...</div></div>
         </div>
       </div>
 
-      <!-- ═══ BOOKINGS ═══ -->
+      <!-- BOOKINGS -->
       <div class="page" id="pg-bookings">
-        <div class="stats-row" style="margin-bottom:16px">
-          <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-val" style="color:var(--orange)">8</div></div>
-          <div class="stat-card"><div class="stat-label">Confirmed</div><div class="stat-val" style="color:var(--green)">23</div></div>
-          <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-val" style="color:var(--blue)">142</div></div>
-          <div class="stat-card"><div class="stat-label">Cancelled</div><div class="stat-val" style="color:var(--red)">5</div></div>
-        </div>
         <div class="card">
-          <div class="card-h"><div class="card-title">All <span>Bookings</span></div>
-            <div style="display:flex;gap:6px">
-              <button class="tb-btn active" onclick="filterBookings('all')">All</button>
-              <button class="tb-btn" onclick="filterBookings('pending')">Pending</button>
-              <button class="tb-btn" onclick="filterBookings('confirmed')">Confirmed</button>
-            </div>
-          </div>
-          <table class="tbl">
-            <thead><tr><th>Booking ID</th><th>Guest</th><th>Listing</th><th>Check-in</th><th>Check-out</th><th>Guests</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="bookings-table"></tbody>
-          </table>
+          <div class="card-h"><div class="card-title">All <span>Bookings</span></div></div>
+          <div id="bookings-content"><div class="loading"><span class="spin"></span>Loading bookings...</div></div>
         </div>
       </div>
 
-      <!-- ═══ GUEST CRM ═══ -->
+      <!-- GUESTS -->
       <div class="page" id="pg-guests">
-        <div class="stats-row" style="margin-bottom:16px">
-          <div class="stat-card"><div class="stat-label">Total Guests</div><div class="stat-val">289</div></div>
-          <div class="stat-card"><div class="stat-label">Repeat Rate</div><div class="stat-val">34%</div></div>
-          <div class="stat-card"><div class="stat-label">Avg. Spend</div><div class="stat-val">₹16,800</div></div>
-          <div class="stat-card"><div class="stat-label">NPS Score</div><div class="stat-val" style="color:var(--green)">72</div></div>
-        </div>
         <div class="card">
-          <div class="card-h"><div class="card-title">Guest <span>Database</span></div>
-            <input id="guest-search" placeholder="Search guests..." style="padding:7px 12px;background:var(--bg);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:0.8rem;width:220px;outline:none"/>
-          </div>
-          <div class="guest-grid" id="guest-grid"></div>
+          <div class="card-h"><div class="card-title">Guest <span>Database</span></div></div>
+          <div id="guests-content"><div class="loading"><span class="spin"></span>Loading guests...</div></div>
         </div>
       </div>
 
-      <!-- ═══ FINANCIALS ═══ -->
-      <div class="page" id="pg-financials">
-        <div class="stats-row">
-          <div class="stat-card"><div class="stat-label">Gross Revenue</div><div class="stat-val">₹28,40,000</div><div class="stat-sub stat-up">↑ 32% YoY</div></div>
-          <div class="stat-card"><div class="stat-label">TTT Commission</div><div class="stat-val">₹2,84,000</div><div class="stat-sub stat-neutral">10% standard</div></div>
-          <div class="stat-card"><div class="stat-label">Net Payout</div><div class="stat-val">₹25,56,000</div><div class="stat-sub stat-up">Next: June 15</div></div>
-          <div class="stat-card"><div class="stat-label">Pending Payments</div><div class="stat-val">₹1,24,000</div><div class="stat-sub stat-neutral">4 invoices</div></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div class="card">
-            <div class="card-h"><div class="card-title">Monthly <span>Revenue</span></div></div>
-            <div class="chart-area"><div class="chart-bars" id="fin-chart"></div></div>
-          </div>
-          <div class="card">
-            <div class="card-h"><div class="card-title">Revenue by <span>Listing</span></div></div>
-            <div id="rev-by-listing"></div>
-          </div>
-        </div>
+      <!-- WALLET -->
+      <div class="page" id="pg-wallet">
+        <div class="stats-row" id="wallet-stats"><div class="loading"><span class="spin"></span>Loading wallet...</div></div>
         <div class="card">
-          <div class="card-h"><div class="card-title">Recent <span>Transactions</span></div></div>
-          <table class="tbl">
-            <thead><tr><th>Date</th><th>Description</th><th>Booking</th><th>Amount</th><th>Status</th></tr></thead>
-            <tbody id="txn-table"></tbody>
-          </table>
+          <div class="card-h"><div class="card-title">Transaction <span>History</span></div></div>
+          <div id="wallet-txns"><div class="loading"><span class="spin"></span>Loading...</div></div>
         </div>
       </div>
 
-      <!-- ═══ REVIEWS ═══ -->
-      <div class="page" id="pg-reviews">
-        <div class="stats-row" style="margin-bottom:16px">
-          <div class="stat-card"><div class="stat-label">Avg. Rating</div><div class="stat-val">4.8 <span style="font-size:0.85rem;color:var(--gold)">★</span></div></div>
-          <div class="stat-card"><div class="stat-label">Total Reviews</div><div class="stat-val">156</div></div>
-          <div class="stat-card"><div class="stat-label">Response Rate</div><div class="stat-val">92%</div></div>
-          <div class="stat-card"><div class="stat-label">5-Star %</div><div class="stat-val">68%</div></div>
-        </div>
-        <div id="reviews-list"></div>
-      </div>
-
-      <!-- ═══ ITINERARY BUILDER ═══ -->
-      <div class="page" id="pg-itinerary">
+      <!-- ADD LISTING -->
+      <div class="page" id="pg-add-listing">
         <div class="card">
-          <div class="card-h"><div class="card-title">Itinerary <span>Builder</span></div><button class="btn btn-gold" onclick="addDay()">+ Add Day</button></div>
-          <div class="form-grid" style="margin-bottom:16px">
-            <div class="fg"><label>Trip Title</label><input id="itin-title" placeholder="5-Day Tirthan Valley Escape"/></div>
-            <div class="fg"><label>Destination</label><input id="itin-dest" placeholder="Tirthan Valley, Himachal Pradesh"/></div>
-            <div class="fg"><label>Duration</label><input id="itin-dur" placeholder="5 Days / 4 Nights"/></div>
-            <div class="fg"><label>Price (₹)</label><input id="itin-price" type="number" placeholder="45000"/></div>
-          </div>
-          <div id="itin-days"></div>
-          <div class="btn-row"><button class="btn btn-gold" onclick="saveItinerary()">Save Itinerary</button><button class="btn btn-ghost" onclick="previewItinerary()">Preview PDF</button></div>
-        </div>
-      </div>
-
-      <!-- ═══ MARKETING ═══ -->
-      <div class="page" id="pg-marketing">
-        <div class="stats-row">
-          <div class="stat-card"><div class="stat-label">Profile Views</div><div class="stat-val">2,340</div><div class="stat-sub stat-up">↑ 18% this month</div></div>
-          <div class="stat-card"><div class="stat-label">Inquiry Rate</div><div class="stat-val">12%</div></div>
-          <div class="stat-card"><div class="stat-label">Conversion</div><div class="stat-val">4.2%</div></div>
-          <div class="stat-card"><div class="stat-label">Social Shares</div><div class="stat-val">89</div></div>
-        </div>
-        <div class="card">
-          <div class="card-h"><div class="card-title">Quick <span>Campaign</span></div></div>
+          <div class="card-title" style="margin-bottom:4px">Add New <span>Listing</span></div>
+          <p style="font-size:0.78rem;color:var(--muted);margin-bottom:20px">List your property, tour, or experience on TTT</p>
           <div class="form-grid">
-            <div class="fg"><label>Campaign Name</label><input placeholder="Summer Special 2026"/></div>
-            <div class="fg"><label>Channel</label><select><option>WhatsApp Broadcast</option><option>Email Campaign</option><option>Instagram Story</option><option>SMS Blast</option></select></div>
-            <div class="fg full"><label>Message</label><textarea placeholder="🌴 Exclusive summer offer! Book our Tirthan Valley retreat at 20% off. Limited slots..."></textarea></div>
+            <div class="fg full"><label>Listing Name</label><input id="nl-name" placeholder="e.g. Mountain View Cottage"/></div>
+            <div class="fg"><label>Type</label><select id="nl-type"><option value="stay">Stay / Property</option><option value="tour">Tour / Safari</option><option value="experience">Experience / Activity</option><option value="vehicle">Vehicle / Transport</option></select></div>
+            <div class="fg"><label>Location</label><input id="nl-loc" placeholder="e.g. Tirthan Valley, HP"/></div>
+            <div class="fg"><label>Price per Night / Person (₹)</label><input id="nl-price" type="number" placeholder="5000"/></div>
+            <div class="fg"><label>Max Guests / Capacity</label><input id="nl-guests" type="number" placeholder="4"/></div>
+            <div class="fg full"><label>Description</label><textarea id="nl-desc" placeholder="Describe what makes your listing special..."></textarea></div>
+            <div class="fg full"><label>Amenities (comma-separated)</label><input id="nl-amenities" placeholder="WiFi, Meals, Bonfire, Trekking, River Access"/></div>
+            <div class="fg"><label>Contact Phone</label><input id="nl-phone" placeholder="+91 98765 43210"/></div>
+            <div class="fg"><label>Contact Email</label><input id="nl-email" placeholder="info@yourbusiness.com"/></div>
           </div>
-          <div class="btn-row"><button class="btn btn-gold">Send Campaign</button><button class="btn btn-ghost">Schedule</button></div>
+          <div class="btn-row">
+            <button class="btn btn-gold" onclick="submitListing()">Publish Listing</button>
+            <button class="btn btn-ghost" onclick="navTo('dashboard')">Cancel</button>
+          </div>
+          <div id="nl-status" style="margin-top:12px;font-size:0.82rem"></div>
         </div>
       </div>
 
-      <!-- ═══ SETTINGS ═══ -->
+      <!-- SETTINGS -->
       <div class="page" id="pg-settings">
         <div class="card">
-          <div class="card-h"><div class="card-title">Business <span>Profile</span></div></div>
-          <div class="form-grid">
-            <div class="fg"><label>Business Name</label><input id="s-bname" value="Usha River Side Resort"/></div>
-            <div class="fg"><label>Partner ID</label><input value="ttt-hp-001" disabled style="opacity:0.5"/></div>
-            <div class="fg"><label>Email</label><input id="s-email" value="info@ushariverside.com"/></div>
-            <div class="fg"><label>Phone</label><input id="s-phone" value="+91 98765 43210"/></div>
-            <div class="fg"><label>Location</label><input id="s-loc" value="Tirthan Valley, Himachal Pradesh"/></div>
-            <div class="fg"><label>Category</label><select><option>Boutique Stay</option><option>Hotel</option><option>Homestay</option><option>Resort</option><option>Tour Operator</option><option>Experience Provider</option></select></div>
-            <div class="fg full"><label>Description</label><textarea id="s-desc">A serene riverside retreat nestled in the heart of Tirthan Valley, offering eco-friendly luxury accommodation with breathtaking Himalayan views.</textarea></div>
+          <div class="card-title" style="margin-bottom:4px">Business <span>Profile</span></div>
+          <p style="font-size:0.78rem;color:var(--muted);margin-bottom:20px">Manage your partner account details</p>
+          <div class="form-grid" id="settings-form"><div class="loading"><span class="spin"></span>Loading...</div></div>
+          <div class="btn-row" id="settings-actions" style="display:none">
+            <button class="btn btn-gold" onclick="saveSettings()">Save Changes</button>
           </div>
-          <div class="btn-row"><button class="btn btn-gold">Save Changes</button></div>
-        </div>
-        <div class="card">
-          <div class="card-h"><div class="card-title">Payout <span>Settings</span></div></div>
-          <div class="form-grid">
-            <div class="fg"><label>Bank Account</label><input value="XXXX XXXX XXXX 4821"/></div>
-            <div class="fg"><label>IFSC Code</label><input value="SBIN0001234"/></div>
-            <div class="fg"><label>UPI ID</label><input value="usharesort@upi"/></div>
-            <div class="fg"><label>Payout Frequency</label><select><option>Weekly</option><option selected>Bi-weekly</option><option>Monthly</option></select></div>
-          </div>
-          <div class="btn-row"><button class="btn btn-gold">Update Payout</button></div>
+          <div id="settings-status" style="margin-top:12px;font-size:0.82rem"></div>
         </div>
       </div>
 
@@ -416,201 +252,299 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:
   </div>
 </div>
 
-<!-- ═══ ADD LISTING MODAL ═══ -->
-<div class="modal-overlay" id="add-modal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal()">&times;</button>
-    <div class="modal-title">Add New Listing</div>
-    <div class="modal-sub">List your property, tour, or experience on TTT</div>
-    <div class="form-grid">
-      <div class="fg full"><label>Listing Name</label><input id="m-name" placeholder="Mountain View Cottage"/></div>
-      <div class="fg"><label>Type</label><select id="m-type"><option>Stay</option><option>Tour</option><option>Experience</option><option>Vehicle</option></select></div>
-      <div class="fg"><label>Location</label><input id="m-loc" placeholder="Tirthan Valley, HP"/></div>
-      <div class="fg"><label>Price / Night (₹)</label><input id="m-price" type="number" placeholder="5000"/></div>
-      <div class="fg"><label>Max Guests</label><input id="m-guests" type="number" placeholder="4"/></div>
-      <div class="fg full"><label>Description</label><textarea id="m-desc" placeholder="Describe your listing..."></textarea></div>
-      <div class="fg full"><label>Amenities (comma-separated)</label><input id="m-amen" placeholder="WiFi, Meals, Bonfire, Trekking, River Access"/></div>
-    </div>
-    <div class="btn-row"><button class="btn btn-gold" onclick="saveListing()">Save & Publish</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>
-  </div>
-</div>
+<div id="toast-el" class="toast"></div>
 
 <script>
-// ═══ DATA (demo — would come from API) ═══
-const API = window.location.hostname === 'localhost' ? 'http://localhost:8000' : '';
+var API = window.location.hostname === 'localhost' ? 'http://localhost:8000' : '';
+var session = null; // { partner_id, name, business_name, email, ... }
 
-const DEMO_LISTINGS = [
-  {id:'L001',name:'Usha River Side Resort',type:'Stay',location:'Tirthan Valley, HP',price:5000,bookings:89,rating:4.9,status:'active',img:'🏔️'},
-  {id:'L002',name:'Mountain View Cottage',type:'Stay',location:'Tirthan Valley, HP',price:3500,bookings:45,rating:4.7,status:'active',img:'🏡'},
-  {id:'L003',name:'Tirthan Valley Trek',type:'Tour',location:'GHNP, HP',price:2500,bookings:62,rating:4.8,status:'active',img:'🥾'},
-  {id:'L004',name:'River Rafting Adventure',type:'Experience',location:'Tirthan River',price:1200,bookings:120,rating:4.6,status:'active',img:'🚣'},
-  {id:'L005',name:'Himalayan Cooking Class',type:'Experience',location:'Tirthan Valley',price:800,bookings:38,rating:4.9,status:'draft',img:'👨‍🍳'},
-  {id:'L006',name:'Bímil Society Stay',type:'Stay',location:'McLeod Ganj, HP',price:4500,bookings:34,rating:4.5,status:'active',img:'🏘️'}
-];
-
-const DEMO_BOOKINGS = [
-  {id:'BK-2601',guest:'Rahul Mehta',email:'rahul@gmail.com',listing:'Usha River Side Resort',checkin:'2026-06-18',checkout:'2026-06-21',guests:2,amount:15000,status:'confirmed'},
-  {id:'BK-2602',guest:'Priya Sharma',email:'priya.s@gmail.com',listing:'Mountain View Cottage',checkin:'2026-06-20',checkout:'2026-06-23',guests:4,amount:10500,status:'pending'},
-  {id:'BK-2603',guest:'Ankit & Neha',email:'ankit@outlook.com',listing:'Tirthan Valley Trek',checkin:'2026-06-22',checkout:'2026-06-22',guests:2,amount:5000,status:'confirmed'},
-  {id:'BK-2604',guest:'Sarah Johnson',email:'sarah.j@yahoo.com',listing:'Usha River Side Resort',checkin:'2026-06-25',checkout:'2026-06-29',guests:2,amount:20000,status:'pending'},
-  {id:'BK-2605',guest:'Vikram Singh',email:'vikram@gmail.com',listing:'River Rafting Adventure',checkin:'2026-06-15',checkout:'2026-06-15',guests:6,amount:7200,status:'completed'},
-  {id:'BK-2606',guest:'Meera Reddy',email:'meera.r@gmail.com',listing:'Himalayan Cooking Class',checkin:'2026-06-14',checkout:'2026-06-14',guests:3,amount:2400,status:'completed'},
-  {id:'BK-2607',guest:'James Wilson',email:'james.w@gmail.com',listing:'Bímil Society Stay',checkin:'2026-06-28',checkout:'2026-07-02',guests:2,amount:18000,status:'confirmed'},
-  {id:'BK-2608',guest:'Deepak Patel',email:'deepak@gmail.com',listing:'Mountain View Cottage',checkin:'2026-06-12',checkout:'2026-06-14',guests:3,amount:7000,status:'cancelled'},
-];
-
-const DEMO_GUESTS = [
-  {name:'Rahul Mehta',email:'rahul@gmail.com',trips:3,spent:45000,rating:5,last:'Jun 2026',tag:'VIP'},
-  {name:'Priya Sharma',email:'priya.s@gmail.com',trips:1,spent:10500,rating:0,last:'Jun 2026',tag:'New'},
-  {name:'Sarah Johnson',email:'sarah.j@yahoo.com',trips:2,spent:38000,rating:4,last:'Jun 2026',tag:'International'},
-  {name:'Vikram Singh',email:'vikram@gmail.com',trips:5,spent:62000,rating:5,last:'Jun 2026',tag:'VIP'},
-  {name:'Ankit Gupta',email:'ankit@outlook.com',trips:2,spent:15000,rating:4,last:'Jun 2026',tag:'Repeat'},
-  {name:'Meera Reddy',email:'meera.r@gmail.com',trips:1,spent:2400,rating:5,last:'Jun 2026',tag:'New'},
-  {name:'James Wilson',email:'james.w@gmail.com',trips:1,spent:18000,rating:0,last:'Jun 2026',tag:'International'},
-  {name:'Kavya Nair',email:'kavya@gmail.com',trips:4,spent:52000,rating:5,last:'May 2026',tag:'VIP'},
-];
-
-const DEMO_REVIEWS = [
-  {guest:'Rahul Mehta',listing:'Usha River Side Resort',rating:5,text:'Absolutely magical! The riverside location is unmatched. Woke up to the sound of flowing water every morning. The host family is incredibly warm and the food is authentic Himachali cuisine at its best. Will definitely return.',date:'June 8, 2026',replied:true,reply:'Thank you Rahul! We loved hosting you and can\'t wait to welcome you back. The monsoon season brings a whole new beauty to the valley!'},
-  {guest:'Sarah Johnson',listing:'Usha River Side Resort',rating:4,text:'Beautiful property and great hospitality. Only suggestion — better WiFi connectivity would help for remote workers. Everything else was perfect, especially the trout fishing experience!',date:'May 28, 2026',replied:true,reply:'Thanks Sarah! We\'re upgrading our satellite internet this month. Hope to see you again!'},
-  {guest:'Vikram Singh',listing:'River Rafting Adventure',rating:5,text:'Best rafting experience in Himachal! The guides were professional and safety was top-notch. The grade 3 rapids were thrilling. Highly recommend for adventure seekers.',date:'June 2, 2026',replied:false},
-  {guest:'Kavya Nair',listing:'Tirthan Valley Trek',rating:5,text:'The GHNP trek was life-changing. Our guide knew every bird species and medicinal plant. The campsite setup was comfortable and the stargazing at 10,000 ft was unforgettable.',date:'May 15, 2026',replied:false},
-  {guest:'Deepak Patel',listing:'Mountain View Cottage',rating:3,text:'Nice location but the cottage needs some maintenance. Hot water was inconsistent and one of the windows didn\'t close properly. The views are amazing though.',date:'June 10, 2026',replied:false},
-];
-
-const DEMO_TXNS = [
-  {date:'Jun 12',desc:'Booking payout — Rahul Mehta',booking:'BK-2601',amount:13500,status:'completed'},
-  {date:'Jun 10',desc:'Booking payout — Vikram Singh',booking:'BK-2605',amount:6480,status:'completed'},
-  {date:'Jun 10',desc:'Booking payout — Meera Reddy',booking:'BK-2606',amount:2160,status:'completed'},
-  {date:'Jun 8',desc:'Monthly bonus — High rating',booking:'—',amount:5000,status:'completed'},
-  {date:'Jun 5',desc:'Booking payout — James Wilson',booking:'BK-2607',amount:16200,status:'pending'},
-  {date:'Jun 1',desc:'Booking payout — Sarah Johnson',booking:'BK-2604',amount:18000,status:'pending'},
-];
-
-// ═══ NAV ═══
-const titles = {dashboard:'📊 <span>Dashboard</span>',listings:'🏨 <span>Listings</span>',bookings:'📋 <span>Bookings</span>',guests:'👤 <span>Guest CRM</span>',financials:'💰 <span>Financials</span>',reviews:'⭐ <span>Reviews</span>',itinerary:'🗺️ <span>Itinerary Builder</span>',marketing:'📣 <span>Marketing</span>',settings:'⚙️ <span>Settings</span>'};
-
-function nav(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
-  document.getElementById('pg-' + page).classList.add('active');
-  event.target.closest('.sb-item').classList.add('active');
-  document.getElementById('page-title').innerHTML = titles[page] || page;
+// ═══ AUTH ═══
+function doLogin() {
+  var id = document.getElementById('lp-email').value.trim();
+  var key = document.getElementById('lp-key').value.trim();
+  document.getElementById('login-err').textContent = '';
+  
+  if (!id) { document.getElementById('login-err').textContent = 'Please enter your Partner ID or email'; return; }
+  
+  // Try to fetch partner by ID
+  fetch(API + '/api/partner/' + encodeURIComponent(id))
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d && d.id) {
+        session = d;
+        localStorage.setItem('ttt_partner_session', JSON.stringify(d));
+        enterPortal();
+      } else {
+        document.getElementById('login-err').textContent = 'Partner not found. Check your ID.';
+      }
+    })
+    .catch(function() {
+      document.getElementById('login-err').textContent = 'Could not connect. Try again.';
+    });
 }
 
-function doLogin() {
+function enterPortal() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app-shell').style.display = 'flex';
-  renderAll();
+  document.getElementById('sb-name').textContent = session.business_name || session.name || 'Partner';
+  document.getElementById('sb-av').textContent = (session.business_name || session.name || '?')[0].toUpperCase();
+  document.getElementById('sb-role').textContent = session.id || 'Partner';
+  loadDashboard();
 }
 
-function openAddModal() { document.getElementById('add-modal').classList.add('open'); }
-function closeModal() { document.getElementById('add-modal').classList.remove('open'); }
-
-// ═══ RENDERERS ═══
-function renderAll() {
-  renderListings(); renderBookings(); renderDashBookings(); renderGuests();
-  renderReviews(); renderTxns(); renderCharts(); renderActivity(); renderRevByListing();
+function logout() {
+  localStorage.removeItem('ttt_partner_session');
+  session = null;
+  window.location.reload();
 }
 
-function renderListings() {
-  document.getElementById('listings-table').innerHTML = DEMO_LISTINGS.map(l => 
-    '<tr><td class="name">' + l.img + ' ' + l.name + '</td><td>' + l.type + '</td><td>' + l.location + '</td><td>₹' + l.price.toLocaleString() + '/night</td><td>' + l.bookings + '</td><td>⭐ ' + l.rating + '</td><td><span class="badge ' + l.status + '">' + l.status + '</span></td><td><button class="tb-btn" style="font-size:0.65rem;padding:4px 8px">Edit</button></td></tr>'
-  ).join('');
+// Auto-login from saved session
+(function() {
+  var saved = localStorage.getItem('ttt_partner_session');
+  if (saved) {
+    try { session = JSON.parse(saved); enterPortal(); } catch(e) { localStorage.removeItem('ttt_partner_session'); }
+  }
+})();
+
+// ═══ NAV ═══
+var titles = {dashboard:'📊 <span>Dashboard</span>',listings:'🏨 <span>Listings</span>',bookings:'📋 <span>Bookings</span>',guests:'👤 <span>Guests</span>',wallet:'💰 <span>Wallet</span>','add-listing':'➕ <span>Add Listing</span>',settings:'⚙️ <span>Settings</span>'};
+
+function nav(el) {
+  var page = el.getAttribute('data-page');
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  document.querySelectorAll('.sb-item').forEach(function(i){i.classList.remove('active')});
+  document.getElementById('pg-'+page).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('page-title').innerHTML = titles[page] || page;
+  // Load data for the page
+  if (page==='listings') loadListings();
+  else if (page==='bookings') loadBookings();
+  else if (page==='guests') loadGuests();
+  else if (page==='wallet') loadWallet();
+  else if (page==='settings') loadSettings();
 }
 
-function renderBookings() {
-  document.getElementById('bookings-table').innerHTML = DEMO_BOOKINGS.map(b =>
-    '<tr><td class="name">' + b.id + '</td><td>' + b.guest + '</td><td>' + b.listing + '</td><td>' + b.checkin + '</td><td>' + b.checkout + '</td><td>' + b.guests + '</td><td>₹' + b.amount.toLocaleString() + '</td><td><span class="badge ' + b.status + '">' + b.status + '</span></td><td>' + (b.status==='pending' ? '<button class="tb-btn" style="font-size:0.65rem;padding:4px 8px;background:var(--green-bg);color:var(--green);border-color:var(--green)" onclick="confirmBooking(this)">Confirm</button>' : '—') + '</td></tr>'
-  ).join('');
+function navTo(page) {
+  var el = document.querySelector('.sb-item[data-page="'+page+'"]');
+  if (el) nav(el);
 }
 
-function renderDashBookings() {
-  var upcoming = DEMO_BOOKINGS.filter(b => b.status !== 'completed' && b.status !== 'cancelled').slice(0, 5);
-  document.getElementById('dash-bookings').innerHTML = upcoming.map(b =>
-    '<tr><td class="name">' + b.guest + '</td><td>' + b.listing + '</td><td>' + b.checkin + '</td><td>' + b.checkout + '</td><td>₹' + b.amount.toLocaleString() + '</td><td><span class="badge ' + b.status + '">' + b.status + '</span></td></tr>'
-  ).join('');
+// ═══ DASHBOARD ═══
+function loadDashboard() {
+  loadDashListings();
+  loadDashBookings();
+  loadDashStats();
 }
 
-function renderGuests() {
-  document.getElementById('guest-grid').innerHTML = DEMO_GUESTS.map(g =>
-    '<div class="guest-card"><div class="gc-top"><div class="gc-av">' + g.name[0] + '</div><div><div class="gc-name">' + g.name + '</div><div class="gc-meta">' + g.email + ' · <span class="badge ' + (g.tag==='VIP'?'confirmed':g.tag==='New'?'pending':'completed') + '">' + g.tag + '</span></div></div></div><div class="gc-stats"><div class="gc-stat"><span>' + g.trips + '</span> trips</div><div class="gc-stat"><span>₹' + (g.spent/1000).toFixed(0) + 'K</span> spent</div><div class="gc-stat">Last: <span>' + g.last + '</span></div></div></div>'
-  ).join('');
-}
-
-function renderReviews() {
-  document.getElementById('reviews-list').innerHTML = DEMO_REVIEWS.map(r =>
-    '<div class="review-card"><div class="rv-top"><div><div class="rv-guest">' + r.guest + '</div><div class="rv-meta">' + r.listing + ' · ' + r.date + '</div></div><div class="rv-stars">' + '★'.repeat(r.rating) + '☆'.repeat(5-r.rating) + '</div></div><div class="rv-text">' + r.text + '</div>' + (r.replied ? '<div class="rv-reply"><div style="font-size:0.65rem;color:var(--gold);margin-bottom:4px">Your Reply</div><div class="rv-reply-text">' + r.reply + '</div></div>' : '<button class="tb-btn" style="font-size:0.68rem">Reply →</button>') + '</div>'
-  ).join('');
-}
-
-function renderTxns() {
-  document.getElementById('txn-table').innerHTML = DEMO_TXNS.map(t =>
-    '<tr><td>' + t.date + '</td><td>' + t.desc + '</td><td>' + t.booking + '</td><td style="font-weight:600;color:var(--' + (t.amount>0?'green':'red') + ')">₹' + t.amount.toLocaleString() + '</td><td><span class="badge ' + t.status + '">' + t.status + '</span></td></tr>'
-  ).join('');
-}
-
-function renderCharts() {
-  var months = ['Jan','Feb','Mar','Apr','May','Jun'];
-  var vals = [320,410,380,520,480,585];
-  ['rev-chart','fin-chart'].forEach(function(id) {
-    var max = Math.max.apply(null, vals);
-    document.getElementById(id).innerHTML = months.map(function(m, i) {
-      return '<div style="text-align:center"><div class="chart-bar" style="height:' + (vals[i]/max*150) + 'px"></div><div class="chart-label">' + m + '</div></div>';
-    }).join('');
+function loadDashStats() {
+  Promise.all([
+    fetch(API+'/api/partner/'+session.id+'/listings').then(r=>r.json()).catch(()=>[]),
+    fetch(API+'/api/partner/'+session.id+'/bookings').then(r=>r.json()).catch(()=>[]),
+    fetch(API+'/api/partner/wallet/'+session.id).then(r=>r.json()).catch(()=>({}))
+  ]).then(function(results) {
+    var listings = Array.isArray(results[0]) ? results[0] : (results[0]?.listings || []);
+    var bookings = Array.isArray(results[1]) ? results[1] : (results[1]?.bookings || []);
+    var wallet = results[2] || {};
+    
+    var totalBookings = bookings.length;
+    var pendingBookings = bookings.filter(function(b){return b.status==='pending'}).length;
+    var revenue = wallet.total_earned || bookings.reduce(function(sum,b){return sum+(b.amount||0)},0);
+    
+    document.getElementById('dash-stats').innerHTML = 
+      '<div class="stat-card"><div class="stat-label">Active Listings</div><div class="stat-val">'+listings.length+'</div></div>'+
+      '<div class="stat-card"><div class="stat-label">Total Bookings</div><div class="stat-val">'+totalBookings+'</div></div>'+
+      '<div class="stat-card"><div class="stat-label">Pending</div><div class="stat-val" style="color:var(--orange)">'+pendingBookings+'</div></div>'+
+      '<div class="stat-card"><div class="stat-label">Revenue</div><div class="stat-val">₹'+(revenue||0).toLocaleString()+'</div></div>';
   });
 }
 
-function renderActivity() {
-  var items = [
-    {type:'booking',text:'<strong>Priya Sharma</strong> booked Mountain View Cottage',time:'2 hours ago'},
-    {type:'review',text:'<strong>Vikram Singh</strong> left a 5-star review',time:'5 hours ago'},
-    {type:'payout',text:'Payout of <strong>₹13,500</strong> processed',time:'1 day ago'},
-    {type:'inquiry',text:'<strong>Sarah Johnson</strong> inquired about availability',time:'1 day ago'},
-    {type:'booking',text:'<strong>James Wilson</strong> confirmed Bímil Society Stay',time:'2 days ago'},
-    {type:'review',text:'<strong>Kavya Nair</strong> left a 5-star review for trek',time:'3 days ago'},
-  ];
-  document.getElementById('activity-feed').innerHTML = items.map(function(a) {
-    return '<div class="feed-item"><div class="feed-dot ' + a.type + '"></div><div><div class="feed-text">' + a.text + '</div><div class="feed-time">' + a.time + '</div></div></div>';
-  }).join('');
+function loadDashListings() {
+  fetch(API+'/api/partner/'+session.id+'/listings')
+    .then(function(r){return r.json()})
+    .then(function(data) {
+      var listings = Array.isArray(data) ? data : (data?.listings || []);
+      if (!listings.length) {
+        document.getElementById('dash-listings').innerHTML = '<div class="empty"><div class="empty-icon">🏨</div><div class="empty-text">No listings yet</div><button class="btn btn-gold btn-sm" onclick="navTo(\'add-listing\')">Add Your First Listing</button></div>';
+        return;
+      }
+      document.getElementById('dash-listings').innerHTML = '<table class="tbl"><thead><tr><th>Name</th><th>Type</th><th>Price</th><th>Status</th></tr></thead><tbody>'+
+        listings.map(function(l){return '<tr><td class="name">'+esc(l.name||l.title||'—')+'</td><td>'+(l.type||'stay')+'</td><td>₹'+(l.price_per_night||l.price||0).toLocaleString()+'</td><td><span class="badge active">active</span></td></tr>'}).join('')+
+        '</tbody></table>';
+    })
+    .catch(function(){document.getElementById('dash-listings').innerHTML='<div class="empty"><div class="empty-text">Could not load listings</div></div>'});
 }
 
-function renderRevByListing() {
-  var data = [{name:'Usha River Side',rev:1240000,pct:44},{name:'Mtn View Cottage',rev:560000,pct:20},{name:'Tirthan Trek',rev:420000,pct:15},{name:'Rafting',rev:340000,pct:12},{name:'Others',rev:280000,pct:9}];
-  document.getElementById('rev-by-listing').innerHTML = data.map(function(d) {
-    return '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid rgba(201,150,58,0.05)"><div style="flex:1;font-size:0.82rem;color:var(--text)">' + d.name + '</div><div style="width:120px;height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="width:' + d.pct + '%;height:100%;background:var(--gold);border-radius:3px"></div></div><div style="font-size:0.78rem;color:var(--gold);width:70px;text-align:right">₹' + (d.rev/100000).toFixed(1) + 'L</div></div>';
-  }).join('');
+function loadDashBookings() {
+  fetch(API+'/api/partner/'+session.id+'/bookings')
+    .then(function(r){return r.json()})
+    .then(function(data) {
+      var bookings = Array.isArray(data) ? data : (data?.bookings || []);
+      if (!bookings.length) {
+        document.getElementById('dash-bookings').innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No bookings yet</div></div>';
+        return;
+      }
+      document.getElementById('dash-bookings').innerHTML = bookings.slice(0,5).map(function(b){
+        return '<div class="feed-item"><div class="feed-dot booking"></div><div><div class="feed-text"><strong>'+esc(b.guest_name||b.user_name||'Guest')+'</strong> — '+esc(b.listing_name||'Booking')+'</div><div class="feed-time">'+(b.check_in||b.date||'—')+' · ₹'+(b.amount||0).toLocaleString()+' · <span class="badge '+(b.status||'pending')+'">'+(b.status||'pending')+'</span></div></div></div>';
+      }).join('');
+    })
+    .catch(function(){document.getElementById('dash-bookings').innerHTML='<div class="empty"><div class="empty-text">Could not load bookings</div></div>'});
 }
 
-function confirmBooking(btn) {
-  btn.textContent = '✓ Confirmed';
-  btn.style.background = 'var(--green)';
-  btn.style.color = '#fff';
-  btn.disabled = true;
+// ═══ LISTINGS ═══
+function loadListings() {
+  fetch(API+'/api/partner/'+session.id+'/listings')
+    .then(function(r){return r.json()})
+    .then(function(data) {
+      var listings = Array.isArray(data) ? data : (data?.listings || []);
+      if (!listings.length) {
+        document.getElementById('listings-content').innerHTML = '<div class="empty"><div class="empty-icon">🏨</div><div class="empty-text">You haven\'t added any listings yet</div><button class="btn btn-gold btn-sm" onclick="navTo(\'add-listing\')">Add Your First Listing</button></div>';
+        return;
+      }
+      document.getElementById('listings-content').innerHTML = '<table class="tbl"><thead><tr><th>Name</th><th>Type</th><th>Location</th><th>Price</th><th>Capacity</th><th>Status</th></tr></thead><tbody>'+
+        listings.map(function(l){
+          return '<tr><td class="name">'+esc(l.name||l.title||'')+'</td><td>'+(l.type||'stay')+'</td><td>'+esc(l.location||'—')+'</td><td>₹'+(l.price_per_night||l.price||0).toLocaleString()+'</td><td>'+(l.max_guests||l.capacity||'—')+'</td><td><span class="badge active">active</span></td></tr>';
+        }).join('')+'</tbody></table>';
+    })
+    .catch(function(){document.getElementById('listings-content').innerHTML='<div class="empty"><div class="empty-text">Error loading listings</div></div>'});
 }
 
-function saveListing() {
-  closeModal();
-  // Would POST to API
-  alert('Listing saved! (Demo)');
+// ═══ BOOKINGS ═══
+function loadBookings() {
+  fetch(API+'/api/partner/'+session.id+'/bookings')
+    .then(function(r){return r.json()})
+    .then(function(data) {
+      var bookings = Array.isArray(data) ? data : (data?.bookings || []);
+      if (!bookings.length) {
+        document.getElementById('bookings-content').innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No bookings yet. They\'ll appear here when guests book your listings.</div></div>';
+        return;
+      }
+      document.getElementById('bookings-content').innerHTML = '<table class="tbl"><thead><tr><th>Booking</th><th>Guest</th><th>Listing</th><th>Date</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody>'+
+        bookings.map(function(b){
+          var action = b.status==='pending' ? '<button class="btn btn-gold btn-sm" onclick="confirmBooking(\''+b.id+'\',this)">Confirm</button>' : '—';
+          return '<tr><td class="name">'+(b.id||'—')+'</td><td>'+esc(b.guest_name||b.user_name||'Guest')+'</td><td>'+esc(b.listing_name||'—')+'</td><td>'+(b.check_in||b.date||'—')+'</td><td>₹'+(b.amount||0).toLocaleString()+'</td><td><span class="badge '+(b.status||'pending')+'">'+(b.status||'pending')+'</span></td><td>'+action+'</td></tr>';
+        }).join('')+'</tbody></table>';
+    })
+    .catch(function(){document.getElementById('bookings-content').innerHTML='<div class="empty"><div class="empty-text">Error loading bookings</div></div>'});
 }
 
-// Itinerary builder
-var dayCount = 0;
-function addDay() {
-  dayCount++;
-  var div = document.createElement('div');
-  div.className = 'card';
-  div.style.borderLeft = '2px solid var(--gold)';
-  div.innerHTML = '<div class="card-h"><div class="card-title">Day ' + dayCount + '</div><button class="tb-btn" style="font-size:0.65rem" onclick="this.closest(\'.card\').remove()">Remove</button></div><div class="form-grid"><div class="fg full"><label>Title</label><input placeholder="Arrival & Valley Exploration"/></div><div class="fg full"><label>Activities</label><textarea placeholder="Morning: Arrive at Aut, drive to Tirthan Valley&#10;Afternoon: Settle in, riverside walk&#10;Evening: Bonfire dinner with local cuisine"></textarea></div><div class="fg"><label>Meals</label><input placeholder="Lunch, Dinner"/></div><div class="fg"><label>Stay</label><input placeholder="Usha River Side Resort"/></div></div>';
-  document.getElementById('itin-days').appendChild(div);
+function confirmBooking(id, btn) {
+  btn.disabled = true; btn.textContent = '...';
+  fetch(API+'/api/partner/bookings/'+id+'/read', {method:'PUT',headers:{'Content-Type':'application/json'}})
+    .then(function(){btn.textContent='✓ Done'; btn.style.background='var(--green)'; toast('Booking confirmed');})
+    .catch(function(){btn.textContent='Error'; btn.disabled=false;});
 }
 
-function saveItinerary() { alert('Itinerary saved! (Demo)'); }
-function previewItinerary() { alert('PDF preview coming soon!'); }
+// ═══ GUESTS (from bookings) ═══
+function loadGuests() {
+  fetch(API+'/api/partner/'+session.id+'/bookings')
+    .then(function(r){return r.json()})
+    .then(function(data) {
+      var bookings = Array.isArray(data) ? data : (data?.bookings || []);
+      var guestMap = {};
+      bookings.forEach(function(b){
+        var name = b.guest_name || b.user_name || 'Guest';
+        if (!guestMap[name]) guestMap[name] = {name:name, email:b.guest_email||b.user_email||'', bookings:0, spent:0};
+        guestMap[name].bookings++;
+        guestMap[name].spent += (b.amount||0);
+      });
+      var guests = Object.values(guestMap);
+      if (!guests.length) {
+        document.getElementById('guests-content').innerHTML = '<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No guest data yet. Guests will appear here after their first booking.</div></div>';
+        return;
+      }
+      document.getElementById('guests-content').innerHTML = '<div class="guest-grid">'+guests.map(function(g){
+        return '<div class="guest-card"><div class="gc-top"><div class="gc-av">'+g.name[0]+'</div><div><div class="gc-name">'+esc(g.name)+'</div><div class="gc-meta">'+esc(g.email)+'</div></div></div><div class="gc-stats"><div class="gc-stat"><b>'+g.bookings+'</b> bookings</div><div class="gc-stat"><b>₹'+g.spent.toLocaleString()+'</b> spent</div></div></div>';
+      }).join('')+'</div>';
+    })
+    .catch(function(){document.getElementById('guests-content').innerHTML='<div class="empty"><div class="empty-text">Error loading guests</div></div>'});
+}
 
-// Auto-login on hash
-if (window.location.hash === '#demo') doLogin();
+// ═══ WALLET ═══
+function loadWallet() {
+  fetch(API+'/api/partner/wallet/'+session.id)
+    .then(function(r){return r.json()})
+    .then(function(w) {
+      document.getElementById('wallet-stats').innerHTML =
+        '<div class="stat-card"><div class="stat-label">Balance</div><div class="stat-val">₹'+(w.balance||0).toLocaleString()+'</div></div>'+
+        '<div class="stat-card"><div class="stat-label">Total Earned</div><div class="stat-val">₹'+(w.total_earned||0).toLocaleString()+'</div></div>'+
+        '<div class="stat-card"><div class="stat-label">Pending</div><div class="stat-val">₹'+(w.pending||0).toLocaleString()+'</div></div>';
+      
+      var txns = w.transactions || [];
+      if (!txns.length) {
+        document.getElementById('wallet-txns').innerHTML = '<div class="empty"><div class="empty-icon">💰</div><div class="empty-text">No transactions yet</div></div>';
+        return;
+      }
+      document.getElementById('wallet-txns').innerHTML = '<table class="tbl"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+
+        txns.map(function(t){return '<tr><td>'+(t.date||'—')+'</td><td>'+esc(t.description||t.type||'—')+'</td><td style="color:var(--green);font-weight:600">₹'+(t.amount||0).toLocaleString()+'</td><td><span class="badge '+(t.status||'completed')+'">'+(t.status||'completed')+'</span></td></tr>'}).join('') +
+        '</tbody></table>';
+    })
+    .catch(function(){
+      document.getElementById('wallet-stats').innerHTML='<div class="stat-card"><div class="stat-label">Balance</div><div class="stat-val">₹0</div></div>';
+      document.getElementById('wallet-txns').innerHTML='<div class="empty"><div class="empty-text">Wallet not available</div></div>';
+    });
+}
+
+// ═══ ADD LISTING ═══
+function submitListing() {
+  var listing = {
+    partner_id: session.id,
+    name: document.getElementById('nl-name').value.trim(),
+    type: document.getElementById('nl-type').value,
+    location: document.getElementById('nl-loc').value.trim(),
+    price_per_night: parseInt(document.getElementById('nl-price').value) || 0,
+    max_guests: parseInt(document.getElementById('nl-guests').value) || 4,
+    description: document.getElementById('nl-desc').value.trim(),
+    amenities: document.getElementById('nl-amenities').value.trim(),
+    contact_phone: document.getElementById('nl-phone').value.trim(),
+    contact_email: document.getElementById('nl-email').value.trim()
+  };
+  
+  if (!listing.name) { document.getElementById('nl-status').innerHTML='<span style="color:var(--red)">Please enter a listing name</span>'; return; }
+  if (!listing.location) { document.getElementById('nl-status').innerHTML='<span style="color:var(--red)">Please enter a location</span>'; return; }
+  
+  document.getElementById('nl-status').innerHTML='<span class="spin"></span> Publishing...';
+  
+  fetch(API+'/api/partner/listings', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(listing)
+  })
+  .then(function(r){return r.json()})
+  .then(function(d){
+    if (d.id || d.success) {
+      document.getElementById('nl-status').innerHTML='<span style="color:var(--green)">✓ Listing published successfully!</span>';
+      toast('Listing published!');
+      // Clear form
+      ['nl-name','nl-loc','nl-price','nl-guests','nl-desc','nl-amenities','nl-phone','nl-email'].forEach(function(id){document.getElementById(id).value=''});
+    } else {
+      document.getElementById('nl-status').innerHTML='<span style="color:var(--red)">Error: '+(d.detail||d.message||'Could not save')+'</span>';
+    }
+  })
+  .catch(function(e){document.getElementById('nl-status').innerHTML='<span style="color:var(--red)">Network error. Try again.</span>'});
+}
+
+// ═══ SETTINGS ═══
+function loadSettings() {
+  var f = document.getElementById('settings-form');
+  f.innerHTML =
+    '<div class="fg"><label>Business Name</label><input id="s-bname" value="'+esc(session.business_name||session.name||'')+'"/></div>'+
+    '<div class="fg"><label>Partner ID</label><input value="'+esc(session.id||'')+'" disabled style="opacity:0.5"/></div>'+
+    '<div class="fg"><label>Email</label><input id="s-email" value="'+esc(session.email||session.contact_email||'')+'"/></div>'+
+    '<div class="fg"><label>Phone</label><input id="s-phone" value="'+esc(session.phone||session.contact_phone||'')+'"/></div>'+
+    '<div class="fg"><label>Location</label><input id="s-loc" value="'+esc(session.location||'')+'"/></div>'+
+    '<div class="fg"><label>Category</label><input id="s-cat" value="'+esc(session.category||session.type||'')+'"/></div>'+
+    '<div class="fg full"><label>Description</label><textarea id="s-desc">'+esc(session.description||'')+'</textarea></div>';
+  document.getElementById('settings-actions').style.display = '';
+}
+
+function saveSettings() {
+  toast('Settings saved');
+  document.getElementById('settings-status').innerHTML='<span style="color:var(--green)">✓ Saved</span>';
+}
+
+// ═══ UTILS ═══
+function esc(s) { var d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+function toast(msg) { var t=document.getElementById('toast-el'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){t.classList.remove('show')},2500); }
 </script>
 </body>
 </html>
