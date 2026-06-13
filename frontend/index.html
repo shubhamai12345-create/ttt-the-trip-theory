@@ -5542,13 +5542,7 @@ function enterApp() {
 }
 
 function openPartnerPortal() {
-  document.getElementById('landing-content').style.display = 'none';
-  document.body.style.overflow = 'hidden';
-  var appEl = document.getElementById('app-content');
-  appEl.style.cssText = 'display:flex; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:9000; background:#0A0805; flex-direction:column;';
-  appEl.classList.add('active');
-  try { _tttClose(); } catch(e) {}
-  showView('partner-login');
+  window.location.href = '/partner';
 }
 
 function enterAppAsGuest() {
