@@ -2229,7 +2229,8 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
           <button class="quick-action" onclick="switchTab('search')"><span class="qi">✈️</span> Search Flights</button>
           <button class="quick-action" onclick="switchTab('search'); showHotels()"><span class="qi">🏨</span> Search Hotels</button>
           <button class="quick-action" onclick="switchTab('plan')"><span class="qi">📋</span> Build Itinerary</button>
-          <button class="quick-action" onclick="openModal()"><span class="qi">🤝</span> Assist Now</button>
+          <button class="quick-action" onclick="browseTTTStays()"><span class="qi">🏨</span>Book a TTT Stay</button>
+        <button class="quick-action" onclick="openModal()"><span class="qi">🤝</span> Assist Now</button>
           <button class="quick-action" onclick="goHome()"><span class="qi">🏠</span> Back to Home</button>
         </div>
         <div class="aside-sec">
@@ -4517,7 +4518,47 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
     function connectConcierge() {
       closeModal(); switchTab('chat');
       addMsg('ai','🤝 **Concierge Connected!**\n\nYour dedicated TTT travel manager is ready. Share your trip details:\n- 📍 Where do you want to go?\n- 📅 Your travel dates?\n- 💰 Total budget?\n- 👥 How many people?\n\nI\'ll handle every single booking — flights, hotels, cabs, restaurants, activities, and more! 🎯');
-      msgs.push({role:'assistant',content:'Concierge connected.'});
+      msgs.push({role:'assistant',content:'Concierge connected.'}
+
+    async function browseTTTStays() {
+      addMsg('user', 'Show me available TTT partner stays');
+      addMsg('ai', '🏨 Loading TTT partner properties...');
+      try {
+        const r = await fetch(API + '/api/listings?listing_type=property');
+        const listings = await r.json();
+        const items = Array.isArray(listings) ? listings : (listings.listings || []);
+        if (!items.length) {
+          addMsg('ai', 'No stays available right now. Check back soon!');
+          return;
+        }
+        // Store listings globally for booking
+        window._tttListings = items;
+        window._allListings = items;
+        
+        let cards = '<div style="margin:8px 0">✦ **Available TTT Partner Stays**</div>';
+        items.forEach(function(l) {
+          cards += '<div style="background:rgba(201,150,58,0.06);border:1px solid rgba(201,150,58,0.12);border-radius:10px;padding:14px;margin:8px 0;cursor:pointer" onclick="openBookModal(\'' + l.id + '\')">';
+          cards += '<div style="font-weight:600;font-size:0.9rem;color:#F5EFE0">' + (l.title || l.name || '') + '</div>';
+          cards += '<div style="font-size:0.75rem;color:rgba(245,239,224,0.5);margin:4px 0">📍 ' + (l.location || '') + ' · ' + (l.listing_type || l.type || 'stay') + '</div>';
+          cards += '<div style="font-size:0.78rem;color:rgba(245,239,224,0.6);margin:6px 0">' + (l.description || '').substring(0, 120) + '...</div>';
+          if (l.amenities) cards += '<div style="font-size:0.68rem;color:rgba(201,150,58,0.7);margin:4px 0">✦ ' + (l.amenities || '') + '</div>';
+          cards += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid rgba(201,150,58,0.08)">';
+          cards += '<span style="font-family:Cormorant Garamond,serif;font-size:1.1rem;font-weight:600;color:#C9963A">₹' + (l.price_per_night || l.price || 0).toLocaleString() + '<span style="font-size:0.65rem;color:rgba(245,239,224,0.4)">/night</span></span>';
+          cards += '<span style="background:#C9963A;color:#0A0805;padding:5px 14px;border-radius:5px;font-size:0.72rem;font-weight:600;letter-spacing:0.05em">BOOK NOW →</span>';
+          cards += '</div></div>';
+        });
+        cards += '<div style="font-size:0.72rem;color:rgba(245,239,224,0.35);margin-top:8px">Click any property to book. All TTT partners are verified and quality-checked.</div>';
+        
+        // Remove the loading message and add cards
+        const msgs = document.getElementById('messages');
+        if (msgs.lastChild) msgs.removeChild(msgs.lastChild);
+        addMsg('ai', cards);
+      } catch(e) {
+        addMsg('ai', 'Could not load stays right now. Try the Search or Marketplace tab.');
+      }
+    }
+
+);
     }
 
     function switchTab(name) {
@@ -5536,7 +5577,14 @@ function enterApp() {
   }
   // Trigger app init
   showView('app');
-  try { if (typeof msgs !== 'undefined' && !msgs.length) sendWelcome(); } catch(e) { console.log('sendWelcome error:', e); }
+  try { 
+        if (typeof msgs !== 'undefined' && !msgs.length) sendWelcome();
+        // Pre-load listings for booking
+        fetch(API + '/api/listings').then(r=>r.json()).then(d=>{
+          window._tttListings = Array.isArray(d) ? d : (d.listings || []);
+          window._allListings = window._tttListings;
+        }).catch(function(){});
+      } catch(e) { console.log('sendWelcome error:', e); }
   try { setDates(); loadPf(); } catch(e) {}
   try { checkBackend().then(function(){ loadDests(); }).catch(function(){ loadDests(); }); } catch(e) {}
 }
