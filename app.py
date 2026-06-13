@@ -316,6 +316,19 @@ Be warm and professional. Make them feel like joining TTT is the right decision.
 # Core API Endpoints
 # ─────────────────────────────────────────────
 
+
+@app.get("/partner")
+async def partner_portal():
+    """TTT Partner Portal — MYT-style business management dashboard."""
+    for fp in [
+        os.path.join(frontend_dir, "partner.html"),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend", "partner.html"),
+        os.path.join(os.getcwd(), "frontend", "partner.html"),
+    ]:
+        if os.path.exists(fp):
+            return FileResponse(fp, headers={"Cache-Control": "no-store"})
+    return HTMLResponse("<h2>Partner portal not found</h2>", 404)
+
 @app.get("/app")
 async def app_page():
     """TTT AI Concierge app — served directly without old welcome popup."""
