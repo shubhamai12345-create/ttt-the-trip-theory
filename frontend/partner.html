@@ -1,550 +1,322 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>TTT Partner Portal</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0A0805;--bg2:#110E08;--surface:#151009;--surface2:#1E1710;--gold:#C9963A;--gold-l:#D4A85A;--gold-dim:rgba(201,150,58,0.15);--gold-glow:rgba(201,150,58,0.06);--text:#F5EFE0;--text2:rgba(245,239,224,0.72);--muted:rgba(245,239,224,0.38);--border:rgba(201,150,58,0.10);--border2:rgba(201,150,58,0.18);--green:#34D399;--green-bg:rgba(52,211,153,0.08);--red:#F87171;--red-bg:rgba(248,113,113,0.08);--blue:#60A5FA;--blue-bg:rgba(96,165,250,0.08);--orange:#FBBF24;--font-d:'Cormorant Garamond',serif;--font-b:'DM Sans',sans-serif;--sidebar:240px;--topbar:56px}
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:13.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
-::selection{background:rgba(201,150,58,0.3)}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(201,150,58,0.18);border-radius:3px}
-.shell{display:flex;height:100vh}
-.sidebar{width:var(--sidebar);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.topbar{height:var(--topbar);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
-.content{flex:1;overflow-y:auto;padding:24px}
-.sb-logo{padding:18px 20px;border-bottom:1px solid var(--border)}
-.sb-logo-main{font-family:var(--font-d);font-size:1.4rem;font-weight:600;color:var(--gold)}
-.sb-logo-sub{font-size:0.6rem;color:var(--muted);letter-spacing:0.18em;text-transform:uppercase;margin-top:2px}
-.sb-section{padding:12px 0}
-.sb-label{font-size:0.58rem;color:var(--muted);letter-spacing:0.2em;text-transform:uppercase;padding:0 20px;margin-bottom:6px}
-.sb-item{display:flex;align-items:center;gap:10px;padding:9px 20px;color:var(--text2);cursor:pointer;transition:all 0.15s;font-size:0.82rem;border-left:2px solid transparent}
-.sb-item:hover{background:var(--gold-glow);color:var(--text)}
-.sb-item.active{background:var(--gold-glow);color:var(--gold);border-left-color:var(--gold);font-weight:600}
-.sb-item .icon{font-size:1rem;width:20px;text-align:center}
-.sb-bottom{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
-.sb-user{display:flex;align-items:center;gap:10px}
-.sb-avatar{width:32px;height:32px;border-radius:50%;background:var(--gold);color:var(--bg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0}
-.sb-uname{font-size:0.82rem;font-weight:600;color:var(--text)}
-.sb-urole{font-size:0.65rem;color:var(--muted)}
-.tb-title{font-family:var(--font-d);font-size:1.25rem;font-weight:500;color:var(--text)}.tb-title span{color:var(--gold)}
-.tb-right{display:flex;align-items:center;gap:12px}
-.tb-badge{font-size:0.68rem;padding:4px 10px;border-radius:20px}
-.tb-btn{padding:7px 14px;border:1px solid var(--border2);border-radius:6px;background:transparent;color:var(--text2);font-size:0.72rem;cursor:pointer;font-family:var(--font-b);transition:all 0.2s}
-.tb-btn:hover{border-color:var(--gold);color:var(--gold)}
-.tb-btn.gold{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:600}
-.page{display:none}.page.active{display:block}
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
-.stat-label{font-size:0.65rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:6px}
-.stat-val{font-family:var(--font-d);font-size:1.8rem;font-weight:600;color:var(--text);line-height:1.1}
-.stat-sub{font-size:0.72rem;margin-top:4px}.stat-up{color:var(--green)}.stat-down{color:var(--red)}.stat-neutral{color:var(--muted)}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
-.card-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.card-title{font-family:var(--font-d);font-size:1.1rem;font-weight:500;color:var(--text)}.card-title span{color:var(--gold)}
-.tbl{width:100%;border-collapse:collapse}
-.tbl th{font-size:0.6rem;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;text-align:left;padding:8px 12px;border-bottom:1px solid var(--border)}
-.tbl td{padding:10px 12px;border-bottom:1px solid rgba(201,150,58,0.05);font-size:0.82rem;color:var(--text2);vertical-align:middle}
-.tbl tr:hover td{background:var(--gold-glow)}.tbl .name{font-weight:600;color:var(--text)}
-.badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:0.68rem;font-weight:600}
-.badge.confirmed,.badge.active,.badge.completed{background:var(--green-bg);color:var(--green)}
-.badge.pending{background:rgba(251,191,36,0.1);color:var(--orange)}
-.badge.cancelled{background:var(--red-bg);color:var(--red)}
-.badge.draft{background:rgba(245,239,224,0.06);color:var(--muted)}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.fg{display:flex;flex-direction:column;gap:4px}.fg.full{grid-column:1/-1}
-.fg label{font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase}
-.fg input,.fg select,.fg textarea{padding:10px 12px;background:var(--bg);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-size:0.85rem;font-family:var(--font-b);outline:none}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold)}
-.fg textarea{min-height:80px;resize:vertical}
-.fg input::placeholder,.fg textarea::placeholder{color:var(--muted)}
-.btn{padding:10px 20px;border-radius:7px;font-size:0.75rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:var(--font-b);border:none;transition:all 0.2s}
-.btn-gold{background:var(--gold);color:var(--bg)}.btn-gold:hover{background:var(--gold-l)}
-.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
-.btn-row{display:flex;gap:10px;margin-top:16px}
-.btn-sm{padding:5px 10px;font-size:0.68rem;border-radius:5px}
-.feed-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(201,150,58,0.05)}
-.feed-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
-.feed-dot.booking{background:var(--green)}.feed-dot.inquiry{background:var(--blue)}.feed-dot.review{background:var(--orange)}.feed-dot.payout{background:var(--gold)}
-.feed-text{font-size:0.82rem;color:var(--text2)}.feed-text strong{color:var(--text)}
-.feed-time{font-size:0.68rem;color:var(--muted);margin-top:2px}
-.empty{text-align:center;padding:48px 20px;color:var(--muted)}
-.empty-icon{font-size:2rem;margin-bottom:8px}.empty-text{font-size:0.88rem;margin-bottom:12px}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:100;align-items:center;justify-content:center}
-.modal-overlay.open{display:flex}
-.modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:28px;max-width:560px;width:95%;max-height:85vh;overflow-y:auto;position:relative}
-.modal-title{font-family:var(--font-d);font-size:1.3rem;font-weight:500;color:var(--text);margin-bottom:4px}
-.modal-sub{font-size:0.78rem;color:var(--muted);margin-bottom:20px}
-.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:12px 24px;border-radius:10px;font-size:0.82rem;z-index:999;transition:transform 0.3s;pointer-events:none}
+:root{--bg:#0A0805;--bg2:#110E08;--sf:#151009;--sf2:#1E1710;--gold:#C9963A;--goldL:#D4A85A;--goldDim:rgba(201,150,58,0.15);--goldGlow:rgba(201,150,58,0.06);--txt:#F5EFE0;--txt2:rgba(245,239,224,0.72);--mut:rgba(245,239,224,0.38);--bdr:rgba(201,150,58,0.10);--bdr2:rgba(201,150,58,0.18);--grn:#34D399;--grnBg:rgba(52,211,153,0.08);--red:#F87171;--redBg:rgba(248,113,113,0.08);--blu:#60A5FA;--bluBg:rgba(96,165,250,0.08);--org:#FBBF24;--orgBg:rgba(251,191,36,0.1);--fd:'Cormorant Garamond',serif;--fb:'DM Sans',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--txt);font-family:var(--fb);font-size:13.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(201,150,58,0.3)}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:rgba(201,150,58,0.18);border-radius:3px}
+.shell{display:flex;height:100vh}.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--bdr);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}.topbar{height:52px;background:var(--bg2);border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0}
+.content{flex:1;overflow-y:auto;padding:20px}
+.sbl{padding:14px 16px;border-bottom:1px solid var(--bdr)}.sbl-m{font-family:var(--fd);font-size:1.3rem;font-weight:600;color:var(--gold)}.sbl-s{font-size:0.55rem;color:var(--mut);letter-spacing:0.2em;text-transform:uppercase;margin-top:2px}
+.sbs{padding:8px 0}.sbs-l{font-size:0.55rem;color:var(--mut);letter-spacing:0.2em;text-transform:uppercase;padding:4px 16px}
+.si{display:flex;align-items:center;gap:8px;padding:7px 16px;color:var(--txt2);cursor:pointer;font-size:0.78rem;border-left:2px solid transparent;transition:all 0.12s}
+.si:hover{background:var(--goldGlow);color:var(--txt)}.si.a{background:var(--goldGlow);color:var(--gold);border-left-color:var(--gold);font-weight:600}
+.si i{font-size:0.85rem;width:18px;text-align:center}
+.sb-bot{margin-top:auto;padding:12px 16px;border-top:1px solid var(--bdr);display:flex;align-items:center;gap:8px}
+.sb-av{width:28px;height:28px;border-radius:50%;background:var(--gold);color:var(--bg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.7rem}
+.sb-nm{font-size:0.78rem;font-weight:600;color:var(--txt)}.sb-rl{font-size:0.6rem;color:var(--mut)}
+.tb-t{font-family:var(--fd);font-size:1.15rem;font-weight:500;color:var(--txt)}.tb-t b{color:var(--gold);font-weight:500}
+.tb-r{display:flex;align-items:center;gap:10px}
+.tbtn{padding:6px 12px;border:1px solid var(--bdr2);border-radius:5px;background:transparent;color:var(--txt2);font-size:0.68rem;cursor:pointer;font-family:var(--fb);transition:all 0.15s}
+.tbtn:hover{border-color:var(--gold);color:var(--gold)}.tbtn.g{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:600}
+.pg{display:none}.pg.a{display:block}
+.sr{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.sc{background:var(--sf);border:1px solid var(--bdr);border-radius:8px;padding:14px 16px}
+.sc-l{font-size:0.6rem;color:var(--mut);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px}
+.sc-v{font-family:var(--fd);font-size:1.6rem;font-weight:600;color:var(--txt);line-height:1.1}
+.sc-s{font-size:0.68rem;margin-top:3px}.up{color:var(--grn)}.dn{color:var(--red)}.nt{color:var(--mut)}
+.cd{background:var(--sf);border:1px solid var(--bdr);border-radius:8px;padding:16px;margin-bottom:14px}
+.cd-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.cd-t{font-family:var(--fd);font-size:1rem;font-weight:500;color:var(--txt)}.cd-t b{color:var(--gold);font-weight:500}
+.tbl{width:100%;border-collapse:collapse}.tbl th{font-size:0.58rem;color:var(--mut);letter-spacing:0.12em;text-transform:uppercase;text-align:left;padding:7px 10px;border-bottom:1px solid var(--bdr)}
+.tbl td{padding:8px 10px;border-bottom:1px solid rgba(201,150,58,0.04);font-size:0.78rem;color:var(--txt2)}.tbl tr:hover td{background:var(--goldGlow)}.tbl .nm{font-weight:600;color:var(--txt)}
+.bdg{display:inline-block;padding:2px 8px;border-radius:10px;font-size:0.65rem;font-weight:600}
+.bdg.ok{background:var(--grnBg);color:var(--grn)}.bdg.pn{background:var(--orgBg);color:var(--org)}.bdg.cn{background:var(--redBg);color:var(--red)}.bdg.bl{background:var(--bluBg);color:var(--blu)}.bdg.df{background:rgba(245,239,224,0.05);color:var(--mut)}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}.fgi{display:flex;flex-direction:column;gap:3px}.fgi.fw{grid-column:1/-1}
+.fgi label{font-size:0.6rem;color:var(--mut);letter-spacing:0.1em;text-transform:uppercase}
+.fgi input,.fgi select,.fgi textarea{padding:9px 10px;background:var(--bg);border:1px solid var(--bdr2);border-radius:6px;color:var(--txt);font-size:0.82rem;font-family:var(--fb);outline:none}
+.fgi input:focus,.fgi select:focus,.fgi textarea:focus{border-color:var(--gold)}.fgi textarea{min-height:70px;resize:vertical}
+.fgi input::placeholder,.fgi textarea::placeholder{color:var(--mut)}
+.btn{padding:8px 16px;border-radius:6px;font-size:0.72rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;font-family:var(--fb);border:none;transition:all 0.15s}
+.btn.g{background:var(--gold);color:var(--bg)}.btn.gh{background:transparent;border:1px solid var(--bdr2);color:var(--txt2)}
+.btn.sm{padding:4px 8px;font-size:0.65rem}.br{display:flex;gap:8px;margin-top:14px}
+.ety{text-align:center;padding:36px 16px;color:var(--mut)}.ety-i{font-size:1.6rem;margin-bottom:6px}.ety-t{font-size:0.82rem;margin-bottom:10px}
+.ld{text-align:center;padding:24px;color:var(--mut);font-size:0.82rem}
+.sp{display:inline-block;width:14px;height:14px;border:2px solid var(--bdr);border-top-color:var(--gold);border-radius:50%;animation:sp 0.7s linear infinite;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--sf);border:1px solid var(--bdr2);color:var(--txt);padding:10px 20px;border-radius:8px;font-size:0.78rem;z-index:999;transition:transform 0.3s;pointer-events:none}
 .toast.show{transform:translateX(-50%) translateY(0)}
-.loading{text-align:center;padding:32px;color:var(--muted);font-size:0.85rem}
-.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin-right:8px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.guest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
-.guest-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:border-color 0.2s}
-.guest-card:hover{border-color:var(--gold-dim)}
-.gc-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.gc-av{width:36px;height:36px;border-radius:50%;background:var(--gold-dim);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem}
-.gc-name{font-weight:600;font-size:0.88rem;color:var(--text)}
-.gc-meta{font-size:0.68rem;color:var(--muted)}
-.gc-stats{display:flex;gap:16px;margin-top:8px}
-.gc-stat{font-size:0.72rem;color:var(--text2)}.gc-stat b{color:var(--gold)}
-.review-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
-.rv-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.rv-guest{font-weight:600;font-size:0.88rem;color:var(--text)}
-.rv-stars{color:var(--gold);font-size:0.85rem;letter-spacing:2px}
-.rv-text{font-size:0.82rem;color:var(--text2);line-height:1.6;margin-bottom:8px}
-.rv-meta{font-size:0.68rem;color:var(--muted)}
-.login-screen{display:flex;align-items:center;justify-content:center;height:100vh;background:var(--bg)}
-.login-box{max-width:420px;width:100%;padding:40px 28px}
-.login-logo{font-family:var(--font-d);font-size:2rem;font-weight:300;color:var(--gold);text-align:center;margin-bottom:4px}
-.login-sub{font-size:0.65rem;color:var(--muted);letter-spacing:0.18em;text-transform:uppercase;text-align:center;margin-bottom:32px}
-@media(max-width:768px){.sidebar{display:none}.content{padding:16px}.form-grid{grid-template-columns:1fr}.stats-row{grid-template-columns:1fr 1fr}}
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:100;align-items:center;justify-content:center}.modal-ov.open{display:flex}
+.modal{background:var(--sf);border:1px solid var(--bdr2);border-radius:10px;padding:24px;max-width:520px;width:95%;max-height:80vh;overflow-y:auto;position:relative}
+.modal-t{font-family:var(--fd);font-size:1.2rem;font-weight:500;color:var(--txt);margin-bottom:3px}
+.modal-s{font-size:0.75rem;color:var(--mut);margin-bottom:16px}
+.modal-x{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--mut);font-size:1.1rem;cursor:pointer}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}.cal-h{font-size:0.6rem;color:var(--mut);text-align:center;padding:4px;text-transform:uppercase}
+.cal-d{text-align:center;padding:8px 4px;font-size:0.75rem;border-radius:4px;cursor:pointer;transition:all 0.12s;color:var(--txt2)}
+.cal-d:hover{background:var(--goldGlow)}.cal-d.today{border:1px solid var(--gold);color:var(--gold)}.cal-d.booked{background:var(--grnBg);color:var(--grn)}.cal-d.blocked{background:var(--redBg);color:var(--red)}.cal-d.empty{color:transparent;cursor:default}
+.rv-cd{background:var(--sf);border:1px solid var(--bdr);border-radius:8px;padding:14px;margin-bottom:10px}
+.rv-t{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.rv-n{font-weight:600;font-size:0.85rem;color:var(--txt)}.rv-s{color:var(--gold);font-size:0.82rem;letter-spacing:1px}
+.rv-tx{font-size:0.78rem;color:var(--txt2);line-height:1.6;margin-bottom:6px}.rv-m{font-size:0.65rem;color:var(--mut)}
+.rv-rp{margin-top:8px;padding:8px 10px;background:var(--bg);border-radius:5px;border-left:2px solid var(--gold)}
+.rv-rp-l{font-size:0.6rem;color:var(--gold);margin-bottom:3px}.rv-rp-t{font-size:0.75rem;color:var(--txt2)}
+.day-cd{border-left:2px solid var(--gold);margin-bottom:10px}
+.ntf-i{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid rgba(201,150,58,0.04)}
+.ntf-dot{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0}.ntf-tx{font-size:0.78rem;color:var(--txt2)}.ntf-tx strong{color:var(--txt)}.ntf-tm{font-size:0.65rem;color:var(--mut);margin-top:2px}
+.gc{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.g-cd{background:var(--sf);border:1px solid var(--bdr);border-radius:8px;padding:14px;cursor:pointer;transition:border-color 0.15s}.g-cd:hover{border-color:var(--goldDim)}
+.g-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}.g-av{width:32px;height:32px;border-radius:50%;background:var(--goldDim);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem}
+.g-nm{font-weight:600;font-size:0.82rem;color:var(--txt)}.g-mt{font-size:0.65rem;color:var(--mut)}
+.g-st{display:flex;gap:14px;margin-top:6px;font-size:0.7rem;color:var(--txt2)}.g-st b{color:var(--gold)}
+.msg-bub{margin-bottom:8px;max-width:80%}.msg-bub.out{margin-left:auto}
+.msg-b{padding:10px 12px;border-radius:8px;font-size:0.78rem;line-height:1.5}
+.msg-bub.in .msg-b{background:var(--sf);border:1px solid var(--bdr);color:var(--txt2);border-top-left-radius:2px}
+.msg-bub.out .msg-b{background:rgba(201,150,58,0.1);color:var(--txt);border-top-right-radius:2px}
+.msg-tm{font-size:0.6rem;color:var(--mut);margin-top:2px}
+.login-sc{display:flex;align-items:center;justify-content:center;height:100vh;background:var(--bg)}
+.login-bx{max-width:400px;width:100%;padding:36px 24px}
+.login-lg{font-family:var(--fd);font-size:1.8rem;font-weight:300;color:var(--gold);text-align:center;margin-bottom:3px}
+.login-sb{font-size:0.6rem;color:var(--mut);letter-spacing:0.18em;text-transform:uppercase;text-align:center;margin-bottom:28px}
+@media(max-width:768px){.sidebar{display:none}.content{padding:12px}.fg{grid-template-columns:1fr}.sr{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
+<div id="login-sc" class="login-sc"><div class="login-bx"><div class="login-lg">TTT Partners</div><div class="login-sb">Business Management Portal</div><div class="cd" style="margin:0"><div style="font-size:0.6rem;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px">✦ Partner Access</div><div class="fgi" style="margin-bottom:10px"><label>Partner ID</label><input id="lp-id" placeholder="e.g. partner-a8c788ad"></div><div class="fgi" style="margin-bottom:12px"><label>Access Key</label><input id="lp-key" type="password" placeholder="Leave blank for now"></div><button class="btn g" style="width:100%" onclick="doLogin()">Enter Portal →</button><div id="lp-err" style="color:var(--red);font-size:0.75rem;text-align:center;margin-top:8px"></div><p style="font-size:0.68rem;color:var(--mut);text-align:center;margin-top:10px">New partner? <a href="/" style="color:var(--gold)">Apply on thetriptheory.com</a></p></div></div></div>
 
-<div id="login-screen" class="login-screen">
-  <div class="login-box">
-    <div class="login-logo">TTT Partners</div>
-    <div class="login-sub">Business Management Portal</div>
-    <div class="card" style="margin:0">
-      <div style="font-size:0.65rem;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px">✦ Partner Access</div>
-      <div class="fg" style="margin-bottom:12px">
-        <label>Business Email or Partner ID</label>
-        <input id="lp-email" type="text" placeholder="partner@business.com or ttt-hp-001"/>
-      </div>
-      <div class="fg" style="margin-bottom:14px">
-        <label>Access Key</label>
-        <input id="lp-key" type="password" placeholder="Your partner key"/>
-      </div>
-      <button class="btn btn-gold" style="width:100%" onclick="doLogin()">Enter Portal →</button>
-      <div id="login-err" style="color:var(--red);font-size:0.78rem;text-align:center;margin-top:10px"></div>
-      <p style="font-size:0.72rem;color:var(--muted);text-align:center;margin-top:12px">
-        New partner? <a href="/" style="color:var(--gold)">Apply on thetriptheory.com</a>
-      </p>
-    </div>
-  </div>
-</div>
+<div id="app" class="shell" style="display:none">
+<aside class="sidebar"><div class="sbl"><div class="sbl-m">TTT Partners</div><div class="sbl-s">Business Portal</div></div>
+<div class="sbs"><div class="sbs-l">Overview</div>
+<div class="si a" data-p="dashboard" onclick="nav(this)"><span>📊</span> Dashboard</div>
+<div class="si" data-p="listings" onclick="nav(this)"><span>🏨</span> Listings</div>
+<div class="si" data-p="bookings" onclick="nav(this)"><span>📋</span> Bookings</div>
+<div class="si" data-p="calendar" onclick="nav(this)"><span>📅</span> Calendar</div></div>
+<div class="sbs"><div class="sbs-l">Business</div>
+<div class="si" data-p="guests" onclick="nav(this)"><span>👤</span> Guest CRM</div>
+<div class="si" data-p="wallet" onclick="nav(this)"><span>💰</span> Financials</div>
+<div class="si" data-p="reviews" onclick="nav(this)"><span>⭐</span> Reviews</div>
+<div class="si" data-p="messages" onclick="nav(this)"><span>💬</span> Messages</div></div>
+<div class="sbs"><div class="sbs-l">Tools</div>
+<div class="si" data-p="itinerary" onclick="nav(this)"><span>🗺️</span> Itinerary Builder</div>
+<div class="si" data-p="invoices" onclick="nav(this)"><span>📄</span> Invoices</div>
+<div class="si" data-p="marketing" onclick="nav(this)"><span>📣</span> Marketing</div>
+<div class="si" data-p="pricing" onclick="nav(this)"><span>💎</span> Pricing</div>
+<div class="si" data-p="photos" onclick="nav(this)"><span>📸</span> Gallery</div></div>
+<div class="sbs"><div class="sbs-l">Admin</div>
+<div class="si" data-p="staff" onclick="nav(this)"><span>👥</span> Staff & Roles</div>
+<div class="si" data-p="notifications" onclick="nav(this)"><span>🔔</span> Notifications</div>
+<div class="si" data-p="settings" onclick="nav(this)"><span>⚙️</span> Settings</div></div>
+<div class="sb-bot"><div class="sb-av" id="sb-av">?</div><div><div class="sb-nm" id="sb-nm">Loading...</div><div class="sb-rl" id="sb-rl">Partner</div></div></div>
+</aside>
+<div class="main"><div class="topbar"><div class="tb-t" id="pg-t">📊 <b>Dashboard</b></div><div class="tb-r"><span class="tbtn" style="background:var(--grnBg);color:var(--grn);border-color:var(--grn)">● Live</span><button class="tbtn" onclick="location.href='/'">← TTT</button><button class="tbtn" onclick="logout()">Sign Out</button></div></div>
+<div class="content" id="ct">
 
-<div id="app-shell" class="shell" style="display:none">
-  <aside class="sidebar">
-    <div class="sb-logo"><div class="sb-logo-main">TTT Partners</div><div class="sb-logo-sub">Business Portal</div></div>
-    <div class="sb-section">
-      <div class="sb-label">Overview</div>
-      <div class="sb-item active" data-page="dashboard" onclick="nav(this)"><span class="icon">📊</span>Dashboard</div>
-      <div class="sb-item" data-page="listings" onclick="nav(this)"><span class="icon">🏨</span>My Listings</div>
-      <div class="sb-item" data-page="bookings" onclick="nav(this)"><span class="icon">📋</span>Bookings</div>
-    </div>
-    <div class="sb-section">
-      <div class="sb-label">Business</div>
-      <div class="sb-item" data-page="guests" onclick="nav(this)"><span class="icon">👤</span>Guest CRM</div>
-      <div class="sb-item" data-page="wallet" onclick="nav(this)"><span class="icon">💰</span>Wallet & Payouts</div>
-    </div>
-    <div class="sb-section">
-      <div class="sb-label">Tools</div>
-      <div class="sb-item" data-page="add-listing" onclick="nav(this)"><span class="icon">➕</span>Add Listing</div>
-      <div class="sb-item" data-page="settings" onclick="nav(this)"><span class="icon">⚙️</span>Settings</div>
-    </div>
-    <div class="sb-bottom">
-      <div class="sb-user">
-        <div class="sb-avatar" id="sb-av">?</div>
-        <div><div class="sb-uname" id="sb-name">Loading...</div><div class="sb-urole" id="sb-role">Partner</div></div>
-      </div>
-      <button class="tb-btn" style="width:100%;margin-top:10px;font-size:0.68rem" onclick="logout()">Sign Out</button>
-    </div>
-  </aside>
-  <div class="main">
-    <div class="topbar">
-      <div class="tb-title" id="page-title">📊 <span>Dashboard</span></div>
-      <div class="tb-right">
-        <span class="tb-badge" id="tb-status" style="background:var(--green-bg);color:var(--green)">● Live on TTT</span>
-        <button class="tb-btn" onclick="window.location.href='/'">← TTT Home</button>
-      </div>
-    </div>
-    <div class="content">
+<div class="pg a" id="pg-dashboard"><div class="sr" id="d-stats"><div class="ld"><span class="sp"></span>Loading...</div></div><div style="display:grid;grid-template-columns:2fr 1fr;gap:14px"><div class="cd"><div class="cd-h"><div class="cd-t">Revenue <b>Trend</b></div></div><div style="position:relative;height:180px"><canvas id="rev-chart"></canvas></div></div><div class="cd"><div class="cd-h"><div class="cd-t">Recent <b>Activity</b></div></div><div id="d-activity"><div class="ld"><span class="sp"></span></div></div></div></div><div class="cd"><div class="cd-h"><div class="cd-t">Upcoming <b>Bookings</b></div><button class="tbtn" onclick="navTo('bookings')">View all →</button></div><div id="d-bookings"><div class="ld"><span class="sp"></span></div></div></div></div>
 
-      <!-- DASHBOARD -->
-      <div class="page active" id="pg-dashboard">
-        <div class="stats-row" id="dash-stats"><div class="loading"><span class="spin"></span>Loading dashboard...</div></div>
-        <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px">
-          <div class="card"><div class="card-h"><div class="card-title">My <span>Listings</span></div><button class="tb-btn" onclick="navTo('listings')">View All →</button></div><div id="dash-listings"><div class="loading"><span class="spin"></span>Loading...</div></div></div>
-          <div class="card"><div class="card-h"><div class="card-title">Recent <span>Bookings</span></div></div><div id="dash-bookings"><div class="loading"><span class="spin"></span>Loading...</div></div></div>
-        </div>
-      </div>
+<div class="pg" id="pg-listings"><div class="cd"><div class="cd-h"><div class="cd-t">My <b>Listings</b></div><button class="btn g sm" onclick="navTo('add-listing')">+ Add New</button></div><div id="lst-ct"><div class="ld"><span class="sp"></span>Loading...</div></div></div></div>
+<div class="pg" id="pg-add-listing"><div class="cd"><div class="cd-t" style="margin-bottom:3px">Add New <b>Listing</b></div><p style="font-size:0.72rem;color:var(--mut);margin-bottom:16px">List your property, tour, or experience on TTT</p><div class="fg"><div class="fgi fw"><label>Name</label><input id="nl-n" placeholder="Mountain View Cottage"></div><div class="fgi"><label>Type</label><select id="nl-t"><option value="stay">Stay</option><option value="tour">Tour</option><option value="experience">Experience</option><option value="vehicle">Vehicle</option></select></div><div class="fgi"><label>Location</label><input id="nl-l" placeholder="Tirthan Valley, HP"></div><div class="fgi"><label>Price (₹/night)</label><input id="nl-p" type="number" placeholder="5000"></div><div class="fgi"><label>Max Guests</label><input id="nl-g" type="number" placeholder="4"></div><div class="fgi fw"><label>Description</label><textarea id="nl-d" placeholder="What makes this special..."></textarea></div><div class="fgi fw"><label>Amenities</label><input id="nl-a" placeholder="WiFi, Meals, Bonfire, River Access"></div></div><div class="br"><button class="btn g" onclick="submitListing()">Publish</button><button class="btn gh" onclick="navTo('listings')">Cancel</button></div><div id="nl-st" style="margin-top:10px;font-size:0.78rem"></div></div></div>
 
-      <!-- LISTINGS -->
-      <div class="page" id="pg-listings">
-        <div class="card">
-          <div class="card-h"><div class="card-title">My <span>Listings</span></div><button class="btn btn-gold btn-sm" onclick="navTo('add-listing')">+ Add New</button></div>
-          <div id="listings-content"><div class="loading"><span class="spin"></span>Loading listings...</div></div>
-        </div>
-      </div>
+<div class="pg" id="pg-bookings"><div class="sr" id="bk-stats"></div><div class="cd"><div class="cd-h"><div class="cd-t">All <b>Bookings</b></div></div><div id="bk-ct"><div class="ld"><span class="sp"></span>Loading...</div></div></div></div>
 
-      <!-- BOOKINGS -->
-      <div class="page" id="pg-bookings">
-        <div class="card">
-          <div class="card-h"><div class="card-title">All <span>Bookings</span></div></div>
-          <div id="bookings-content"><div class="loading"><span class="spin"></span>Loading bookings...</div></div>
-        </div>
-      </div>
+<div class="pg" id="pg-calendar"><div class="cd"><div class="cd-h"><div class="cd-t" id="cal-title">📅 <b>June 2026</b></div><div class="tb-r"><button class="tbtn" onclick="calNav(-1)">←</button><button class="tbtn" onclick="calNav(1)">→</button></div></div><div style="display:flex;gap:6px;margin-bottom:12px"><span class="bdg ok">Booked</span><span class="bdg cn">Blocked</span><span class="bdg df">Available</span></div><div class="cal" id="cal-grid"></div></div><div class="cd"><div class="cd-t" style="margin-bottom:10px">Block <b>Dates</b></div><div class="fg"><div class="fgi"><label>From</label><input id="blk-from" type="date"></div><div class="fgi"><label>To</label><input id="blk-to" type="date"></div><div class="fgi"><label>Reason</label><input id="blk-reason" placeholder="Maintenance, personal use..."></div><div class="fgi"><label>Listing</label><select id="blk-listing"><option>All Listings</option></select></div></div><div class="br"><button class="btn g" onclick="blockDates()">Block Dates</button></div></div></div>
 
-      <!-- GUESTS -->
-      <div class="page" id="pg-guests">
-        <div class="card">
-          <div class="card-h"><div class="card-title">Guest <span>Database</span></div></div>
-          <div id="guests-content"><div class="loading"><span class="spin"></span>Loading guests...</div></div>
-        </div>
-      </div>
+<div class="pg" id="pg-guests"><div class="sr" id="g-stats"></div><div class="cd"><div class="cd-h"><div class="cd-t">Guest <b>Database</b></div></div><div id="g-ct"><div class="ld"><span class="sp"></span>Loading...</div></div></div></div>
 
-      <!-- WALLET -->
-      <div class="page" id="pg-wallet">
-        <div class="stats-row" id="wallet-stats"><div class="loading"><span class="spin"></span>Loading wallet...</div></div>
-        <div class="card">
-          <div class="card-h"><div class="card-title">Transaction <span>History</span></div></div>
-          <div id="wallet-txns"><div class="loading"><span class="spin"></span>Loading...</div></div>
-        </div>
-      </div>
+<div class="pg" id="pg-wallet"><div class="sr" id="w-stats"><div class="ld"><span class="sp"></span></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px"><div class="cd"><div class="cd-h"><div class="cd-t">Monthly <b>Revenue</b></div></div><div style="position:relative;height:180px"><canvas id="fin-chart"></canvas></div></div><div class="cd"><div class="cd-h"><div class="cd-t">Revenue by <b>Listing</b></div></div><div id="w-bylist"></div></div></div><div class="cd"><div class="cd-h"><div class="cd-t">Recent <b>Transactions</b></div></div><div id="w-txns"><div class="ld"><span class="sp"></span></div></div></div></div>
 
-      <!-- ADD LISTING -->
-      <div class="page" id="pg-add-listing">
-        <div class="card">
-          <div class="card-title" style="margin-bottom:4px">Add New <span>Listing</span></div>
-          <p style="font-size:0.78rem;color:var(--muted);margin-bottom:20px">List your property, tour, or experience on TTT</p>
-          <div class="form-grid">
-            <div class="fg full"><label>Listing Name</label><input id="nl-name" placeholder="e.g. Mountain View Cottage"/></div>
-            <div class="fg"><label>Type</label><select id="nl-type"><option value="stay">Stay / Property</option><option value="tour">Tour / Safari</option><option value="experience">Experience / Activity</option><option value="vehicle">Vehicle / Transport</option></select></div>
-            <div class="fg"><label>Location</label><input id="nl-loc" placeholder="e.g. Tirthan Valley, HP"/></div>
-            <div class="fg"><label>Price per Night / Person (₹)</label><input id="nl-price" type="number" placeholder="5000"/></div>
-            <div class="fg"><label>Max Guests / Capacity</label><input id="nl-guests" type="number" placeholder="4"/></div>
-            <div class="fg full"><label>Description</label><textarea id="nl-desc" placeholder="Describe what makes your listing special..."></textarea></div>
-            <div class="fg full"><label>Amenities (comma-separated)</label><input id="nl-amenities" placeholder="WiFi, Meals, Bonfire, Trekking, River Access"/></div>
-            <div class="fg"><label>Contact Phone</label><input id="nl-phone" placeholder="+91 98765 43210"/></div>
-            <div class="fg"><label>Contact Email</label><input id="nl-email" placeholder="info@yourbusiness.com"/></div>
-          </div>
-          <div class="btn-row">
-            <button class="btn btn-gold" onclick="submitListing()">Publish Listing</button>
-            <button class="btn btn-ghost" onclick="navTo('dashboard')">Cancel</button>
-          </div>
-          <div id="nl-status" style="margin-top:12px;font-size:0.82rem"></div>
-        </div>
-      </div>
+<div class="pg" id="pg-reviews"><div class="sr" id="rv-stats"></div><div id="rv-list"><div class="ld"><span class="sp"></span>Loading...</div></div></div>
 
-      <!-- SETTINGS -->
-      <div class="page" id="pg-settings">
-        <div class="card">
-          <div class="card-title" style="margin-bottom:4px">Business <span>Profile</span></div>
-          <p style="font-size:0.78rem;color:var(--muted);margin-bottom:20px">Manage your partner account details</p>
-          <div class="form-grid" id="settings-form"><div class="loading"><span class="spin"></span>Loading...</div></div>
-          <div class="btn-row" id="settings-actions" style="display:none">
-            <button class="btn btn-gold" onclick="saveSettings()">Save Changes</button>
-          </div>
-          <div id="settings-status" style="margin-top:12px;font-size:0.82rem"></div>
-        </div>
-      </div>
+<div class="pg" id="pg-messages"><div style="display:grid;grid-template-columns:250px 1fr;gap:14px;height:calc(100vh - 140px)"><div class="cd" style="overflow-y:auto;margin:0"><div class="cd-t" style="margin-bottom:10px">Conversations</div><div id="msg-list"></div></div><div class="cd" style="display:flex;flex-direction:column;margin:0"><div id="msg-header" style="border-bottom:1px solid var(--bdr);padding-bottom:10px;margin-bottom:10px;font-weight:600">Select a conversation</div><div id="msg-thread" style="flex:1;overflow-y:auto;padding:8px 0"></div><div style="display:flex;gap:8px;border-top:1px solid var(--bdr);padding-top:10px"><input id="msg-input" placeholder="Type a message..." style="flex:1;padding:8px 10px;background:var(--bg);border:1px solid var(--bdr2);border-radius:6px;color:var(--txt);font-size:0.82rem;font-family:var(--fb);outline:none"><button class="btn g sm" onclick="sendMsg()">Send</button></div></div></div></div>
 
-    </div>
-  </div>
-</div>
+<div class="pg" id="pg-itinerary"><div class="cd"><div class="cd-h"><div class="cd-t">Itinerary <b>Builder</b></div><button class="btn g sm" onclick="addDay()">+ Add Day</button></div><div class="fg" style="margin-bottom:14px"><div class="fgi"><label>Trip Title</label><input id="it-title" placeholder="5-Day Tirthan Valley Escape"></div><div class="fgi"><label>Destination</label><input id="it-dest" placeholder="Tirthan Valley, HP"></div><div class="fgi"><label>Duration</label><input id="it-dur" placeholder="5 Days / 4 Nights"></div><div class="fgi"><label>Price (₹)</label><input id="it-price" type="number" placeholder="45000"></div></div><div id="it-days"></div><div class="br"><button class="btn g" onclick="saveItinerary()">Save Itinerary</button><button class="btn gh" onclick="exportItineraryPDF()">Export PDF</button><button class="btn gh" onclick="shareItinerary()">Share Link</button></div><div id="it-st" style="margin-top:10px;font-size:0.78rem"></div></div></div>
 
+<div class="pg" id="pg-invoices"><div class="cd"><div class="cd-h"><div class="cd-t">Invoice <b>Generator</b></div></div><div class="fg"><div class="fgi"><label>Guest Name</label><input id="inv-guest" placeholder="Rahul Mehta"></div><div class="fgi"><label>Email</label><input id="inv-email" placeholder="rahul@gmail.com"></div><div class="fgi"><label>Booking Ref</label><input id="inv-ref" placeholder="BK-2601"></div><div class="fgi"><label>Invoice Date</label><input id="inv-date" type="date"></div><div class="fgi"><label>Service</label><input id="inv-svc" placeholder="3 Nights — Usha River Side Resort"></div><div class="fgi"><label>Amount (₹)</label><input id="inv-amt" type="number" placeholder="15000"></div><div class="fgi"><label>Tax (%)</label><input id="inv-tax" type="number" value="18" placeholder="18"></div><div class="fgi"><label>Status</label><select id="inv-status"><option>Paid</option><option>Pending</option><option>Overdue</option></select></div></div><div class="br"><button class="btn g" onclick="generateInvoice()">Generate Invoice</button><button class="btn gh" onclick="downloadInvoice()">Download PDF</button></div></div><div id="inv-preview" style="margin-top:14px"></div><div class="cd" style="margin-top:14px"><div class="cd-t" style="margin-bottom:10px">Saved <b>Invoices</b></div><div id="inv-list"><div class="ety"><div class="ety-i">📄</div><div class="ety-t">No invoices yet. Generate one above.</div></div></div></div></div>
+
+<div class="pg" id="pg-marketing"><div class="sr"><div class="sc"><div class="sc-l">Profile Views</div><div class="sc-v">0</div><div class="sc-s nt">This month</div></div><div class="sc"><div class="sc-l">Inquiry Rate</div><div class="sc-v">0%</div></div><div class="sc"><div class="sc-l">Conversion</div><div class="sc-v">0%</div></div><div class="sc"><div class="sc-l">Campaigns Sent</div><div class="sc-v" id="mk-count">0</div></div></div><div class="cd"><div class="cd-t" style="margin-bottom:3px">Create <b>Campaign</b></div><p style="font-size:0.72rem;color:var(--mut);margin-bottom:14px">Reach your past guests with targeted messages</p><div class="fg"><div class="fgi"><label>Campaign Name</label><input id="mk-name" placeholder="Summer Special 2026"></div><div class="fgi"><label>Channel</label><select id="mk-ch"><option>WhatsApp Broadcast</option><option>Email Campaign</option><option>SMS Blast</option><option>Instagram Story</option></select></div><div class="fgi"><label>Audience</label><select id="mk-aud"><option>All Past Guests</option><option>VIP Guests (3+ trips)</option><option>Recent (last 3 months)</option><option>International Guests</option></select></div><div class="fgi"><label>Schedule</label><select id="mk-sch"><option>Send Now</option><option>Schedule for Later</option></select></div><div class="fgi fw"><label>Message</label><textarea id="mk-msg" placeholder="🌴 Exclusive summer offer! Book now at 20% off..."></textarea></div></div><div class="br"><button class="btn g" onclick="sendCampaign()">Send Campaign</button></div><div id="mk-st" style="margin-top:10px;font-size:0.78rem"></div></div></div>
+
+<div class="pg" id="pg-pricing"><div class="cd"><div class="cd-t" style="margin-bottom:3px">Pricing & <b>Packages</b></div><p style="font-size:0.72rem;color:var(--mut);margin-bottom:14px">Set dynamic pricing and create bundle packages</p><div id="pr-listings"></div></div><div class="cd"><div class="cd-t" style="margin-bottom:10px">Create <b>Package</b></div><div class="fg"><div class="fgi"><label>Package Name</label><input id="pk-name" placeholder="Honeymoon Retreat — 3N/4D"></div><div class="fgi"><label>Valid Until</label><input id="pk-until" type="date"></div><div class="fgi"><label>Original Price (₹)</label><input id="pk-orig" type="number" placeholder="25000"></div><div class="fgi"><label>Package Price (₹)</label><input id="pk-price" type="number" placeholder="19999"></div><div class="fgi fw"><label>Includes</label><textarea id="pk-inc" placeholder="3 Nights stay + All meals + 1 Trek + River picnic + Bonfire"></textarea></div></div><div class="br"><button class="btn g" onclick="savePackage()">Save Package</button></div><div id="pk-st" style="margin-top:10px;font-size:0.78rem"></div></div><div class="cd"><div class="cd-t" style="margin-bottom:10px">Saved <b>Packages</b></div><div id="pk-list"><div class="ety"><div class="ety-i">💎</div><div class="ety-t">No packages yet</div></div></div></div></div>
+
+<div class="pg" id="pg-photos"><div class="cd"><div class="cd-h"><div class="cd-t">Photo <b>Gallery</b></div><button class="btn g sm" onclick="document.getElementById('photo-upload').click()">Upload Photos</button><input type="file" id="photo-upload" multiple accept="image/*" style="display:none" onchange="handlePhotoUpload(event)"></div><p style="font-size:0.72rem;color:var(--mut);margin-bottom:14px">Manage photos for your listings. High-quality photos increase bookings by up to 40%.</p><div id="photo-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px"><div class="ety" style="grid-column:1/-1"><div class="ety-i">📸</div><div class="ety-t">No photos uploaded yet. Click "Upload Photos" to add images.</div></div></div></div></div>
+
+<div class="pg" id="pg-staff"><div class="cd"><div class="cd-h"><div class="cd-t">Team <b>Members</b></div><button class="btn g sm" onclick="openStaffModal()">+ Add Member</button></div><div id="staff-list"></div></div><div class="cd"><div class="cd-t" style="margin-bottom:10px">Roles & <b>Permissions</b></div><table class="tbl"><thead><tr><th>Role</th><th>Listings</th><th>Bookings</th><th>Financials</th><th>Settings</th></tr></thead><tbody><tr><td class="nm">Owner</td><td>Full</td><td>Full</td><td>Full</td><td>Full</td></tr><tr><td class="nm">Manager</td><td>Edit</td><td>Full</td><td>View</td><td>None</td></tr><tr><td class="nm">Staff</td><td>View</td><td>View</td><td>None</td><td>None</td></tr></tbody></table></div></div>
+
+<div class="pg" id="pg-notifications"><div class="cd"><div class="cd-h"><div class="cd-t">Notification <b>Center</b></div><button class="tbtn" onclick="clearNotifs()">Mark all read</button></div><div id="ntf-list"></div></div></div>
+
+<div class="pg" id="pg-settings"><div class="cd"><div class="cd-t" style="margin-bottom:3px">Business <b>Profile</b></div><p style="font-size:0.72rem;color:var(--mut);margin-bottom:14px">Manage your partner account</p><div class="fg" id="set-form"><div class="ld"><span class="sp"></span></div></div><div class="br" id="set-act" style="display:none"><button class="btn g" onclick="saveSettings()">Save Changes</button></div></div></div>
+
+</div></div></div>
 <div id="toast-el" class="toast"></div>
+<div class="modal-ov" id="staff-modal"><div class="modal"><button class="modal-x" onclick="closeStaffModal()">&times;</button><div class="modal-t">Add Team Member</div><div class="modal-s">Invite someone to help manage your business</div><div class="fg"><div class="fgi"><label>Full Name</label><input id="stf-name" placeholder="Amit Kumar"></div><div class="fgi"><label>Email</label><input id="stf-email" placeholder="amit@business.com"></div><div class="fgi"><label>Phone</label><input id="stf-phone" placeholder="+91 98765 43210"></div><div class="fgi"><label>Role</label><select id="stf-role"><option>Manager</option><option>Staff</option></select></div></div><div class="br"><button class="btn g" onclick="addStaff()">Send Invite</button></div></div></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-var API = window.location.hostname === 'localhost' ? 'http://localhost:8000' : '';
-var session = null; // { partner_id, name, business_name, email, ... }
+var API='',S=null,D={listings:[],bookings:[],invoices:[],packages:[],staff:[],photos:[],notifications:[],blocked:[],itineraries:[],campaigns:[],messages:{}};
+var calMonth=5,calYear=2026;
 
-// ═══ AUTH ═══
-function doLogin() {
-  var id = document.getElementById('lp-email').value.trim();
-  var key = document.getElementById('lp-key').value.trim();
-  document.getElementById('login-err').textContent = '';
-  
-  if (!id) { document.getElementById('login-err').textContent = 'Please enter your Partner ID or email'; return; }
-  
-  // Try to fetch partner by ID
-  fetch(API + '/api/partner/' + encodeURIComponent(id))
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      if (d && d.id) {
-        session = d;
-        localStorage.setItem('ttt_partner_session', JSON.stringify(d));
-        enterPortal();
-      } else {
-        document.getElementById('login-err').textContent = 'Partner not found. Check your ID.';
-      }
-    })
-    .catch(function() {
-      document.getElementById('login-err').textContent = 'Could not connect. Try again.';
-    });
-}
+function doLogin(){var id=document.getElementById('lp-id').value.trim();if(!id){document.getElementById('lp-err').textContent='Enter your Partner ID';return}
+fetch(API+'/api/partner/'+encodeURIComponent(id)).then(r=>r.json()).then(d=>{if(d&&d.id){S=d;localStorage.setItem('ttt_ps',JSON.stringify(d));enter()}else document.getElementById('lp-err').textContent='Partner not found'}).catch(()=>document.getElementById('lp-err').textContent='Connection error')}
 
-function enterPortal() {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app-shell').style.display = 'flex';
-  document.getElementById('sb-name').textContent = session.business_name || session.name || 'Partner';
-  document.getElementById('sb-av').textContent = (session.business_name || session.name || '?')[0].toUpperCase();
-  document.getElementById('sb-role').textContent = session.id || 'Partner';
-  loadDashboard();
-}
+function enter(){document.getElementById('login-sc').style.display='none';document.getElementById('app').style.display='flex';document.getElementById('sb-nm').textContent=S.business_name||S.name||'Partner';document.getElementById('sb-av').textContent=(S.business_name||S.name||'?')[0].toUpperCase();document.getElementById('sb-rl').textContent=S.id;loadSaved();loadDash()}
 
-function logout() {
-  localStorage.removeItem('ttt_partner_session');
-  session = null;
-  window.location.reload();
-}
+function logout(){localStorage.removeItem('ttt_ps');location.reload()}
+(function(){var s=localStorage.getItem('ttt_ps');if(s)try{S=JSON.parse(s);enter()}catch(e){localStorage.removeItem('ttt_ps')}})();
 
-// Auto-login from saved session
-(function() {
-  var saved = localStorage.getItem('ttt_partner_session');
-  if (saved) {
-    try { session = JSON.parse(saved); enterPortal(); } catch(e) { localStorage.removeItem('ttt_partner_session'); }
-  }
-})();
+var titles={dashboard:'📊 <b>Dashboard</b>',listings:'🏨 <b>Listings</b>','add-listing':'➕ <b>Add Listing</b>',bookings:'📋 <b>Bookings</b>',calendar:'📅 <b>Calendar</b>',guests:'👤 <b>Guest CRM</b>',wallet:'💰 <b>Financials</b>',reviews:'⭐ <b>Reviews</b>',messages:'💬 <b>Messages</b>',itinerary:'🗺️ <b>Itinerary</b>',invoices:'📄 <b>Invoices</b>',marketing:'📣 <b>Marketing</b>',pricing:'💎 <b>Pricing</b>',photos:'📸 <b>Gallery</b>',staff:'👥 <b>Staff</b>',notifications:'🔔 <b>Notifications</b>',settings:'⚙️ <b>Settings</b>'};
 
-// ═══ NAV ═══
-var titles = {dashboard:'📊 <span>Dashboard</span>',listings:'🏨 <span>Listings</span>',bookings:'📋 <span>Bookings</span>',guests:'👤 <span>Guests</span>',wallet:'💰 <span>Wallet</span>','add-listing':'➕ <span>Add Listing</span>',settings:'⚙️ <span>Settings</span>'};
+function nav(el){var p=el.getAttribute('data-p');document.querySelectorAll('.pg').forEach(x=>x.classList.remove('a'));document.querySelectorAll('.si').forEach(x=>x.classList.remove('a'));var pg=document.getElementById('pg-'+p);if(pg)pg.classList.add('a');el.classList.add('a');document.getElementById('pg-t').innerHTML=titles[p]||p;
+if(p==='listings')loadListings();else if(p==='bookings')loadBookings();else if(p==='guests')loadGuests();else if(p==='wallet')loadWallet();else if(p==='calendar')renderCal();else if(p==='reviews')renderReviews();else if(p==='messages')renderMessages();else if(p==='notifications')renderNotifs();else if(p==='staff')renderStaff();else if(p==='settings')loadSettings();else if(p==='pricing')renderPricing();else if(p==='invoices')renderInvoices();else if(p==='photos')renderPhotos()}
+function navTo(p){var el=document.querySelector('.si[data-p="'+p+'"]');if(el)nav(el);else{document.querySelectorAll('.pg').forEach(x=>x.classList.remove('a'));var pg=document.getElementById('pg-'+p);if(pg)pg.classList.add('a');document.getElementById('pg-t').innerHTML=titles[p]||p}}
 
-function nav(el) {
-  var page = el.getAttribute('data-page');
-  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
-  document.querySelectorAll('.sb-item').forEach(function(i){i.classList.remove('active')});
-  document.getElementById('pg-'+page).classList.add('active');
-  el.classList.add('active');
-  document.getElementById('page-title').innerHTML = titles[page] || page;
-  // Load data for the page
-  if (page==='listings') loadListings();
-  else if (page==='bookings') loadBookings();
-  else if (page==='guests') loadGuests();
-  else if (page==='wallet') loadWallet();
-  else if (page==='settings') loadSettings();
-}
-
-function navTo(page) {
-  var el = document.querySelector('.sb-item[data-page="'+page+'"]');
-  if (el) nav(el);
-}
+function loadSaved(){try{var d=localStorage.getItem('ttt_pd_'+S.id);if(d)D=Object.assign(D,JSON.parse(d))}catch(e){}}
+function saveLocal(){try{localStorage.setItem('ttt_pd_'+S.id,JSON.stringify(D))}catch(e){}}
+function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+function toast(m){var t=document.getElementById('toast-el');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+function addNotif(msg){D.notifications.unshift({text:msg,time:new Date().toLocaleString(),read:false});saveLocal()}
 
 // ═══ DASHBOARD ═══
-function loadDashboard() {
-  loadDashListings();
-  loadDashBookings();
-  loadDashStats();
-}
+function loadDash(){Promise.all([fetch(API+'/api/partner/'+S.id+'/listings').then(r=>r.json()).catch(()=>[]),fetch(API+'/api/partner/'+S.id+'/bookings').then(r=>r.json()).catch(()=>[]),fetch(API+'/api/partner/wallet/'+S.id).then(r=>r.json()).catch(()=>({}))]).then(([l,b,w])=>{
+D.listings=Array.isArray(l)?l:(l?.listings||[]);D.bookings=Array.isArray(b)?b:(b?.bookings||[]);
+var pn=D.bookings.filter(x=>x.status==='pending').length,rev=w.total_earned||D.bookings.reduce((s,x)=>s+(x.amount||0),0);
+document.getElementById('d-stats').innerHTML='<div class="sc"><div class="sc-l">Listings</div><div class="sc-v">'+D.listings.length+'</div></div><div class="sc"><div class="sc-l">Bookings</div><div class="sc-v">'+D.bookings.length+'</div></div><div class="sc"><div class="sc-l">Pending</div><div class="sc-v" style="color:var(--org)">'+pn+'</div></div><div class="sc"><div class="sc-l">Revenue</div><div class="sc-v">₹'+(rev||0).toLocaleString()+'</div></div>';
+renderDashBookings();renderActivity();renderCharts()})}
 
-function loadDashStats() {
-  Promise.all([
-    fetch(API+'/api/partner/'+session.id+'/listings').then(r=>r.json()).catch(()=>[]),
-    fetch(API+'/api/partner/'+session.id+'/bookings').then(r=>r.json()).catch(()=>[]),
-    fetch(API+'/api/partner/wallet/'+session.id).then(r=>r.json()).catch(()=>({}))
-  ]).then(function(results) {
-    var listings = Array.isArray(results[0]) ? results[0] : (results[0]?.listings || []);
-    var bookings = Array.isArray(results[1]) ? results[1] : (results[1]?.bookings || []);
-    var wallet = results[2] || {};
-    
-    var totalBookings = bookings.length;
-    var pendingBookings = bookings.filter(function(b){return b.status==='pending'}).length;
-    var revenue = wallet.total_earned || bookings.reduce(function(sum,b){return sum+(b.amount||0)},0);
-    
-    document.getElementById('dash-stats').innerHTML = 
-      '<div class="stat-card"><div class="stat-label">Active Listings</div><div class="stat-val">'+listings.length+'</div></div>'+
-      '<div class="stat-card"><div class="stat-label">Total Bookings</div><div class="stat-val">'+totalBookings+'</div></div>'+
-      '<div class="stat-card"><div class="stat-label">Pending</div><div class="stat-val" style="color:var(--orange)">'+pendingBookings+'</div></div>'+
-      '<div class="stat-card"><div class="stat-label">Revenue</div><div class="stat-val">₹'+(revenue||0).toLocaleString()+'</div></div>';
-  });
-}
+function renderDashBookings(){var bk=D.bookings.slice(0,5);if(!bk.length){document.getElementById('d-bookings').innerHTML='<div class="ety"><div class="ety-t">No bookings yet</div></div>';return}
+document.getElementById('d-bookings').innerHTML='<table class="tbl"><thead><tr><th>Guest</th><th>Listing</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+bk.map(b=>'<tr><td class="nm">'+esc(b.guest_name||b.user_name||'Guest')+'</td><td>'+esc(b.listing_name||'-')+'</td><td>₹'+(b.amount||0).toLocaleString()+'</td><td><span class="bdg '+(b.status==='confirmed'?'ok':b.status==='pending'?'pn':'bl')+'">'+(b.status||'pending')+'</span></td></tr>').join('')+'</tbody></table>'}
 
-function loadDashListings() {
-  fetch(API+'/api/partner/'+session.id+'/listings')
-    .then(function(r){return r.json()})
-    .then(function(data) {
-      var listings = Array.isArray(data) ? data : (data?.listings || []);
-      if (!listings.length) {
-        document.getElementById('dash-listings').innerHTML = '<div class="empty"><div class="empty-icon">🏨</div><div class="empty-text">No listings yet</div><button class="btn btn-gold btn-sm" onclick="navTo(\'add-listing\')">Add Your First Listing</button></div>';
-        return;
-      }
-      document.getElementById('dash-listings').innerHTML = '<table class="tbl"><thead><tr><th>Name</th><th>Type</th><th>Price</th><th>Status</th></tr></thead><tbody>'+
-        listings.map(function(l){return '<tr><td class="name">'+esc(l.name||l.title||'—')+'</td><td>'+(l.type||'stay')+'</td><td>₹'+(l.price_per_night||l.price||0).toLocaleString()+'</td><td><span class="badge active">active</span></td></tr>'}).join('')+
-        '</tbody></table>';
-    })
-    .catch(function(){document.getElementById('dash-listings').innerHTML='<div class="empty"><div class="empty-text">Could not load listings</div></div>'});
-}
+function renderActivity(){var items=D.bookings.slice(0,6).map(b=>({text:'<strong>'+esc(b.guest_name||'Guest')+'</strong> — '+esc(b.listing_name||'Booking')+' · ₹'+(b.amount||0).toLocaleString(),type:'booking'}));
+if(!items.length)items=[{text:'No activity yet. Your bookings and events will appear here.',type:'info'}];
+document.getElementById('d-activity').innerHTML=items.map(a=>'<div class="ntf-i"><div class="ntf-dot" style="background:var(--grn)"></div><div><div class="ntf-tx">'+a.text+'</div></div></div>').join('')}
 
-function loadDashBookings() {
-  fetch(API+'/api/partner/'+session.id+'/bookings')
-    .then(function(r){return r.json()})
-    .then(function(data) {
-      var bookings = Array.isArray(data) ? data : (data?.bookings || []);
-      if (!bookings.length) {
-        document.getElementById('dash-bookings').innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No bookings yet</div></div>';
-        return;
-      }
-      document.getElementById('dash-bookings').innerHTML = bookings.slice(0,5).map(function(b){
-        return '<div class="feed-item"><div class="feed-dot booking"></div><div><div class="feed-text"><strong>'+esc(b.guest_name||b.user_name||'Guest')+'</strong> — '+esc(b.listing_name||'Booking')+'</div><div class="feed-time">'+(b.check_in||b.date||'—')+' · ₹'+(b.amount||0).toLocaleString()+' · <span class="badge '+(b.status||'pending')+'">'+(b.status||'pending')+'</span></div></div></div>';
-      }).join('');
-    })
-    .catch(function(){document.getElementById('dash-bookings').innerHTML='<div class="empty"><div class="empty-text">Could not load bookings</div></div>'});
-}
+function renderCharts(){if(typeof Chart==='undefined')return;var ctx1=document.getElementById('rev-chart');if(!ctx1)return;
+var months=['Jan','Feb','Mar','Apr','May','Jun'];var vals=D.bookings.length?months.map((_,i)=>D.bookings.filter(b=>{var d=new Date(b.check_in||b.date||'');return d.getMonth()===i}).reduce((s,b)=>s+(b.amount||0),0)):[0,0,0,0,0,0];
+new Chart(ctx1,{type:'bar',data:{labels:months,datasets:[{label:'Revenue',data:vals,backgroundColor:'#C9963A',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#888'},grid:{display:false}},y:{ticks:{color:'#888',callback:v=>'₹'+Math.round(v/1000)+'K'},grid:{color:'rgba(201,150,58,0.08)'}}}}});
+var ctx2=document.getElementById('fin-chart');if(ctx2)new Chart(ctx2,{type:'line',data:{labels:months,datasets:[{label:'Revenue',data:vals,borderColor:'#C9963A',backgroundColor:'rgba(201,150,58,0.1)',fill:true,tension:0.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#888'},grid:{display:false}},y:{ticks:{color:'#888'},grid:{color:'rgba(201,150,58,0.08)'}}}}})}
 
 // ═══ LISTINGS ═══
-function loadListings() {
-  fetch(API+'/api/partner/'+session.id+'/listings')
-    .then(function(r){return r.json()})
-    .then(function(data) {
-      var listings = Array.isArray(data) ? data : (data?.listings || []);
-      if (!listings.length) {
-        document.getElementById('listings-content').innerHTML = '<div class="empty"><div class="empty-icon">🏨</div><div class="empty-text">You haven\'t added any listings yet</div><button class="btn btn-gold btn-sm" onclick="navTo(\'add-listing\')">Add Your First Listing</button></div>';
-        return;
-      }
-      document.getElementById('listings-content').innerHTML = '<table class="tbl"><thead><tr><th>Name</th><th>Type</th><th>Location</th><th>Price</th><th>Capacity</th><th>Status</th></tr></thead><tbody>'+
-        listings.map(function(l){
-          return '<tr><td class="name">'+esc(l.name||l.title||'')+'</td><td>'+(l.type||'stay')+'</td><td>'+esc(l.location||'—')+'</td><td>₹'+(l.price_per_night||l.price||0).toLocaleString()+'</td><td>'+(l.max_guests||l.capacity||'—')+'</td><td><span class="badge active">active</span></td></tr>';
-        }).join('')+'</tbody></table>';
-    })
-    .catch(function(){document.getElementById('listings-content').innerHTML='<div class="empty"><div class="empty-text">Error loading listings</div></div>'});
-}
+function loadListings(){fetch(API+'/api/partner/'+S.id+'/listings').then(r=>r.json()).then(d=>{D.listings=Array.isArray(d)?d:(d?.listings||[]);
+if(!D.listings.length){document.getElementById('lst-ct').innerHTML='<div class="ety"><div class="ety-i">🏨</div><div class="ety-t">No listings yet</div><button class="btn g sm" onclick="navTo(\'add-listing\')">Add Your First</button></div>';return}
+document.getElementById('lst-ct').innerHTML='<table class="tbl"><thead><tr><th>Name</th><th>Type</th><th>Location</th><th>Price</th><th>Status</th></tr></thead><tbody>'+D.listings.map(l=>'<tr><td class="nm">'+esc(l.name||l.title||'')+'</td><td>'+(l.type||'stay')+'</td><td>'+esc(l.location||'-')+'</td><td>₹'+(l.price_per_night||l.price||0).toLocaleString()+'</td><td><span class="bdg ok">active</span></td></tr>').join('')+'</tbody></table>'}).catch(()=>document.getElementById('lst-ct').innerHTML='<div class="ety"><div class="ety-t">Error loading</div></div>')}
+
+function submitListing(){var o={partner_id:S.id,name:document.getElementById('nl-n').value.trim(),type:document.getElementById('nl-t').value,location:document.getElementById('nl-l').value.trim(),price_per_night:parseInt(document.getElementById('nl-p').value)||0,max_guests:parseInt(document.getElementById('nl-g').value)||4,description:document.getElementById('nl-d').value.trim(),amenities:document.getElementById('nl-a').value.trim()};
+if(!o.name){document.getElementById('nl-st').innerHTML='<span style="color:var(--red)">Name required</span>';return}
+document.getElementById('nl-st').innerHTML='<span class="sp"></span>Publishing...';
+fetch(API+'/api/partner/listings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o)}).then(r=>r.json()).then(d=>{if(d.id||d.success){document.getElementById('nl-st').innerHTML='<span style="color:var(--grn)">✓ Published!</span>';toast('Listing published');addNotif('New listing "'+o.name+'" published');['nl-n','nl-l','nl-p','nl-g','nl-d','nl-a'].forEach(x=>document.getElementById(x).value='')}else document.getElementById('nl-st').innerHTML='<span style="color:var(--red)">Error: '+(d.detail||'Failed')+'</span>'}).catch(()=>document.getElementById('nl-st').innerHTML='<span style="color:var(--red)">Network error</span>')}
 
 // ═══ BOOKINGS ═══
-function loadBookings() {
-  fetch(API+'/api/partner/'+session.id+'/bookings')
-    .then(function(r){return r.json()})
-    .then(function(data) {
-      var bookings = Array.isArray(data) ? data : (data?.bookings || []);
-      if (!bookings.length) {
-        document.getElementById('bookings-content').innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No bookings yet. They\'ll appear here when guests book your listings.</div></div>';
-        return;
-      }
-      document.getElementById('bookings-content').innerHTML = '<table class="tbl"><thead><tr><th>Booking</th><th>Guest</th><th>Listing</th><th>Date</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody>'+
-        bookings.map(function(b){
-          var action = b.status==='pending' ? '<button class="btn btn-gold btn-sm" onclick="confirmBooking(\''+b.id+'\',this)">Confirm</button>' : '—';
-          return '<tr><td class="name">'+(b.id||'—')+'</td><td>'+esc(b.guest_name||b.user_name||'Guest')+'</td><td>'+esc(b.listing_name||'—')+'</td><td>'+(b.check_in||b.date||'—')+'</td><td>₹'+(b.amount||0).toLocaleString()+'</td><td><span class="badge '+(b.status||'pending')+'">'+(b.status||'pending')+'</span></td><td>'+action+'</td></tr>';
-        }).join('')+'</tbody></table>';
-    })
-    .catch(function(){document.getElementById('bookings-content').innerHTML='<div class="empty"><div class="empty-text">Error loading bookings</div></div>'});
-}
+function loadBookings(){fetch(API+'/api/partner/'+S.id+'/bookings').then(r=>r.json()).then(d=>{D.bookings=Array.isArray(d)?d:(d?.bookings||[]);var pn=D.bookings.filter(x=>x.status==='pending').length,cf=D.bookings.filter(x=>x.status==='confirmed').length,cp=D.bookings.filter(x=>x.status==='completed').length;
+document.getElementById('bk-stats').innerHTML='<div class="sc"><div class="sc-l">Pending</div><div class="sc-v" style="color:var(--org)">'+pn+'</div></div><div class="sc"><div class="sc-l">Confirmed</div><div class="sc-v" style="color:var(--grn)">'+cf+'</div></div><div class="sc"><div class="sc-l">Completed</div><div class="sc-v" style="color:var(--blu)">'+cp+'</div></div><div class="sc"><div class="sc-l">Total</div><div class="sc-v">'+D.bookings.length+'</div></div>';
+if(!D.bookings.length){document.getElementById('bk-ct').innerHTML='<div class="ety"><div class="ety-i">📋</div><div class="ety-t">No bookings yet</div></div>';return}
+document.getElementById('bk-ct').innerHTML='<table class="tbl"><thead><tr><th>Guest</th><th>Listing</th><th>Date</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody>'+D.bookings.map(b=>{var act=b.status==='pending'?'<button class="btn g sm" onclick="confirmBk(\''+b.id+'\',this)">Confirm</button>':'—';return'<tr><td class="nm">'+esc(b.guest_name||b.user_name||'Guest')+'</td><td>'+esc(b.listing_name||'-')+'</td><td>'+(b.check_in||b.date||'-')+'</td><td>₹'+(b.amount||0).toLocaleString()+'</td><td><span class="bdg '+(b.status==='confirmed'?'ok':b.status==='pending'?'pn':b.status==='cancelled'?'cn':'bl')+'">'+(b.status||'pending')+'</span></td><td>'+act+'</td></tr>'}).join('')+'</tbody></table>'}).catch(()=>document.getElementById('bk-ct').innerHTML='<div class="ety"><div class="ety-t">Error loading</div></div>')}
+function confirmBk(id,btn){btn.disabled=true;btn.textContent='...';fetch(API+'/api/partner/bookings/'+id+'/read',{method:'PUT',headers:{'Content-Type':'application/json'}}).then(()=>{btn.textContent='✓';btn.style.background='var(--grn)';toast('Confirmed');addNotif('Booking '+id+' confirmed')}).catch(()=>{btn.textContent='Error';btn.disabled=false})}
 
-function confirmBooking(id, btn) {
-  btn.disabled = true; btn.textContent = '...';
-  fetch(API+'/api/partner/bookings/'+id+'/read', {method:'PUT',headers:{'Content-Type':'application/json'}})
-    .then(function(){btn.textContent='✓ Done'; btn.style.background='var(--green)'; toast('Booking confirmed');})
-    .catch(function(){btn.textContent='Error'; btn.disabled=false;});
-}
+// ═══ CALENDAR ═══
+function renderCal(){var d=new Date(calYear,calMonth,1),dow=d.getDay(),dim=new Date(calYear,calMonth+1,0).getDate();
+document.getElementById('cal-title').innerHTML='📅 <b>'+d.toLocaleString('en',{month:'long'})+' '+calYear+'</b>';
+var h='<div class="cal-h">Sun</div><div class="cal-h">Mon</div><div class="cal-h">Tue</div><div class="cal-h">Wed</div><div class="cal-h">Thu</div><div class="cal-h">Fri</div><div class="cal-h">Sat</div>';
+for(var i=0;i<dow;i++)h+='<div class="cal-d empty">.</div>';
+var today=new Date();
+for(var day=1;day<=dim;day++){var dt=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+var cls='cal-d';if(day===today.getDate()&&calMonth===today.getMonth()&&calYear===today.getFullYear())cls+=' today';
+var isBooked=D.bookings.some(b=>{var ci=b.check_in||b.date||'';return ci===dt});if(isBooked)cls+=' booked';
+var isBlocked=D.blocked.some(b=>dt>=b.from&&dt<=b.to);if(isBlocked)cls+=' blocked';
+h+='<div class="'+cls+'" data-dt="'+dt+'">'+day+'</div>'}
+document.getElementById('cal-grid').innerHTML=h}
+function calNav(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++}if(calMonth<0){calMonth=11;calYear--}renderCal()}
+function blockDates(){var f=document.getElementById('blk-from').value,t=document.getElementById('blk-to').value;if(!f||!t){toast('Select both dates');return}
+D.blocked.push({from:f,to:t,reason:document.getElementById('blk-reason').value});saveLocal();renderCal();toast('Dates blocked');addNotif('Blocked dates '+f+' to '+t)}
 
-// ═══ GUESTS (from bookings) ═══
-function loadGuests() {
-  fetch(API+'/api/partner/'+session.id+'/bookings')
-    .then(function(r){return r.json()})
-    .then(function(data) {
-      var bookings = Array.isArray(data) ? data : (data?.bookings || []);
-      var guestMap = {};
-      bookings.forEach(function(b){
-        var name = b.guest_name || b.user_name || 'Guest';
-        if (!guestMap[name]) guestMap[name] = {name:name, email:b.guest_email||b.user_email||'', bookings:0, spent:0};
-        guestMap[name].bookings++;
-        guestMap[name].spent += (b.amount||0);
-      });
-      var guests = Object.values(guestMap);
-      if (!guests.length) {
-        document.getElementById('guests-content').innerHTML = '<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No guest data yet. Guests will appear here after their first booking.</div></div>';
-        return;
-      }
-      document.getElementById('guests-content').innerHTML = '<div class="guest-grid">'+guests.map(function(g){
-        return '<div class="guest-card"><div class="gc-top"><div class="gc-av">'+g.name[0]+'</div><div><div class="gc-name">'+esc(g.name)+'</div><div class="gc-meta">'+esc(g.email)+'</div></div></div><div class="gc-stats"><div class="gc-stat"><b>'+g.bookings+'</b> bookings</div><div class="gc-stat"><b>₹'+g.spent.toLocaleString()+'</b> spent</div></div></div>';
-      }).join('')+'</div>';
-    })
-    .catch(function(){document.getElementById('guests-content').innerHTML='<div class="empty"><div class="empty-text">Error loading guests</div></div>'});
-}
+// ═══ GUESTS ═══
+function loadGuests(){fetch(API+'/api/partner/'+S.id+'/bookings').then(r=>r.json()).then(d=>{var bk=Array.isArray(d)?d:(d?.bookings||[]);var gm={};
+bk.forEach(b=>{var n=b.guest_name||b.user_name||'Guest';if(!gm[n])gm[n]={name:n,email:b.guest_email||b.user_email||'',bookings:0,spent:0};gm[n].bookings++;gm[n].spent+=(b.amount||0)});
+var gs=Object.values(gm);
+document.getElementById('g-stats').innerHTML='<div class="sc"><div class="sc-l">Total Guests</div><div class="sc-v">'+gs.length+'</div></div><div class="sc"><div class="sc-l">Repeat Rate</div><div class="sc-v">'+(gs.length?Math.round(gs.filter(g=>g.bookings>1).length/gs.length*100):0)+'%</div></div><div class="sc"><div class="sc-l">Avg Spend</div><div class="sc-v">₹'+(gs.length?Math.round(gs.reduce((s,g)=>s+g.spent,0)/gs.length):0).toLocaleString()+'</div></div>';
+if(!gs.length){document.getElementById('g-ct').innerHTML='<div class="ety"><div class="ety-i">👤</div><div class="ety-t">No guests yet</div></div>';return}
+document.getElementById('g-ct').innerHTML='<div class="gc">'+gs.map(g=>'<div class="g-cd"><div class="g-top"><div class="g-av">'+g.name[0]+'</div><div><div class="g-nm">'+esc(g.name)+'</div><div class="g-mt">'+esc(g.email)+'</div></div></div><div class="g-st"><div><b>'+g.bookings+'</b> trips</div><div><b>₹'+g.spent.toLocaleString()+'</b> spent</div></div></div>').join('')+'</div>'}).catch(()=>document.getElementById('g-ct').innerHTML='<div class="ety"><div class="ety-t">Error loading</div></div>')}
 
 // ═══ WALLET ═══
-function loadWallet() {
-  fetch(API+'/api/partner/wallet/'+session.id)
-    .then(function(r){return r.json()})
-    .then(function(w) {
-      document.getElementById('wallet-stats').innerHTML =
-        '<div class="stat-card"><div class="stat-label">Balance</div><div class="stat-val">₹'+(w.balance||0).toLocaleString()+'</div></div>'+
-        '<div class="stat-card"><div class="stat-label">Total Earned</div><div class="stat-val">₹'+(w.total_earned||0).toLocaleString()+'</div></div>'+
-        '<div class="stat-card"><div class="stat-label">Pending</div><div class="stat-val">₹'+(w.pending||0).toLocaleString()+'</div></div>';
-      
-      var txns = w.transactions || [];
-      if (!txns.length) {
-        document.getElementById('wallet-txns').innerHTML = '<div class="empty"><div class="empty-icon">💰</div><div class="empty-text">No transactions yet</div></div>';
-        return;
-      }
-      document.getElementById('wallet-txns').innerHTML = '<table class="tbl"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+
-        txns.map(function(t){return '<tr><td>'+(t.date||'—')+'</td><td>'+esc(t.description||t.type||'—')+'</td><td style="color:var(--green);font-weight:600">₹'+(t.amount||0).toLocaleString()+'</td><td><span class="badge '+(t.status||'completed')+'">'+(t.status||'completed')+'</span></td></tr>'}).join('') +
-        '</tbody></table>';
-    })
-    .catch(function(){
-      document.getElementById('wallet-stats').innerHTML='<div class="stat-card"><div class="stat-label">Balance</div><div class="stat-val">₹0</div></div>';
-      document.getElementById('wallet-txns').innerHTML='<div class="empty"><div class="empty-text">Wallet not available</div></div>';
-    });
-}
+function loadWallet(){fetch(API+'/api/partner/wallet/'+S.id).then(r=>r.json()).then(w=>{
+document.getElementById('w-stats').innerHTML='<div class="sc"><div class="sc-l">Balance</div><div class="sc-v">₹'+(w.balance||0).toLocaleString()+'</div></div><div class="sc"><div class="sc-l">Total Earned</div><div class="sc-v">₹'+(w.total_earned||0).toLocaleString()+'</div></div><div class="sc"><div class="sc-l">Pending</div><div class="sc-v">₹'+(w.pending||0).toLocaleString()+'</div></div><div class="sc"><div class="sc-l">Commission</div><div class="sc-v">10%</div><div class="sc-s nt">Standard rate</div></div>';
+var txns=w.transactions||[];document.getElementById('w-txns').innerHTML=txns.length?'<table class="tbl"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+txns.map(t=>'<tr><td>'+(t.date||'-')+'</td><td>'+esc(t.description||t.type||'-')+'</td><td style="color:var(--grn);font-weight:600">₹'+(t.amount||0).toLocaleString()+'</td><td><span class="bdg ok">'+(t.status||'done')+'</span></td></tr>').join('')+'</tbody></table>':'<div class="ety"><div class="ety-t">No transactions yet</div></div>';
+document.getElementById('w-bylist').innerHTML=D.listings.length?D.listings.map(l=>{var rev=D.bookings.filter(b=>(b.listing_name||'').includes(l.name||'')).reduce((s,b)=>s+(b.amount||0),0);return'<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(201,150,58,0.04)"><div style="flex:1;font-size:0.78rem">'+esc(l.name||'')+'</div><div style="font-size:0.75rem;color:var(--gold)">₹'+rev.toLocaleString()+'</div></div>'}).join(''):'<div class="ety"><div class="ety-t">No listings</div></div>'
+}).catch(()=>{document.getElementById('w-stats').innerHTML='<div class="sc"><div class="sc-l">Balance</div><div class="sc-v">₹0</div></div>';document.getElementById('w-txns').innerHTML='<div class="ety"><div class="ety-t">Wallet unavailable</div></div>'})}
 
-// ═══ ADD LISTING ═══
-function submitListing() {
-  var listing = {
-    partner_id: session.id,
-    name: document.getElementById('nl-name').value.trim(),
-    type: document.getElementById('nl-type').value,
-    location: document.getElementById('nl-loc').value.trim(),
-    price_per_night: parseInt(document.getElementById('nl-price').value) || 0,
-    max_guests: parseInt(document.getElementById('nl-guests').value) || 4,
-    description: document.getElementById('nl-desc').value.trim(),
-    amenities: document.getElementById('nl-amenities').value.trim(),
-    contact_phone: document.getElementById('nl-phone').value.trim(),
-    contact_email: document.getElementById('nl-email').value.trim()
-  };
-  
-  if (!listing.name) { document.getElementById('nl-status').innerHTML='<span style="color:var(--red)">Please enter a listing name</span>'; return; }
-  if (!listing.location) { document.getElementById('nl-status').innerHTML='<span style="color:var(--red)">Please enter a location</span>'; return; }
-  
-  document.getElementById('nl-status').innerHTML='<span class="spin"></span> Publishing...';
-  
-  fetch(API+'/api/partner/listings', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(listing)
-  })
-  .then(function(r){return r.json()})
-  .then(function(d){
-    if (d.id || d.success) {
-      document.getElementById('nl-status').innerHTML='<span style="color:var(--green)">✓ Listing published successfully!</span>';
-      toast('Listing published!');
-      // Clear form
-      ['nl-name','nl-loc','nl-price','nl-guests','nl-desc','nl-amenities','nl-phone','nl-email'].forEach(function(id){document.getElementById(id).value=''});
-    } else {
-      document.getElementById('nl-status').innerHTML='<span style="color:var(--red)">Error: '+(d.detail||d.message||'Could not save')+'</span>';
-    }
-  })
-  .catch(function(e){document.getElementById('nl-status').innerHTML='<span style="color:var(--red)">Network error. Try again.</span>'});
-}
+// ═══ REVIEWS ═══
+function renderReviews(){var rv=D.reviews||[];document.getElementById('rv-stats').innerHTML='<div class="sc"><div class="sc-l">Avg Rating</div><div class="sc-v">'+(rv.length?(rv.reduce((s,r)=>s+r.rating,0)/rv.length).toFixed(1):'—')+'</div></div><div class="sc"><div class="sc-l">Total</div><div class="sc-v">'+rv.length+'</div></div><div class="sc"><div class="sc-l">Response Rate</div><div class="sc-v">'+(rv.length?Math.round(rv.filter(r=>r.reply).length/rv.length*100):0)+'%</div></div>';
+if(!rv.length){document.getElementById('rv-list').innerHTML='<div class="ety"><div class="ety-i">⭐</div><div class="ety-t">No reviews yet. They\'ll appear when guests leave feedback.</div></div>';return}
+document.getElementById('rv-list').innerHTML=rv.map((r,i)=>'<div class="rv-cd"><div class="rv-t"><div><div class="rv-n">'+esc(r.guest)+'</div><div class="rv-m">'+esc(r.listing||'')+' · '+esc(r.date||'')+'</div></div><div class="rv-s">'+'★'.repeat(r.rating)+'☆'.repeat(5-r.rating)+'</div></div><div class="rv-tx">'+esc(r.text)+'</div>'+(r.reply?'<div class="rv-rp"><div class="rv-rp-l">Your Reply</div><div class="rv-rp-t">'+esc(r.reply)+'</div></div>':'<div style="margin-top:6px"><input id="rp-'+i+'" placeholder="Write a reply..." style="width:70%;padding:6px 8px;background:var(--bg);border:1px solid var(--bdr2);border-radius:5px;color:var(--txt);font-size:0.75rem;font-family:var(--fb);outline:none"><button class="btn g sm" style="margin-left:6px" onclick="replyReview('+i+')">Reply</button></div>')+'</div>').join('')}
+function replyReview(i){var v=document.getElementById('rp-'+i).value.trim();if(!v)return;D.reviews=D.reviews||[];D.reviews[i].reply=v;saveLocal();renderReviews();toast('Reply sent')}
+
+// ═══ MESSAGES ═══
+function renderMessages(){var guests=Object.keys(D.messages);if(!guests.length){guests=['Guest'];D.messages['Guest']=[{from:'system',text:'Welcome to messaging. Guest conversations will appear here.',time:new Date().toLocaleTimeString()}]}
+document.getElementById('msg-list').innerHTML=guests.map(g=>'<div style="padding:8px;border-bottom:1px solid var(--bdr);cursor:pointer;font-size:0.78rem" onclick="openThread(\''+esc(g)+'\')"><strong>'+esc(g)+'</strong><div style="font-size:0.65rem;color:var(--mut)">'+((D.messages[g]||[]).slice(-1)[0]?.text||'').substring(0,40)+'...</div></div>').join('')}
+function openThread(g){document.getElementById('msg-header').textContent=g;var msgs=D.messages[g]||[];document.getElementById('msg-thread').innerHTML=msgs.map(m=>'<div class="msg-bub '+(m.from==='me'?'out':'in')+'"><div class="msg-b">'+esc(m.text)+'</div><div class="msg-tm" style="text-align:'+(m.from==='me'?'right':'left')+'">'+esc(m.time||'')+'</div></div>').join('');document.getElementById('msg-input').setAttribute('data-guest',g);var th=document.getElementById('msg-thread');th.scrollTop=th.scrollHeight}
+function sendMsg(){var inp=document.getElementById('msg-input'),g=inp.getAttribute('data-guest'),v=inp.value.trim();if(!v||!g)return;
+if(!D.messages[g])D.messages[g]=[];D.messages[g].push({from:'me',text:v,time:new Date().toLocaleTimeString()});inp.value='';saveLocal();openThread(g)}
+
+// ═══ ITINERARY ═══
+var dayN=0;
+function addDay(){dayN++;var d=document.createElement('div');d.className='cd day-cd';d.innerHTML='<div class="cd-h"><div class="cd-t">Day '+dayN+'</div><button class="tbtn" onclick="this.closest(\'.cd\').remove()">Remove</button></div><div class="fg"><div class="fgi fw"><label>Title</label><input class="it-day-title" placeholder="Arrival & Valley Exploration"></div><div class="fgi fw"><label>Activities</label><textarea class="it-day-act" placeholder="Morning: Arrive at Aut\nAfternoon: Settle in\nEvening: Bonfire"></textarea></div><div class="fgi"><label>Meals</label><input class="it-day-meals" placeholder="Lunch, Dinner"></div><div class="fgi"><label>Stay</label><input class="it-day-stay" placeholder="Usha River Side Resort"></div></div>';
+document.getElementById('it-days').appendChild(d)}
+function saveItinerary(){var it={title:document.getElementById('it-title').value,dest:document.getElementById('it-dest').value,dur:document.getElementById('it-dur').value,price:document.getElementById('it-price').value,days:[],created:new Date().toISOString()};
+document.querySelectorAll('.day-cd').forEach(d=>{it.days.push({title:d.querySelector('.it-day-title').value,activities:d.querySelector('.it-day-act').value,meals:d.querySelector('.it-day-meals').value,stay:d.querySelector('.it-day-stay').value})});
+D.itineraries.push(it);saveLocal();toast('Itinerary saved');addNotif('Itinerary "'+it.title+'" saved');document.getElementById('it-st').innerHTML='<span style="color:var(--grn)">✓ Saved</span>'}
+function exportItineraryPDF(){var t=document.getElementById('it-title').value||'Itinerary';var w=window.open('','_blank');var days='';document.querySelectorAll('.day-cd').forEach((d,i)=>{days+='<h3 style="color:#C9963A;margin-top:20px">Day '+(i+1)+': '+esc(d.querySelector('.it-day-title').value)+'</h3><p>'+esc(d.querySelector('.it-day-act').value).replace(/\n/g,'<br>')+'</p><p><strong>Meals:</strong> '+esc(d.querySelector('.it-day-meals').value)+' | <strong>Stay:</strong> '+esc(d.querySelector('.it-day-stay').value)+'</p>'});
+w.document.write('<html><head><title>'+esc(t)+'</title><style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;color:#333}h1{color:#C9963A}h3{border-bottom:1px solid #eee;padding-bottom:8px}</style></head><body><h1>'+esc(t)+'</h1><p><strong>Destination:</strong> '+esc(document.getElementById('it-dest').value)+' | <strong>Duration:</strong> '+esc(document.getElementById('it-dur').value)+' | <strong>Price:</strong> ₹'+esc(document.getElementById('it-price').value)+'</p><hr>'+days+'<hr><p style="color:#999;font-size:12px">Generated by TTT Partner Portal · The Trip Theory</p></body></html>');w.document.close();w.print()}
+function shareItinerary(){navigator.clipboard.writeText(window.location.origin+'/partner#itinerary').then(()=>toast('Link copied!')).catch(()=>toast('Copy failed'))}
+
+// ═══ INVOICES ═══
+function generateInvoice(){var inv={id:'INV-'+Date.now().toString(36).toUpperCase(),guest:document.getElementById('inv-guest').value,email:document.getElementById('inv-email').value,ref:document.getElementById('inv-ref').value,date:document.getElementById('inv-date').value||new Date().toISOString().split('T')[0],service:document.getElementById('inv-svc').value,amount:parseInt(document.getElementById('inv-amt').value)||0,tax:parseInt(document.getElementById('inv-tax').value)||18,status:document.getElementById('inv-status').value,created:new Date().toISOString()};
+if(!inv.guest||!inv.amount){toast('Fill guest name and amount');return}
+inv.taxAmt=Math.round(inv.amount*inv.tax/100);inv.total=inv.amount+inv.taxAmt;
+D.invoices.push(inv);saveLocal();toast('Invoice generated');addNotif('Invoice '+inv.id+' created for '+inv.guest);renderInvoices();renderInvoicePreview(inv)}
+function renderInvoicePreview(inv){document.getElementById('inv-preview').innerHTML='<div class="cd" style="border-left:2px solid var(--gold)"><div style="display:flex;justify-content:space-between;margin-bottom:14px"><div><div style="font-family:var(--fd);font-size:1.3rem;color:var(--gold)">TTT</div><div style="font-size:0.6rem;color:var(--mut)">The Trip Theory · Partner Invoice</div></div><div style="text-align:right"><div style="font-size:0.85rem;font-weight:600">'+inv.id+'</div><div style="font-size:0.68rem;color:var(--mut)">'+inv.date+'</div><span class="bdg '+(inv.status==='Paid'?'ok':inv.status==='Pending'?'pn':'cn')+'">'+inv.status+'</span></div></div><table class="tbl"><tr><td class="nm">Guest</td><td>'+esc(inv.guest)+'</td></tr><tr><td class="nm">Service</td><td>'+esc(inv.service)+'</td></tr><tr><td class="nm">Subtotal</td><td>₹'+inv.amount.toLocaleString()+'</td></tr><tr><td class="nm">Tax ('+inv.tax+'%)</td><td>₹'+inv.taxAmt.toLocaleString()+'</td></tr><tr><td class="nm" style="color:var(--gold)">Total</td><td style="font-weight:700;color:var(--gold);font-size:1rem">₹'+inv.total.toLocaleString()+'</td></tr></table></div>'}
+function renderInvoices(){if(!D.invoices.length)return;document.getElementById('inv-list').innerHTML='<table class="tbl"><thead><tr><th>Invoice</th><th>Guest</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody>'+D.invoices.map(inv=>'<tr><td class="nm">'+inv.id+'</td><td>'+esc(inv.guest)+'</td><td>₹'+(inv.total||inv.amount||0).toLocaleString()+'</td><td><span class="bdg '+(inv.status==='Paid'?'ok':inv.status==='Pending'?'pn':'cn')+'">'+inv.status+'</span></td><td>'+inv.date+'</td></tr>').join('')+'</tbody></table>'}
+function downloadInvoice(){var inv=D.invoices[D.invoices.length-1];if(!inv){toast('Generate an invoice first');return}renderInvoicePreview(inv);setTimeout(()=>window.print(),500)}
+
+// ═══ MARKETING ═══
+function sendCampaign(){var name=document.getElementById('mk-name').value,msg=document.getElementById('mk-msg').value;if(!name||!msg){toast('Fill campaign name and message');return}
+D.campaigns.push({name:name,channel:document.getElementById('mk-ch').value,audience:document.getElementById('mk-aud').value,message:msg,sent:new Date().toISOString()});saveLocal();
+document.getElementById('mk-count').textContent=D.campaigns.length;toast('Campaign sent!');addNotif('Campaign "'+name+'" sent');document.getElementById('mk-st').innerHTML='<span style="color:var(--grn)">✓ Campaign sent to '+document.getElementById('mk-aud').value+'</span>';
+['mk-name','mk-msg'].forEach(x=>document.getElementById(x).value='')}
+
+// ═══ PRICING ═══
+function renderPricing(){if(!D.listings.length){document.getElementById('pr-listings').innerHTML='<div class="ety"><div class="ety-t">Add listings first to set pricing</div></div>';return}
+document.getElementById('pr-listings').innerHTML=D.listings.map(l=>'<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bdr)"><div style="flex:1"><div style="font-weight:600;font-size:0.85rem">'+esc(l.name||'')+'</div><div style="font-size:0.68rem;color:var(--mut)">'+(l.type||'stay')+'</div></div><div style="display:flex;gap:8px;align-items:center"><label style="font-size:0.65rem;color:var(--mut)">Base ₹</label><input value="'+(l.price_per_night||l.price||0)+'" style="width:80px;padding:6px;background:var(--bg);border:1px solid var(--bdr2);border-radius:4px;color:var(--txt);font-size:0.82rem;text-align:right;outline:none"><label style="font-size:0.65rem;color:var(--mut);margin-left:8px">Peak ₹</label><input value="'+Math.round((l.price_per_night||l.price||0)*1.3)+'" style="width:80px;padding:6px;background:var(--bg);border:1px solid var(--bdr2);border-radius:4px;color:var(--txt);font-size:0.82rem;text-align:right;outline:none"></div></div>').join('');
+renderPackages()}
+function savePackage(){var pk={name:document.getElementById('pk-name').value,until:document.getElementById('pk-until').value,orig:parseInt(document.getElementById('pk-orig').value)||0,price:parseInt(document.getElementById('pk-price').value)||0,includes:document.getElementById('pk-inc').value,created:new Date().toISOString()};
+if(!pk.name||!pk.price){toast('Fill name and price');return}D.packages.push(pk);saveLocal();toast('Package saved');addNotif('Package "'+pk.name+'" created');renderPackages();
+document.getElementById('pk-st').innerHTML='<span style="color:var(--grn)">✓ Saved</span>';['pk-name','pk-until','pk-orig','pk-price','pk-inc'].forEach(x=>document.getElementById(x).value='')}
+function renderPackages(){if(!D.packages.length){document.getElementById('pk-list').innerHTML='<div class="ety"><div class="ety-i">💎</div><div class="ety-t">No packages yet</div></div>';return}
+document.getElementById('pk-list').innerHTML=D.packages.map(p=>'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bdr)"><div><div style="font-weight:600">'+esc(p.name)+'</div><div style="font-size:0.68rem;color:var(--mut)">'+esc(p.includes||'').substring(0,60)+'...</div></div><div style="text-align:right"><div style="text-decoration:line-through;color:var(--mut);font-size:0.72rem">₹'+(p.orig||0).toLocaleString()+'</div><div style="color:var(--gold);font-weight:700">₹'+(p.price||0).toLocaleString()+'</div></div></div>').join('')}
+
+// ═══ PHOTOS ═══
+function renderPhotos(){if(!D.photos.length){document.getElementById('photo-grid').innerHTML='<div class="ety" style="grid-column:1/-1"><div class="ety-i">📸</div><div class="ety-t">No photos. Click Upload to add.</div></div>';return}
+document.getElementById('photo-grid').innerHTML=D.photos.map((p,i)=>'<div style="position:relative;border-radius:6px;overflow:hidden;aspect-ratio:4/3;background:var(--sf);border:1px solid var(--bdr)"><img src="'+p.url+'" style="width:100%;height:100%;object-fit:cover" alt="'+esc(p.name)+'"><button onclick="removePhoto('+i+')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);border:none;color:white;width:20px;height:20px;border-radius:50%;cursor:pointer;font-size:0.7rem">✕</button></div>').join('')}
+function handlePhotoUpload(e){Array.from(e.target.files).forEach(f=>{var r=new FileReader();r.onload=function(ev){D.photos.push({name:f.name,url:ev.target.result});saveLocal();renderPhotos();toast('Photo added')};r.readAsDataURL(f)})}
+function removePhoto(i){D.photos.splice(i,1);saveLocal();renderPhotos();toast('Photo removed')}
+
+// ═══ STAFF ═══
+function renderStaff(){if(!D.staff.length){document.getElementById('staff-list').innerHTML='<div class="ety"><div class="ety-i">👥</div><div class="ety-t">No team members added</div></div>';return}
+document.getElementById('staff-list').innerHTML='<table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Action</th></tr></thead><tbody>'+D.staff.map((s,i)=>'<tr><td class="nm">'+esc(s.name)+'</td><td>'+esc(s.email)+'</td><td>'+esc(s.role)+'</td><td><span class="bdg '+(s.status==='active'?'ok':'pn')+'">'+(s.status||'invited')+'</span></td><td><button class="btn cn sm" onclick="removeStaff('+i+')">Remove</button></td></tr>').join('')+'</tbody></table>'}
+function openStaffModal(){document.getElementById('staff-modal').classList.add('open')}
+function closeStaffModal(){document.getElementById('staff-modal').classList.remove('open')}
+function addStaff(){var s={name:document.getElementById('stf-name').value,email:document.getElementById('stf-email').value,phone:document.getElementById('stf-phone').value,role:document.getElementById('stf-role').value,status:'invited'};
+if(!s.name||!s.email){toast('Fill name and email');return}D.staff.push(s);saveLocal();closeStaffModal();renderStaff();toast('Invite sent to '+s.name);addNotif('Invited '+s.name+' as '+s.role);
+['stf-name','stf-email','stf-phone'].forEach(x=>document.getElementById(x).value='')}
+function removeStaff(i){D.staff.splice(i,1);saveLocal();renderStaff();toast('Member removed')}
+
+// ═══ NOTIFICATIONS ═══
+function renderNotifs(){if(!D.notifications.length){document.getElementById('ntf-list').innerHTML='<div class="ety"><div class="ety-i">🔔</div><div class="ety-t">No notifications</div></div>';return}
+document.getElementById('ntf-list').innerHTML=D.notifications.map(n=>'<div class="ntf-i"><div class="ntf-dot" style="background:'+(n.read?'var(--mut)':'var(--gold)')+'"></div><div><div class="ntf-tx">'+n.text+'</div><div class="ntf-tm">'+n.time+'</div></div></div>').join('')}
+function clearNotifs(){D.notifications.forEach(n=>n.read=true);saveLocal();renderNotifs();toast('All read')}
 
 // ═══ SETTINGS ═══
-function loadSettings() {
-  var f = document.getElementById('settings-form');
-  f.innerHTML =
-    '<div class="fg"><label>Business Name</label><input id="s-bname" value="'+esc(session.business_name||session.name||'')+'"/></div>'+
-    '<div class="fg"><label>Partner ID</label><input value="'+esc(session.id||'')+'" disabled style="opacity:0.5"/></div>'+
-    '<div class="fg"><label>Email</label><input id="s-email" value="'+esc(session.email||session.contact_email||'')+'"/></div>'+
-    '<div class="fg"><label>Phone</label><input id="s-phone" value="'+esc(session.phone||session.contact_phone||'')+'"/></div>'+
-    '<div class="fg"><label>Location</label><input id="s-loc" value="'+esc(session.location||'')+'"/></div>'+
-    '<div class="fg"><label>Category</label><input id="s-cat" value="'+esc(session.category||session.type||'')+'"/></div>'+
-    '<div class="fg full"><label>Description</label><textarea id="s-desc">'+esc(session.description||'')+'</textarea></div>';
-  document.getElementById('settings-actions').style.display = '';
-}
-
-function saveSettings() {
-  toast('Settings saved');
-  document.getElementById('settings-status').innerHTML='<span style="color:var(--green)">✓ Saved</span>';
-}
-
-// ═══ UTILS ═══
-function esc(s) { var d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
-function toast(msg) { var t=document.getElementById('toast-el'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){t.classList.remove('show')},2500); }
+function loadSettings(){document.getElementById('set-form').innerHTML='<div class="fgi"><label>Business Name</label><input id="s-bn" value="'+esc(S.business_name||S.name||'')+'"></div><div class="fgi"><label>Partner ID</label><input value="'+esc(S.id||'')+'" disabled style="opacity:0.5"></div><div class="fgi"><label>Email</label><input id="s-em" value="'+esc(S.email||'')+'"></div><div class="fgi"><label>Phone</label><input id="s-ph" value="'+esc(S.phone||'')+'"></div><div class="fgi"><label>Location</label><input id="s-lc" value="'+esc(S.location||'')+'"></div><div class="fgi"><label>Type</label><input id="s-tp" value="'+esc(S.listing_type||S.type||'')+'"></div><div class="fgi fw"><label>Description</label><textarea id="s-ds">'+esc(S.description||'')+'</textarea></div>';
+document.getElementById('set-act').style.display=''}
+function saveSettings(){S.business_name=document.getElementById('s-bn').value;S.email=document.getElementById('s-em').value;localStorage.setItem('ttt_ps',JSON.stringify(S));toast('Settings saved')}
 </script>
-</body>
-</html>
+</body></html>
