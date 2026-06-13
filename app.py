@@ -1366,6 +1366,72 @@ _activity_log_db: List[dict] = _db.get("activity_log", [])
 _follow_requests: List[dict] = _db.get("follow_requests", [])
 SIGNUPS_LOG: List[dict]      = _db.get("signups", [])
 
+# ═══ SEED PARTNER DATA (always present on startup) ═══
+_SEED_PARTNERS = {
+    "ttt-hp-001": {
+        "id": "ttt-hp-001", "name": "Rajesh Kumar", "business_name": "Usha River Side Resort",
+        "email": "info@ushariverside.com", "phone": "+91 98765 43210",
+        "listing_type": "property", "location": "Tirthan Valley, Himachal Pradesh",
+        "category": "Boutique Resort", "type": "stay",
+        "description": "A serene riverside retreat in the heart of Tirthan Valley, offering eco-friendly luxury with breathtaking Himalayan views.",
+        "created_at": "2026-01-15T10:00:00"
+    },
+    "ttt-hp-002": {
+        "id": "ttt-hp-002", "name": "Tenzin Norbu", "business_name": "Bímil Society",
+        "email": "hello@bimilsociety.com", "phone": "+91 98765 43211",
+        "listing_type": "property", "location": "McLeod Ganj, Himachal Pradesh",
+        "category": "Boutique Homestay", "type": "stay",
+        "description": "A curated community living space in McLeod Ganj with cultural immersion, meditation, and mountain experiences.",
+        "created_at": "2026-02-01T10:00:00"
+    }
+}
+for _spid, _spdata in _SEED_PARTNERS.items():
+    if _spid not in _partners:
+        _partners[_spid] = _spdata
+        print(f"[TTT] Seeded partner: {_spid} ({_spdata['business_name']})")
+_save_db()
+
+_SEED_LISTINGS = {
+    "listing-usha-001": {
+        "id": "listing-usha-001", "partner_id": "ttt-hp-001", "listing_type": "property",
+        "title": "Usha River Side Resort — Riverside Room", "name": "Usha River Side Resort — Riverside Room",
+        "description": "Wake up to the sound of the Tirthan river. Eco-friendly rooms with mountain views, organic meals, and guided treks.",
+        "price_per_night": 5000, "price": 5000, "max_guests": 4, "location": "Tirthan Valley, HP",
+        "amenities": "WiFi, Organic Meals, Bonfire, River Access, Trekking, Bird Watching",
+        "type": "stay", "status": "active", "created_at": "2026-01-15T10:00:00"
+    },
+    "listing-usha-002": {
+        "id": "listing-usha-002", "partner_id": "ttt-hp-001", "listing_type": "property",
+        "title": "Mountain View Cottage", "name": "Mountain View Cottage",
+        "description": "Private cottage with panoramic Himalayan views, perfect for couples and families seeking tranquility.",
+        "price_per_night": 3500, "price": 3500, "max_guests": 3, "location": "Tirthan Valley, HP",
+        "amenities": "WiFi, Meals, Private Balcony, Garden, Parking",
+        "type": "stay", "status": "active", "created_at": "2026-01-20T10:00:00"
+    },
+    "listing-usha-003": {
+        "id": "listing-usha-003", "partner_id": "ttt-hp-001", "listing_type": "tour",
+        "title": "Tirthan Valley Trek — GHNP", "name": "Tirthan Valley Trek — GHNP",
+        "description": "Guided trek through the Great Himalayan National Park. Spot rare birds, medicinal plants, and camp under the stars.",
+        "price_per_night": 2500, "price": 2500, "max_guests": 8, "location": "GHNP, HP",
+        "amenities": "Guide, Camping Gear, Meals, Permits",
+        "type": "tour", "status": "active", "created_at": "2026-02-10T10:00:00"
+    },
+    "listing-bimil-001": {
+        "id": "listing-bimil-001", "partner_id": "ttt-hp-002", "listing_type": "property",
+        "title": "Bímil Society — Community Room", "name": "Bímil Society — Community Room",
+        "description": "Live like a local in McLeod Ganj. Community kitchen, meditation sessions, Tibetan culture immersion.",
+        "price_per_night": 4500, "price": 4500, "max_guests": 2, "location": "McLeod Ganj, HP",
+        "amenities": "WiFi, Community Kitchen, Meditation, Library, Rooftop",
+        "type": "stay", "status": "active", "created_at": "2026-02-01T10:00:00"
+    }
+}
+for _slid, _sldata in _SEED_LISTINGS.items():
+    if _slid not in _listings:
+        _listings[_slid] = _sldata
+        print(f"[TTT] Seeded listing: {_slid}")
+_save_db()
+
+
 # Instagram OAuth stores (replace with Redis / DB in production)
 _oauth_states:       Dict[str, dict] = {}  # state_token → metadata
 _instagram_profiles: Dict[str, dict] = {}  # state_token → analysis result
