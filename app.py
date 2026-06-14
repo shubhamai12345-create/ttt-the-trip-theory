@@ -1330,7 +1330,18 @@ def _is_private_profile(handle: str) -> bool:
 # ─────────────────────────────────────────────
 import threading
 _db_lock = threading.Lock()
-DB_PATH = os.path.join(os.path.dirname(__file__), "ttt_data.json")
+# Use Railway persistent volume if available, else local (volume survives redeploys)
+_DB_DIR = os.getenv("DATA_DIR", "/data") if os.path.isdir(os.getenv("DATA_DIR", "/data")) else os.path.dirname(__file__)
+try:
+    os.makedirs(_DB_DIR, exist_ok=True)
+    # Test writability
+    _test = os.path.join(_DB_DIR, ".write_test")
+    with open(_test, "w") as _f: _f.write("ok")
+    os.remove(_test)
+except Exception:
+    _DB_DIR = os.path.dirname(__file__)
+DB_PATH = os.path.join(_DB_DIR, "ttt_data.json")
+print(f"[TTT] Database path: {DB_PATH}")
 
 def _load_db() -> dict:
     if os.path.exists(DB_PATH):
@@ -1350,6 +1361,8 @@ def _save_db():
             "users":           _users,
             "follow_requests": _follow_requests,
             "signups":         SIGNUPS_LOG,
+            "invoices":        globals().get("_invoices", {}),
+            "partner_wallets_v2": globals().get("_partner_wallets_v2", {}),
         }
         tmp = DB_PATH + ".tmp"
         with open(tmp, "w", encoding="utf-8") as f:
