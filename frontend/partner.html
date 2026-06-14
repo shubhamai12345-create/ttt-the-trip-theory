@@ -86,7 +86,66 @@ body{background:var(--bg);color:var(--txt);font-family:var(--fb);font-size:13.5p
 </style>
 </head>
 <body>
-<div id="login-sc" class="login-sc"><div class="login-bx"><div class="login-lg">TTT Partners</div><div class="login-sb">Business Management Portal</div><div class="cd" style="margin:0"><div style="font-size:0.6rem;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px">✦ Partner Access</div><div class="fgi" style="margin-bottom:10px"><label>Partner ID</label><input id="lp-id" placeholder="e.g. ttt-hp-001"></div><div class="fgi" style="margin-bottom:12px"><label>Access Key</label><input id="lp-key" type="password" placeholder="Leave blank for now"></div><button class="btn g" style="width:100%" onclick="doLogin()">Enter Portal →</button><div id="lp-err" style="color:var(--red);font-size:0.75rem;text-align:center;margin-top:8px"></div><p style="font-size:0.68rem;color:var(--mut);text-align:center;margin-top:10px">New partner? <a href="/" style="color:var(--gold)">Apply on thetriptheory.com</a></p></div></div></div>
+<div id="login-sc" class="login-sc"><div class="login-bx"><div class="login-lg">TTT Partners</div><div class="login-sb">Business Management Portal</div>
+
+<!-- LOGIN VIEW -->
+<div class="cd auth-view" id="av-login" style="margin:0">
+  <div style="font-size:0.6rem;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px">✦ Partner Login</div>
+  <div class="fgi" style="margin-bottom:10px"><label>Email</label><input id="li-email" type="email" placeholder="you@business.com"></div>
+  <div class="fgi" style="margin-bottom:12px"><label>Password</label><input id="li-pw" type="password" placeholder="Your password"></div>
+  <button class="btn g" style="width:100%" onclick="authLogin()">Sign In →</button>
+  <div id="li-err" style="color:var(--red);font-size:0.75rem;text-align:center;margin-top:8px"></div>
+  <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:0.68rem">
+    <span style="color:var(--gold);cursor:pointer" onclick="showAuth('forgot')">Forgot password?</span>
+    <span style="color:var(--mut)">New? <span style="color:var(--gold);cursor:pointer" onclick="showAuth('signup')">Become a Partner</span></span>
+  </div>
+</div>
+
+<!-- SIGNUP STEP 1: Details -->
+<div class="cd auth-view" id="av-signup" style="margin:0;display:none">
+  <div style="font-size:0.6rem;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px">✦ Become a Partner</div>
+  <div class="fgi" style="margin-bottom:8px"><label>Your Name</label><input id="su-name" placeholder="Rahul Wadia"></div>
+  <div class="fgi" style="margin-bottom:8px"><label>Business Name</label><input id="su-biz" placeholder="Wadia Property"></div>
+  <div class="fgi" style="margin-bottom:8px"><label>Email</label><input id="su-email" type="email" placeholder="you@business.com"></div>
+  <div class="fgi" style="margin-bottom:8px"><label>Phone</label><input id="su-phone" placeholder="+91 98765 43210"></div>
+  <div class="fgi" style="margin-bottom:12px"><label>What are you listing?</label><select id="su-type"><option value="property">Property / Stay</option><option value="vehicle">Vehicle</option><option value="tour">Tour</option><option value="experience">Experience</option></select></div>
+  <button class="btn g" style="width:100%" onclick="authSignupStart()">Send Verification Code →</button>
+  <div id="su-err" style="color:var(--red);font-size:0.75rem;text-align:center;margin-top:8px"></div>
+  <p style="font-size:0.68rem;color:var(--mut);text-align:center;margin-top:10px">Already a partner? <span style="color:var(--gold);cursor:pointer" onclick="showAuth('login')">Sign In</span></p>
+</div>
+
+<!-- SIGNUP STEP 2: OTP + Password -->
+<div class="cd auth-view" id="av-verify" style="margin:0;display:none">
+  <div style="font-size:0.6rem;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px">✦ Verify Your Email</div>
+  <p id="vf-msg" style="font-size:0.72rem;color:var(--txt2);margin-bottom:12px">We sent a 6-digit code to your email.</p>
+  <div class="fgi" style="margin-bottom:8px"><label>Verification Code</label><input id="vf-code" placeholder="123456" maxlength="6"></div>
+  <div class="fgi" style="margin-bottom:8px"><label>Create Password</label><input id="vf-pw" type="password" placeholder="Min 6 characters"></div>
+  <div class="fgi" style="margin-bottom:12px"><label>Confirm Password</label><input id="vf-pw2" type="password" placeholder="Re-enter password"></div>
+  <button class="btn g" style="width:100%" onclick="authSignupVerify()">Create Account →</button>
+  <div id="vf-err" style="color:var(--red);font-size:0.75rem;text-align:center;margin-top:8px"></div>
+  <p style="font-size:0.68rem;color:var(--mut);text-align:center;margin-top:10px"><span style="color:var(--gold);cursor:pointer" onclick="showAuth('signup')">← Back</span></p>
+</div>
+
+<!-- FORGOT PASSWORD -->
+<div class="cd auth-view" id="av-forgot" style="margin:0;display:none">
+  <div style="font-size:0.6rem;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px">✦ Reset Password</div>
+  <div class="fgi" style="margin-bottom:12px"><label>Email</label><input id="fp-email" type="email" placeholder="you@business.com"></div>
+  <button class="btn g" style="width:100%" onclick="authForgotStart()">Send Reset Code →</button>
+  <div id="fp-err" style="color:var(--red);font-size:0.75rem;text-align:center;margin-top:8px"></div>
+  <p style="font-size:0.68rem;color:var(--mut);text-align:center;margin-top:10px"><span style="color:var(--gold);cursor:pointer" onclick="showAuth('login')">← Back to Login</span></p>
+</div>
+
+<!-- RESET PASSWORD STEP 2 -->
+<div class="cd auth-view" id="av-reset" style="margin:0;display:none">
+  <div style="font-size:0.6rem;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px">✦ New Password</div>
+  <p style="font-size:0.72rem;color:var(--txt2);margin-bottom:12px">Enter the code we emailed you and your new password.</p>
+  <div class="fgi" style="margin-bottom:8px"><label>Reset Code</label><input id="rs-code" placeholder="123456" maxlength="6"></div>
+  <div class="fgi" style="margin-bottom:12px"><label>New Password</label><input id="rs-pw" type="password" placeholder="Min 6 characters"></div>
+  <button class="btn g" style="width:100%" onclick="authResetPassword()">Reset & Sign In →</button>
+  <div id="rs-err" style="color:var(--red);font-size:0.75rem;text-align:center;margin-top:8px"></div>
+</div>
+
+</div></div>
 
 <div id="app" class="shell" style="display:none">
 <aside class="sidebar"><div class="sbl"><div class="sbl-m">TTT Partners</div><div class="sbl-s">Business Portal</div></div>
