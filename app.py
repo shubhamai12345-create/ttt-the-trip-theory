@@ -1514,6 +1514,18 @@ class PartnerLogin(BaseModel):
 # Temp store for pending signups (email -> partner data, until OTP verified)
 _pending_partner_signups: Dict[str, dict] = {}
 
+
+@app.get("/api/admin/peek-otp")
+async def peek_otp(email: str, key: str = ""):
+    """TEMPORARY: peek OTP for testing. Remove in production."""
+    if key != os.getenv("ADMIN_KEY", "ttt-admin-2024"):
+        raise HTTPException(403, "Invalid key")
+    rec = _otp_store.get(email.strip().lower())
+    if not rec:
+        return {"found": False}
+    return {"found": True, "code": rec.get("code"), "demo": rec.get("demo", False)}
+
+
 @app.post("/api/partner/signup/start")
 async def partner_signup_start(req: PartnerSignupStart):
     """Step 1: Partner enters details + email, receives OTP."""
