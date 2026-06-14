@@ -1485,6 +1485,153 @@ _seed_demo_listings()
 # Partner & Marketplace Endpoints
 # ─────────────────────────────────────────────
 
+
+
+# ═══════════════════════════════════════════════════════
+# PARTNER AUTHENTICATION — Email + Password + OTP signup
+# ═══════════════════════════════════════════════════════
+import hashlib as _hashlib
+
+def _hash_pw(password: str) -> str:
+    return _hashlib.sha256(("ttt_salt_2026_" + password).encode()).hexdigest()
+
+class PartnerSignupStart(BaseModel):
+    name: str
+    business_name: str
+    email: str
+    phone: str = ""
+    listing_type: str = "property"
+
+class PartnerSignupVerify(BaseModel):
+    email: str
+    code: str
+    password: str
+
+class PartnerLogin(BaseModel):
+    email: str
+    password: str
+
+# Temp store for pending signups (email -> partner data, until OTP verified)
+_pending_partner_signups: Dict[str, dict] = {}
+
+@app.post("/api/partner/signup/start")
+async def partner_signup_start(req: PartnerSignupStart):
+    """Step 1: Partner enters details + email, receives OTP."""
+    email = req.email.strip().lower()
+    if "@" not in email:
+        raise HTTPException(400, "Invalid email address")
+    # Check if email already registered
+    for p in _partners.values():
+        if (p.get("email") or "").strip().lower() == email and p.get("password_hash"):
+            raise HTTPException(400, "An account with this email already exists. Please log in.")
+    # Generate + send OTP
+    code = str(random.randint(100000, 999999))
+    _otp_store[email] = {"code": code, "expires_at": _time.time() + OTP_EXPIRY_SECONDS, "attempts": 0, "mode": "email"}
+    # Store pending signup
+    _pending_partner_signups[email] = {
+        "name": req.name, "business_name": req.business_name,
+        "email": email, "phone": req.phone, "listing_type": req.listing_type
+    }
+    sent = _send_otp_email(email, code)
+    if not sent:
+        _otp_store[email]["demo"] = True
+    return {"success": True, "email": email, "sent": sent,
+            "message": f"Verification code sent to {email}" if sent else "Email delivery pending — demo mode active (use any 6 digits)"}
+
+@app.post("/api/partner/signup/verify")
+async def partner_signup_verify(req: PartnerSignupVerify):
+    """Step 2: Verify OTP + set password → create partner account."""
+    email = req.email.strip().lower()
+    record = _otp_store.get(email)
+    if not record:
+        raise HTTPException(400, "No verification code requested. Start over.")
+    if _time.time() > record["expires_at"]:
+        _otp_store.pop(email, None)
+        raise HTTPException(400, "Code expired. Please request a new one.")
+    is_demo = record.get("demo", False)
+    if not is_demo and req.code.strip() != record["code"]:
+        record["attempts"] += 1
+        raise HTTPException(400, "Incorrect code. Try again.")
+    if len(req.password) < 6:
+        raise HTTPException(400, "Password must be at least 6 characters")
+    pending = _pending_partner_signups.get(email)
+    if not pending:
+        raise HTTPException(400, "Signup session expired. Start over.")
+    # Create partner
+    pid = "partner-" + str(uuid.uuid4())[:8]
+    record_data = {
+        "id": pid, "name": pending["name"], "business_name": pending["business_name"],
+        "email": email, "phone": pending["phone"], "listing_type": pending["listing_type"],
+        "password_hash": _hash_pw(req.password),
+        "created_at": datetime.now().isoformat(),
+    }
+    _partners[pid] = record_data
+    _save_db()
+    _otp_store.pop(email, None)
+    _pending_partner_signups.pop(email, None)
+    safe = {k: v for k, v in record_data.items() if k != "password_hash"}
+    return {"success": True, "partner_id": pid, "partner": safe}
+
+@app.post("/api/partner/login")
+async def partner_login(req: PartnerLogin):
+    """Log in with email + password."""
+    email = req.email.strip().lower()
+    for p in _partners.values():
+        if (p.get("email") or "").strip().lower() == email:
+            if not p.get("password_hash"):
+                raise HTTPException(400, "This account has no password set. Please sign up again.")
+            if p["password_hash"] != _hash_pw(req.password):
+                raise HTTPException(401, "Incorrect password")
+            safe = {k: v for k, v in p.items() if k != "password_hash"}
+            return {"success": True, "partner": safe}
+    raise HTTPException(404, "No account found with this email")
+
+@app.post("/api/partner/forgot-password")
+async def partner_forgot_password(req: OTPSendRequest):
+    """Send OTP to reset password."""
+    email = req.contact.strip().lower()
+    found = None
+    for p in _partners.values():
+        if (p.get("email") or "").strip().lower() == email:
+            found = p; break
+    if not found:
+        raise HTTPException(404, "No account found with this email")
+    code = str(random.randint(100000, 999999))
+    _otp_store[email] = {"code": code, "expires_at": _time.time() + OTP_EXPIRY_SECONDS, "attempts": 0, "mode": "email", "reset": True}
+    sent = _send_otp_email(email, code)
+    if not sent:
+        _otp_store[email]["demo"] = True
+    return {"success": True, "sent": sent}
+
+class PartnerResetPassword(BaseModel):
+    email: str
+    code: str
+    password: str
+
+@app.post("/api/partner/reset-password")
+async def partner_reset_password(req: PartnerResetPassword):
+    """Reset password with OTP."""
+    email = req.email.strip().lower()
+    record = _otp_store.get(email)
+    if not record:
+        raise HTTPException(400, "No reset code requested")
+    if _time.time() > record["expires_at"]:
+        _otp_store.pop(email, None)
+        raise HTTPException(400, "Code expired")
+    is_demo = record.get("demo", False)
+    if not is_demo and req.code.strip() != record["code"]:
+        raise HTTPException(400, "Incorrect code")
+    if len(req.password) < 6:
+        raise HTTPException(400, "Password must be at least 6 characters")
+    for p in _partners.values():
+        if (p.get("email") or "").strip().lower() == email:
+            p["password_hash"] = _hash_pw(req.password)
+            _save_db()
+            _otp_store.pop(email, None)
+            return {"success": True}
+    raise HTTPException(404, "Account not found")
+
+
 @app.post("/api/partner/register")
 async def partner_register(req: PartnerRegister):
     """Register a new partner (property owner, tour operator, etc.)"""
@@ -1504,6 +1651,8 @@ async def partner_register(req: PartnerRegister):
 
 @app.get("/api/partner/{partner_id}")
 async def get_partner(partner_id: str):
+    if partner_id in _partners:
+        return {k: v for k, v in _partners[partner_id].items() if k != "password_hash"}
     if partner_id not in _partners:
         raise HTTPException(status_code=404, detail="Partner not found")
     return _partners[partner_id]
