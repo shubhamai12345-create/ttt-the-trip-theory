@@ -216,9 +216,46 @@ body{background:var(--bg);color:var(--txt);font-family:var(--fb);font-size:13.5p
 var API='',S=null,D={listings:[],bookings:[],invoices:[],packages:[],staff:[],photos:[],notifications:[],blocked:[],itineraries:[],campaigns:[],messages:{}};
 var calMonth=5,calYear=2026;
 
-function doLogin(){var id=document.getElementById('lp-id').value.trim();if(!id){document.getElementById('lp-err').textContent='Enter your Partner ID';return}
-fetch(API+'/api/partner/'+encodeURIComponent(id)).then(r=>{if(r.ok)return r.json();throw new Error('not found')}).then(d=>{if(d&&d.id){S=d;localStorage.setItem('ttt_ps',JSON.stringify(d));enter()}else throw new Error('no id')}).catch(()=>{document.getElementById('lp-err').textContent='Registering...';fetch(API+'/api/partner/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:id,business_name:id,email:id+'@ttt.com',phone:'',listing_type:'property',location:'India'})}).then(r=>r.json()).then(d=>{if(d.partner_id){S={id:d.partner_id,business_name:id,name:id};localStorage.setItem('ttt_ps',JSON.stringify(S));enter()}else document.getElementById('lp-err').textContent='Registration failed'}).catch(()=>document.getElementById('lp-err').textContent='Connection error')})}
+var _signupEmail='';var _resetEmail='';
+function showAuth(v){document.querySelectorAll('.auth-view').forEach(function(e){e.style.display='none'});document.getElementById('av-'+v).style.display='block'}
 
+function authLogin(){var email=document.getElementById('li-email').value.trim();var pw=document.getElementById('li-pw').value;
+if(!email||!pw){document.getElementById('li-err').textContent='Enter email and password';return}
+document.getElementById('li-err').textContent='Signing in...';
+fetch(API+'/api/partner/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password:pw})}).then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d}})}).then(function(res){
+if(res.ok&&res.d.partner){S=res.d.partner;localStorage.setItem('ttt_ps',JSON.stringify(S));enter()}
+else document.getElementById('li-err').textContent=res.d.detail||'Login failed'}).catch(function(){document.getElementById('li-err').textContent='Connection error'})}
+
+function authSignupStart(){var name=document.getElementById('su-name').value.trim();var biz=document.getElementById('su-biz').value.trim();var email=document.getElementById('su-email').value.trim();var phone=document.getElementById('su-phone').value.trim();var type=document.getElementById('su-type').value;
+if(!name||!biz||!email){document.getElementById('su-err').textContent='Fill name, business and email';return}
+document.getElementById('su-err').textContent='Sending code...';
+fetch(API+'/api/partner/signup/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,business_name:biz,email:email,phone:phone,listing_type:type})}).then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d}})}).then(function(res){
+if(res.ok&&res.d.success){_signupEmail=res.d.email;document.getElementById('vf-msg').textContent=res.d.message;showAuth('verify')}
+else document.getElementById('su-err').textContent=res.d.detail||'Signup failed'}).catch(function(){document.getElementById('su-err').textContent='Connection error'})}
+
+function authSignupVerify(){var code=document.getElementById('vf-code').value.trim();var pw=document.getElementById('vf-pw').value;var pw2=document.getElementById('vf-pw2').value;
+if(!code||!pw){document.getElementById('vf-err').textContent='Enter code and password';return}
+if(pw!==pw2){document.getElementById('vf-err').textContent='Passwords do not match';return}
+if(pw.length<6){document.getElementById('vf-err').textContent='Password must be 6+ characters';return}
+document.getElementById('vf-err').textContent='Creating account...';
+fetch(API+'/api/partner/signup/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:_signupEmail,code:code,password:pw})}).then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d}})}).then(function(res){
+if(res.ok&&res.d.partner){S=res.d.partner;localStorage.setItem('ttt_ps',JSON.stringify(S));enter()}
+else document.getElementById('vf-err').textContent=res.d.detail||'Verification failed'}).catch(function(){document.getElementById('vf-err').textContent='Connection error'})}
+
+function authForgotStart(){var email=document.getElementById('fp-email').value.trim();
+if(!email){document.getElementById('fp-err').textContent='Enter your email';return}
+document.getElementById('fp-err').textContent='Sending...';
+fetch(API+'/api/partner/forgot-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact:email,mode:'email'})}).then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d}})}).then(function(res){
+if(res.ok&&res.d.success){_resetEmail=email;showAuth('reset')}
+else document.getElementById('fp-err').textContent=res.d.detail||'Failed'}).catch(function(){document.getElementById('fp-err').textContent='Connection error'})}
+
+function authResetPassword(){var code=document.getElementById('rs-code').value.trim();var pw=document.getElementById('rs-pw').value;
+if(!code||!pw){document.getElementById('rs-err').textContent='Enter code and new password';return}
+if(pw.length<6){document.getElementById('rs-err').textContent='Password must be 6+ characters';return}
+document.getElementById('rs-err').textContent='Resetting...';
+fetch(API+'/api/partner/reset-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:_resetEmail,code:code,password:pw})}).then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d}})}).then(function(res){
+if(res.ok&&res.d.success){document.getElementById('li-email').value=_resetEmail;document.getElementById('li-pw').value=pw;authLogin()}
+else document.getElementById('rs-err').textContent=res.d.detail||'Reset failed'}).catch(function(){document.getElementById('rs-err').textContent='Connection error'})}
 function enter(){document.getElementById('login-sc').style.display='none';document.getElementById('app').style.display='flex';document.getElementById('sb-nm').textContent=S.business_name||S.name||'Partner';document.getElementById('sb-av').textContent=(S.business_name||S.name||'?')[0].toUpperCase();document.getElementById('sb-rl').textContent=S.id;loadSaved();loadDash()}
 
 function logout(){localStorage.removeItem('ttt_ps');location.reload()}
