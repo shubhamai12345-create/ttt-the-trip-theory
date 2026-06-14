@@ -1532,8 +1532,17 @@ async def get_partner_listings(partner_id: str):
 async def get_partner_bookings(partner_id: str):
     """Get all bookings for a partner's listings (real-time polling)"""
     partner_listing_ids = {lid for lid, l in _listings.items() if l["partner_id"] == partner_id}
-    result = [b for b in _bookings.values() if b["listing_id"] in partner_listing_ids]
-    result.sort(key=lambda x: x["created_at"], reverse=True)
+    raw = [b for b in _bookings.values() if b.get("listing_id") in partner_listing_ids or b.get("partner_id") == partner_id]
+    result = []
+    for b in raw:
+        result.append({**b,
+            "guest_name": b.get("customer_name", ""),
+            "guest_email": b.get("customer_email", ""),
+            "listing_name": b.get("listing_title", ""),
+            "check_in": b.get("checkin", ""),
+            "amount": b.get("total_price", 0),
+        })
+    result.sort(key=lambda x: x.get("created_at",""), reverse=True)
     return {"bookings": result, "count": len(result), "unread": sum(1 for b in result if not b.get("read"))}
 
 @app.put("/api/partner/bookings/{booking_id}/read")
@@ -1594,6 +1603,11 @@ async def customer_book(req: BookingCreate):
     }
     _bookings[bid] = record
     _save_db()
+    # Credit partner wallet
+    try:
+        _credit_partner_wallet(listing["partner_id"], req.total_price, bid, f"Booking — {req.customer_name} — {listing['title']}")
+    except Exception as e:
+        print(f"[TTT] Wallet credit error: {e}")
     return {"success": True, "booking_id": bid, "booking": record}
 
 @app.get("/api/customer/bookings")
@@ -3074,6 +3088,59 @@ async def resend_domain_verify(key: str = ""):
 
 
 
+
+
+
+
+# ═══════════════════════════════════════════════════════
+# ADMIN RESET — Clear all test data
+# ═══════════════════════════════════════════════════════
+@app.post("/api/admin/reset-all")
+async def reset_all_data(key: str = ""):
+    """Wipe all partners, listings, bookings, invoices for fresh testing."""
+    if key != os.getenv("ADMIN_KEY", "ttt-admin-2024"):
+        raise HTTPException(403, "Invalid admin key")
+    _partners.clear()
+    _listings.clear()
+    _bookings.clear()
+    _invoices.clear()
+    try:
+        PARTNER_WALLETS.clear()
+    except: pass
+    _save_db()
+    return {"success": True, "message": "All data cleared"}
+
+# ═══════════════════════════════════════════════════════
+# PARTNER WALLET v2 — Real earnings from bookings
+# ═══════════════════════════════════════════════════════
+_partner_wallets_v2: Dict[str, dict] = _db.get("partner_wallets_v2", {})
+
+def _credit_partner_wallet(partner_id: str, amount: float, booking_id: str, desc: str):
+    """Credit partner wallet when a booking is confirmed."""
+    if partner_id not in _partner_wallets_v2:
+        _partner_wallets_v2[partner_id] = {"balance": 0, "total_earned": 0, "pending": 0, "transactions": []}
+    w = _partner_wallets_v2[partner_id]
+    commission = round(amount * 0.10, 2)  # 10% TTT commission
+    net = round(amount - commission, 2)
+    w["total_earned"] = round(w.get("total_earned", 0) + net, 2)
+    w["pending"] = round(w.get("pending", 0) + net, 2)
+    w["transactions"].insert(0, {
+        "date": datetime.now().strftime("%b %d"),
+        "description": desc,
+        "booking": booking_id,
+        "gross": amount,
+        "commission": commission,
+        "amount": net,
+        "status": "pending"
+    })
+    _db["partner_wallets_v2"] = _partner_wallets_v2
+    _save_db()
+
+@app.get("/api/partner/wallet-v2/{partner_id}")
+async def get_partner_wallet_v2(partner_id: str):
+    """Get real wallet with earnings from bookings."""
+    w = _partner_wallets_v2.get(partner_id, {"balance": 0, "total_earned": 0, "pending": 0, "transactions": []})
+    return w
 
 
 # ═══════════════════════════════════════════════════════
