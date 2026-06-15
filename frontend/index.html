@@ -3968,6 +3968,11 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
       const text = input.value.trim(); if (!text) return;
       input.value = ''; resize(input);
       addMsg('user', text); msgs.push({role:'user', content:text});
+      // Log search intent for the AI Demand Feed (partner-facing)
+      try {
+        fetch(API+'/api/log-search', {method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({term: text.slice(0,80), location: ''})}).catch(function(){});
+      } catch(e){}
       showTyping(); document.getElementById('send-btn').disabled = true;
       try {
         let res;
