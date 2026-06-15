@@ -3369,6 +3369,106 @@ async def demand_feed(location: str = ""):
     return {"demand": demand}
 
 
+
+
+# ═══════════════════════════════════════════════════════
+# FOUNDER COMMAND CENTER — Phase 1 metrics in one call
+# ═══════════════════════════════════════════════════════
+@app.get("/api/founder/overview")
+async def founder_overview(key: str = ""):
+    """Single endpoint: traveller footfall + partner activity + Phase-1 goals."""
+    if key != os.getenv("ADMIN_KEY", "ttt-admin-2024"):
+        raise HTTPException(403, "Invalid key")
+    from collections import Counter
+    
+    # Partners
+    partners = list(_partners.values())
+    partner_count = len(partners)
+    
+    # Listings
+    listing_count = len(_listings)
+    
+    # Bookings
+    bookings = list(_bookings.values())
+    booking_count = len(bookings)
+    confirmed = [b for b in bookings if b.get("status") == "confirmed"]
+    gmv = sum(b.get("total_price", 0) for b in bookings)
+    
+    # Revenue (TTT commission @ 10%)
+    ttt_revenue = round(gmv * 0.10, 2)
+    
+    # Traveller footfall (searches + unique)
+    search_count = len(_search_log)
+    
+    # Leads
+    total_leads = sum(len(v) for v in _leads.values())
+    
+    # Top demand
+    counts = Counter(s.get("term","").strip()[:40] for s in _search_log if s.get("term","").strip())
+    top_demand = [{"term": t, "searches": c} for t, c in counts.most_common(6)]
+    
+    # Per-partner activity
+    partner_activity = []
+    for pid, p in _partners.items():
+        p_listings = [l for l in _listings.values() if l.get("partner_id") == pid]
+        p_bookings = [b for b in bookings if b.get("partner_id") == pid]
+        p_rev = sum(b.get("total_price", 0) for b in p_bookings)
+        partner_activity.append({
+            "id": pid,
+            "name": p.get("business_name") or p.get("name"),
+            "location": p.get("location", ""),
+            "email": p.get("email", ""),
+            "listings": len(p_listings),
+            "bookings": len(p_bookings),
+            "gmv": p_rev,
+            "joined": (p.get("created_at") or "")[:10],
+            "verified": bool(p.get("password_hash")),
+        })
+    partner_activity.sort(key=lambda x: x["gmv"], reverse=True)
+    
+    # Recent bookings
+    recent_bookings = sorted(bookings, key=lambda x: x.get("created_at",""), reverse=True)[:10]
+    recent = [{
+        "guest": b.get("customer_name",""),
+        "listing": b.get("listing_title",""),
+        "partner": _partners.get(b.get("partner_id",""), {}).get("business_name",""),
+        "amount": b.get("total_price",0),
+        "status": b.get("status",""),
+        "date": (b.get("created_at") or "")[:10],
+    } for b in recent_bookings]
+    
+    # Phase 1 goals (from blueprint)
+    goals = {
+        "partners":   {"current": partner_count,  "target": 10,     "label": "Active Partners"},
+        "listings":   {"current": listing_count,  "target": 50,     "label": "Live Listings"},
+        "searches":   {"current": search_count,   "target": 500,    "label": "Traveler Conversations"},
+        "bookings":   {"current": booking_count,  "target": 50,     "label": "Paid Bookings"},
+        "gmv":        {"current": gmv,             "target": 500000, "label": "GMV (₹)"},
+    }
+    
+    return {
+        "summary": {
+            "partners": partner_count, "listings": listing_count,
+            "bookings": booking_count, "confirmed": len(confirmed),
+            "gmv": gmv, "ttt_revenue": ttt_revenue,
+            "searches": search_count, "leads": total_leads,
+        },
+        "goals": goals,
+        "top_demand": top_demand,
+        "partner_activity": partner_activity,
+        "recent_bookings": recent,
+    }
+
+@app.get("/founder")
+async def founder_page():
+    for fp in [os.path.join(frontend_dir, "founder.html"),
+               os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend", "founder.html"),
+               os.path.join(os.getcwd(), "frontend", "founder.html")]:
+        if os.path.exists(fp):
+            return FileResponse(fp, headers={"Cache-Control": "no-store"})
+    return HTMLResponse("<h2>Founder dashboard not found</h2>", 404)
+
+
 # ═══════════════════════════════════════════════════════
 # INVOICE ENGINE — Full CRUD + PDF + Email
 # ═══════════════════════════════════════════════════════
