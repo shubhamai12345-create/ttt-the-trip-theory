@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TTT Founder — Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0A0805;--bg2:#110E08;--sf:#151009;--gold:#C9963A;--goldL:#D4A85A;--goldDim:rgba(201,150,58,0.15);--goldGlow:rgba(201,150,58,0.06);--txt:#F5EFE0;--txt2:rgba(245,239,224,0.72);--mut:rgba(245,239,224,0.38);--bdr:rgba(201,150,58,0.10);--bdr2:rgba(201,150,58,0.18);--grn:#34D399;--grnBg:rgba(52,211,153,0.08);--red:#F87171;--org:#FBBF24;--blu:#60A5FA;--fd:'Cormorant Garamond',serif;--fb:'DM Sans',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font-family:var(--fb);font-size:13.5px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:rgba(201,150,58,0.2);border-radius:3px}
+.wrap{max-width:1200px;margin:0 auto;padding:28px 24px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px}
+.h1{font-family:var(--fd);font-size:2rem;font-weight:600;color:var(--gold)}
+.sub{font-size:0.72rem;color:var(--mut);letter-spacing:0.15em;text-transform:uppercase}
+.refresh{padding:8px 16px;background:var(--gold);color:var(--bg);border:none;border-radius:6px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:var(--fb)}
+.section-l{font-size:0.6rem;color:var(--mut);letter-spacing:0.2em;text-transform:uppercase;margin:28px 0 12px}
+.sr{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.sc{background:var(--sf);border:1px solid var(--bdr);border-radius:10px;padding:16px 18px}
+.sc-l{font-size:0.62rem;color:var(--mut);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:5px}
+.sc-v{font-family:var(--fd);font-size:1.9rem;font-weight:600;color:var(--txt);line-height:1}
+.sc-s{font-size:0.68rem;margin-top:4px;color:var(--mut)}
+.goals{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.goal{background:var(--sf);border:1px solid var(--bdr);border-radius:10px;padding:16px}
+.goal-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.goal-label{font-size:0.7rem;color:var(--txt2)}
+.goal-nums{font-size:0.72rem;color:var(--mut)}.goal-nums b{color:var(--gold);font-size:0.95rem;font-family:var(--fd)}
+.bar{height:7px;background:var(--bg);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--goldL));border-radius:4px;transition:width 0.6s}
+.bar-fill.done{background:linear-gradient(90deg,var(--grn),#5EE9B5)}
+.card{background:var(--sf);border:1px solid var(--bdr);border-radius:10px;padding:18px;margin-bottom:16px}
+.card-t{font-family:var(--fd);font-size:1.1rem;font-weight:500;margin-bottom:14px}.card-t b{color:var(--gold)}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:0.58rem;color:var(--mut);letter-spacing:0.12em;text-transform:uppercase;text-align:left;padding:7px 10px;border-bottom:1px solid var(--bdr)}
+.tbl td{padding:9px 10px;border-bottom:1px solid rgba(201,150,58,0.05);font-size:0.8rem;color:var(--txt2)}
+.tbl tr:hover td{background:var(--goldGlow)}.tbl .nm{font-weight:600;color:var(--txt)}
+.bdg{display:inline-block;padding:2px 8px;border-radius:10px;font-size:0.62rem;font-weight:600}
+.bdg.ok{background:var(--grnBg);color:var(--grn)}.bdg.pn{background:rgba(251,191,36,0.1);color:var(--org)}.bdg.no{background:rgba(248,113,113,0.08);color:var(--red)}
+.demand-row{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid rgba(201,150,58,0.05)}
+.demand-term{flex:1;font-size:0.82rem;color:var(--txt)}
+.demand-bar{width:140px;height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.demand-fill{height:100%;background:var(--gold)}
+.demand-n{width:80px;text-align:right;font-size:0.75rem;color:var(--gold);font-weight:600}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.empty{text-align:center;padding:30px;color:var(--mut);font-size:0.82rem}
+.login{display:flex;align-items:center;justify-content:center;min-height:100vh}
+.login-bx{max-width:340px;width:100%;text-align:center}
+.login input{width:100%;padding:11px 14px;background:var(--sf);border:1px solid var(--bdr2);border-radius:8px;color:var(--txt);font-size:0.9rem;outline:none;margin:14px 0;font-family:var(--fb)}
+.login button{width:100%;padding:11px;background:var(--gold);color:var(--bg);border:none;border-radius:8px;font-weight:600;cursor:pointer;font-family:var(--fb)}
+@media(max-width:700px){.two{grid-template-columns:1fr}}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--bdr);border-top-color:var(--gold);border-radius:50%;animation:sp 0.7s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div id="login" class="login">
+  <div class="login-bx">
+    <div class="h1">TTT Founder</div>
+    <div class="sub">Command Center</div>
+    <input id="key" type="password" placeholder="Admin key" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">Enter →</button>
+    <div id="err" style="color:var(--red);font-size:0.75rem;margin-top:10px"></div>
+  </div>
+</div>
+
+<div id="dash" class="wrap" style="display:none">
+  <div class="top">
+    <div><div class="h1">Command Center</div><div class="sub">The Trip Theory · Phase 1 · Goa</div></div>
+    <button class="refresh" onclick="load()">↻ Refresh</button>
+  </div>
+
+  <div class="section-l">At a Glance</div>
+  <div class="sr" id="glance"><div class="empty"><span class="spin"></span></div></div>
+
+  <div class="section-l">Phase 1 Goals — Blueprint Targets</div>
+  <div class="goals" id="goals"></div>
+
+  <div class="two" style="margin-top:24px">
+    <div class="card"><div class="card-t">Top <b>Traveler Demand</b></div><div id="demand"></div></div>
+    <div class="card"><div class="card-t">Recent <b>Bookings</b></div><div id="recent"></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-t">Partner <b>Activity</b></div>
+    <div id="partners"></div>
+  </div>
+</div>
+
+<script>
+var KEY='';
+function doLogin(){var k=document.getElementById('key').value.trim();if(!k){return}KEY=k;
+fetch('/api/founder/overview?key='+encodeURIComponent(k)).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){
+localStorage.setItem('ttt_fk',k);document.getElementById('login').style.display='none';document.getElementById('dash').style.display='block';render(d)}).catch(function(){document.getElementById('err').textContent='Invalid key'})}
+
+(function(){var k=localStorage.getItem('ttt_fk');if(k){KEY=k;fetch('/api/founder/overview?key='+encodeURIComponent(k)).then(function(r){return r.ok?r.json():null}).then(function(d){if(d){document.getElementById('login').style.display='none';document.getElementById('dash').style.display='block';render(d)}})}})();
+
+function load(){fetch('/api/founder/overview?key='+encodeURIComponent(KEY)).then(function(r){return r.json()}).then(render)}
+
+function fmt(n){return (n||0).toLocaleString('en-IN')}
+
+function render(d){
+var s=d.summary;
+document.getElementById('glance').innerHTML=
+'<div class="sc"><div class="sc-l">Partners</div><div class="sc-v">'+s.partners+'</div></div>'+
+'<div class="sc"><div class="sc-l">Listings</div><div class="sc-v">'+s.listings+'</div></div>'+
+'<div class="sc"><div class="sc-l">Traveler Searches</div><div class="sc-v">'+s.searches+'</div></div>'+
+'<div class="sc"><div class="sc-l">Bookings</div><div class="sc-v">'+s.bookings+'</div><div class="sc-s">'+s.confirmed+' confirmed</div></div>'+
+'<div class="sc"><div class="sc-l">GMV</div><div class="sc-v">₹'+fmt(s.gmv)+'</div></div>'+
+'<div class="sc"><div class="sc-l">TTT Revenue</div><div class="sc-v" style="color:var(--gold)">₹'+fmt(s.ttt_revenue)+'</div><div class="sc-s">10% commission</div></div>'+
+'<div class="sc"><div class="sc-l">Leads</div><div class="sc-v">'+s.leads+'</div></div>';
+
+// Goals
+var g=d.goals;var gh='';
+['partners','listings','searches','bookings','gmv'].forEach(function(k){var x=g[k];var pct=Math.min(100,Math.round(x.current/x.target*100));var done=pct>=100;
+gh+='<div class="goal"><div class="goal-h"><span class="goal-label">'+x.label+'</span><span class="goal-nums"><b>'+(k==='gmv'?'₹'+fmt(x.current):x.current)+'</b> / '+(k==='gmv'?'₹'+fmt(x.target):x.target)+'</span></div><div class="bar"><div class="bar-fill '+(done?'done':'')+'" style="width:'+pct+'%"></div></div><div style="font-size:0.62rem;color:var(--mut);margin-top:5px">'+pct+'% to goal</div></div>'});
+document.getElementById('goals').innerHTML=gh;
+
+// Demand
+var dm=d.top_demand||[];
+if(!dm.length){document.getElementById('demand').innerHTML='<div class="empty">No searches yet. Demand appears as travelers use the AI Concierge.</div>'}
+else{var mx=Math.max.apply(null,dm.map(function(x){return x.searches}));
+document.getElementById('demand').innerHTML=dm.map(function(x){return '<div class="demand-row"><div class="demand-term">'+esc(x.term)+'</div><div class="demand-bar"><div class="demand-fill" style="width:'+(x.searches/mx*100)+'%"></div></div><div class="demand-n">'+x.searches+'</div></div>'}).join('')}
+
+// Recent bookings
+var rb=d.recent_bookings||[];
+if(!rb.length){document.getElementById('recent').innerHTML='<div class="empty">No bookings yet.</div>'}
+else{document.getElementById('recent').innerHTML='<table class="tbl"><thead><tr><th>Guest</th><th>Listing</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+rb.map(function(b){return '<tr><td class="nm">'+esc(b.guest)+'</td><td>'+esc(b.listing)+'</td><td>₹'+fmt(b.amount)+'</td><td><span class="bdg '+(b.status==='confirmed'?'ok':b.status==='pending'?'pn':'no')+'">'+esc(b.status)+'</span></td></tr>'}).join('')+'</tbody></table>'}
+
+// Partner activity
+var pa=d.partner_activity||[];
+if(!pa.length){document.getElementById('partners').innerHTML='<div class="empty">No partners yet. Time to onboard your first Goa partners!</div>'}
+else{document.getElementById('partners').innerHTML='<table class="tbl"><thead><tr><th>Business</th><th>Location</th><th>Listings</th><th>Bookings</th><th>GMV</th><th>Joined</th><th>Status</th></tr></thead><tbody>'+pa.map(function(p){return '<tr><td class="nm">'+esc(p.name)+'</td><td>'+esc(p.location||'-')+'</td><td>'+p.listings+'</td><td>'+p.bookings+'</td><td>₹'+fmt(p.gmv)+'</td><td>'+esc(p.joined||'-')+'</td><td><span class="bdg '+(p.verified?'ok':'pn')+'">'+(p.verified?'verified':'invited')+'</span></td></tr>'}).join('')+'</tbody></table>'}
+}
+function esc(s){var d=document.createElement('div');d.textContent=s==null?'':s;return d.innerHTML}
+</script>
+</body></html>
