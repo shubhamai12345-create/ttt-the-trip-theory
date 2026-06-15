@@ -4886,6 +4886,7 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
       const listingId = document.getElementById('bm-listing-id').value;
       const name    = document.getElementById('bm-name').value.trim();
       const phone   = document.getElementById('bm-phone').value.trim();
+      try { if(phone) localStorage.setItem('ttt_last_phone', phone); } catch(e){}
       const email   = document.getElementById('bm-email').value.trim();
       const checkin  = document.getElementById('bm-checkin').value;
       const checkout = document.getElementById('bm-checkout').value;
