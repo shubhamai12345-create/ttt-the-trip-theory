@@ -149,26 +149,29 @@ body{background:var(--bg);color:var(--txt);font-family:var(--fb);font-size:13.5p
 
 <div id="app" class="shell" style="display:none">
 <aside class="sidebar"><div class="sbl"><div class="sbl-m">TTT Partners</div><div class="sbl-s">Business Portal</div></div>
-<div class="sbs"><div class="sbs-l">Overview</div>
-<div class="si a" data-p="dashboard" onclick="nav(this)"><span>📊</span> Dashboard</div>
-<div class="si" data-p="listings" onclick="nav(this)"><span>🏨</span> Listings</div>
-<div class="si" data-p="bookings" onclick="nav(this)"><span>📋</span> Bookings</div>
-<div class="si" data-p="calendar" onclick="nav(this)"><span>📅</span> Calendar</div></div>
-<div class="sbs"><div class="sbs-l">Business</div>
-<div class="si" data-p="guests" onclick="nav(this)"><span>👤</span> Guest CRM</div>
-<div class="si" data-p="wallet" onclick="nav(this)"><span>💰</span> Financials</div>
-<div class="si" data-p="reviews" onclick="nav(this)"><span>⭐</span> Reviews</div>
-<div class="si" data-p="messages" onclick="nav(this)"><span>💬</span> Messages</div></div>
-<div class="sbs"><div class="sbs-l">Tools</div>
-<div class="si" data-p="itinerary" onclick="nav(this)"><span>🗺️</span> Itinerary Builder</div>
-<div class="si" data-p="invoices" onclick="nav(this)"><span>📄</span> Invoices</div>
-<div class="si" data-p="marketing" onclick="nav(this)"><span>📣</span> Marketing</div>
-<div class="si" data-p="pricing" onclick="nav(this)"><span>💎</span> Pricing</div>
-<div class="si" data-p="photos" onclick="nav(this)"><span>📸</span> Gallery</div></div>
-<div class="sbs"><div class="sbs-l">Admin</div>
-<div class="si" data-p="staff" onclick="nav(this)"><span>👥</span> Staff & Roles</div>
-<div class="si" data-p="notifications" onclick="nav(this)"><span>🔔</span> Notifications</div>
-<div class="si" data-p="settings" onclick="nav(this)"><span>⚙️</span> Settings</div></div>
+<div class="sbs" data-grp><div class="sbs-l">Overview</div>
+<div class="si a" data-p="dashboard" data-phase="1" onclick="nav(this)"><span>📊</span> Dashboard</div>
+<div class="si" data-p="listings" data-phase="1" onclick="nav(this)"><span>🏨</span> Listings</div>
+<div class="si" data-p="bookings" data-phase="1" onclick="nav(this)"><span>📋</span> Bookings</div>
+<div class="si" data-p="calendar" data-phase="1" onclick="nav(this)"><span>📅</span> Calendar</div></div>
+<div class="sbs" data-grp><div class="sbs-l">Growth</div>
+<div class="si" data-p="leads" data-phase="1" onclick="nav(this)"><span>🎯</span> Leads</div>
+<div class="si" data-p="demand" data-phase="1" onclick="nav(this)"><span>📡</span> AI Demand Feed</div>
+<div class="si" data-p="wallet" data-phase="1" onclick="nav(this)"><span>💰</span> Revenue & Payouts</div></div>
+<div class="sbs" data-grp><div class="sbs-l">Business <span style="color:var(--gold);font-size:0.5rem">· Phase 2</span></div>
+<div class="si" data-p="guests" data-phase="2" onclick="nav(this)"><span>👤</span> Guest CRM</div>
+<div class="si" data-p="invoices" data-phase="2" onclick="nav(this)"><span>📄</span> Invoices</div>
+<div class="si" data-p="itinerary" data-phase="2" onclick="nav(this)"><span>🗺️</span> Itinerary Builder</div>
+<div class="si" data-p="marketing" data-phase="2" onclick="nav(this)"><span>📣</span> Marketing</div>
+<div class="si" data-p="reviews" data-phase="2" onclick="nav(this)"><span>⭐</span> Reviews</div>
+<div class="si" data-p="pricing" data-phase="2" onclick="nav(this)"><span>💎</span> Pricing</div>
+<div class="si" data-p="photos" data-phase="2" onclick="nav(this)"><span>📸</span> Gallery</div></div>
+<div class="sbs" data-grp><div class="sbs-l">Enterprise <span style="color:var(--gold);font-size:0.5rem">· Phase 3</span></div>
+<div class="si" data-p="messages" data-phase="3" onclick="nav(this)"><span>💬</span> Messages</div>
+<div class="si" data-p="staff" data-phase="3" onclick="nav(this)"><span>👥</span> Staff & Roles</div></div>
+<div class="sbs" data-grp><div class="sbs-l">Account</div>
+<div class="si" data-p="notifications" data-phase="1" onclick="nav(this)"><span>🔔</span> Notifications</div>
+<div class="si" data-p="settings" data-phase="1" onclick="nav(this)"><span>⚙️</span> Settings</div></div>
 <div class="sb-bot"><div class="sb-av" id="sb-av">?</div><div><div class="sb-nm" id="sb-nm">Loading...</div><div class="sb-rl" id="sb-rl">Partner</div></div></div>
 </aside>
 <div class="main"><div class="topbar"><div class="tb-t" id="pg-t">📊 <b>Dashboard</b></div><div class="tb-r"><span class="tbtn" style="background:var(--grnBg);color:var(--grn);border-color:var(--grn)">● Live</span><button class="tbtn" onclick="location.href='/'">← TTT</button><button class="tbtn" onclick="logout()">Sign Out</button></div></div>
@@ -214,6 +217,20 @@ body{background:var(--bg);color:var(--txt);font-family:var(--fb);font-size:13.5p
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 var API='',S=null,D={listings:[],bookings:[],invoices:[],packages:[],staff:[],photos:[],notifications:[],blocked:[],itineraries:[],campaigns:[],messages:{}};
+// ═══ PHASE GATING ═══ Set the active platform phase here (1, 2, or 3). Modules above this phase are hidden.
+var TTT_PHASE = 1;
+function applyPhaseGating(){
+  document.querySelectorAll('.si[data-phase]').forEach(function(el){
+    var ph = parseInt(el.getAttribute('data-phase'));
+    el.style.display = (ph <= TTT_PHASE) ? '' : 'none';
+  });
+  // Hide group headers whose items are all hidden
+  document.querySelectorAll('[data-grp]').forEach(function(grp){
+    var visible = grp.querySelectorAll('.si[data-phase]');
+    var anyVisible = Array.from(visible).some(function(e){return e.style.display !== 'none'});
+    grp.style.display = anyVisible ? '' : 'none';
+  });
+}
 var calMonth=5,calYear=2026;
 
 var _signupEmail='';var _resetEmail='';
@@ -256,7 +273,7 @@ document.getElementById('rs-err').textContent='Resetting...';
 fetch(API+'/api/partner/reset-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:_resetEmail,code:code,password:pw})}).then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d}})}).then(function(res){
 if(res.ok&&res.d.success){document.getElementById('li-email').value=_resetEmail;document.getElementById('li-pw').value=pw;authLogin()}
 else document.getElementById('rs-err').textContent=res.d.detail||'Reset failed'}).catch(function(){document.getElementById('rs-err').textContent='Connection error'})}
-function enter(){document.getElementById('login-sc').style.display='none';document.getElementById('app').style.display='flex';document.getElementById('sb-nm').textContent=S.business_name||S.name||'Partner';document.getElementById('sb-av').textContent=(S.business_name||S.name||'?')[0].toUpperCase();document.getElementById('sb-rl').textContent=S.id;loadSaved();loadDash()}
+function enter(){document.getElementById('login-sc').style.display='none';document.getElementById('app').style.display='flex';applyPhaseGating();document.getElementById('sb-nm').textContent=S.business_name||S.name||'Partner';document.getElementById('sb-av').textContent=(S.business_name||S.name||'?')[0].toUpperCase();document.getElementById('sb-rl').textContent=S.id;loadSaved();loadDash()}
 
 function logout(){localStorage.removeItem('ttt_ps');location.reload()}
 (function(){var s=localStorage.getItem('ttt_ps');if(s)try{S=JSON.parse(s);enter()}catch(e){localStorage.removeItem('ttt_ps')}})();
