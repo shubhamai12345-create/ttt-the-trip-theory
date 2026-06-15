@@ -4580,9 +4580,7 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
       }
     }
 
-);
-    }
-
+    function tEsc(s){var d=document.createElement('div');d.textContent=s==null?'':s;return d.innerHTML;}
     function loadMyTrips() {
       var phoneEl = document.getElementById('trips-phone');
       var phone = phoneEl.value.trim();
@@ -4601,16 +4599,16 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
           var stColor = st==='confirmed' ? '#34D399' : st==='pending' ? '#FBBF24' : st==='cancelled' ? '#F87171' : '#60A5FA';
           return '<div style="background:#151009;border:1px solid rgba(201,150,58,0.12);border-radius:12px;padding:18px;margin-bottom:12px">'
             + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'
-            + '<div><div style="font-family:\'Cormorant Garamond\',serif;font-size:1.2rem;color:#F5EFE0;font-weight:600">' + esc(b.listing_title || 'Trip') + '</div>'
-            + '<div style="font-size:0.75rem;color:rgba(245,239,224,0.5);margin-top:2px">📍 ' + esc(b.listing_location || '') + '</div></div>'
+            + '<div><div style="font-family:\'Cormorant Garamond\',serif;font-size:1.2rem;color:#F5EFE0;font-weight:600">' + tEsc(b.listing_title || 'Trip') + '</div>'
+            + '<div style="font-size:0.75rem;color:rgba(245,239,224,0.5);margin-top:2px">📍 ' + tEsc(b.listing_location || '') + '</div></div>'
             + '<span style="background:' + stColor + '22;color:' + stColor + ';padding:4px 12px;border-radius:14px;font-size:0.68rem;font-weight:600;text-transform:uppercase">' + st + '</span></div>'
             + '<div style="display:flex;gap:24px;flex-wrap:wrap;padding-top:10px;border-top:1px solid rgba(201,150,58,0.08)">'
-            + '<div><div style="font-size:0.62rem;color:rgba(245,239,224,0.4);text-transform:uppercase">Check-in</div><div style="font-size:0.85rem;color:#F5EFE0">' + esc(b.checkin||'-') + '</div></div>'
-            + '<div><div style="font-size:0.62rem;color:rgba(245,239,224,0.4);text-transform:uppercase">Check-out</div><div style="font-size:0.85rem;color:#F5EFE0">' + esc(b.checkout||'-') + '</div></div>'
+            + '<div><div style="font-size:0.62rem;color:rgba(245,239,224,0.4);text-transform:uppercase">Check-in</div><div style="font-size:0.85rem;color:#F5EFE0">' + tEsc(b.checkin||'-') + '</div></div>'
+            + '<div><div style="font-size:0.62rem;color:rgba(245,239,224,0.4);text-transform:uppercase">Check-out</div><div style="font-size:0.85rem;color:#F5EFE0">' + tEsc(b.checkout||'-') + '</div></div>'
             + '<div><div style="font-size:0.62rem;color:rgba(245,239,224,0.4);text-transform:uppercase">Guests</div><div style="font-size:0.85rem;color:#F5EFE0">' + (b.guests||1) + '</div></div>'
             + '<div><div style="font-size:0.62rem;color:rgba(245,239,224,0.4);text-transform:uppercase">Total</div><div style="font-size:0.85rem;color:#C9963A;font-weight:600">₹' + (b.total_price||0).toLocaleString() + '</div></div>'
             + '</div>'
-            + (b.notes ? '<div style="font-size:0.75rem;color:rgba(245,239,224,0.45);margin-top:10px;font-style:italic">' + esc(b.notes) + '</div>' : '')
+            + (b.notes ? '<div style="font-size:0.75rem;color:rgba(245,239,224,0.45);margin-top:10px;font-style:italic">' + tEsc(b.notes) + '</div>' : '')
             + '</div>';
         }).join('');
       }).catch(function(){ listEl.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(245,239,224,0.4)">Could not load trips. Try again.</div>'; });
