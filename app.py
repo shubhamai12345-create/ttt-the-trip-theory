@@ -3306,6 +3306,69 @@ async def get_partner_wallet_v2(partner_id: str):
     return w
 
 
+
+
+# ═══════════════════════════════════════════════════════
+# LEADS + AI DEMAND FEED (Phase 1 — blueprint secret weapon)
+# ═══════════════════════════════════════════════════════
+_leads: Dict[str, list] = _db.get("leads", {})
+_search_log: list = _db.get("search_log", [])
+
+@app.get("/api/partner/{partner_id}/leads")
+async def get_partner_leads(partner_id: str):
+    """Qualified traveler leads matched to this partner."""
+    return {"leads": _leads.get(partner_id, [])}
+
+class LeadCreate(BaseModel):
+    partner_id: str = ""
+    location: str = ""
+    name: str = "Traveler"
+    query: str = ""
+    dates: str = ""
+    guests: int = 2
+    budget: float = 0
+
+@app.post("/api/leads")
+async def create_lead(req: LeadCreate):
+    """Create a lead — routed to partners matching the location."""
+    lead = {"name": req.name, "query": req.query, "dates": req.dates,
+            "guests": req.guests, "budget": req.budget, "responded": False,
+            "created_at": datetime.now().isoformat()}
+    # Route to partners in matching location
+    targets = []
+    if req.partner_id:
+        targets = [req.partner_id]
+    else:
+        for pid, p in _partners.items():
+            if req.location.lower() in (p.get("location","") or "").lower() or not req.location:
+                targets.append(pid)
+    for pid in targets:
+        _leads.setdefault(pid, []).insert(0, lead)
+    _db["leads"] = _leads
+    _save_db()
+    return {"success": True, "routed_to": len(targets)}
+
+@app.post("/api/log-search")
+async def log_search(q: dict):
+    """Log a traveler search term for the demand feed."""
+    _search_log.insert(0, {"term": q.get("term",""), "location": q.get("location","Goa"), "ts": datetime.now().isoformat()})
+    del _search_log[500:]  # keep last 500
+    _db["search_log"] = _search_log
+    _save_db()
+    return {"success": True}
+
+@app.get("/api/demand-feed")
+async def demand_feed(location: str = ""):
+    """Aggregate recent searches into a demand feed."""
+    from collections import Counter
+    recent = _search_log[:200]
+    if location:
+        recent = [s for s in recent if location.lower() in (s.get("location","") or "").lower()] or recent
+    counts = Counter(s.get("term","").strip() for s in recent if s.get("term","").strip())
+    demand = [{"term": t, "searches": c} for t, c in counts.most_common(8)]
+    return {"demand": demand}
+
+
 # ═══════════════════════════════════════════════════════
 # INVOICE ENGINE — Full CRUD + PDF + Email
 # ═══════════════════════════════════════════════════════
