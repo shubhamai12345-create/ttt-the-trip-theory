@@ -2254,6 +2254,7 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
           <div class="tab" data-tab="search" onclick="switchTab('search')">✈️ Search</div>
           <div class="tab" data-tab="plan" onclick="switchTab('plan')">📋 Plan Trip</div>
           <div class="tab" data-tab="market" onclick="switchTab('market');loadMarketListings(_activeMarketFilter)">🏨 Marketplace</div>
+          <div class="tab" data-tab="trips" onclick="switchTab('trips');loadMyTrips()">🧳 My Trips</div>
           <div class="tab" data-tab="profile" onclick="switchTab('profile')">👤 My Profile</div>
           <div class="tab" data-tab="wallet" onclick="switchTab('wallet');fetchWalletBalance();loadTransactions()">🪙 Wallet</div>
         </div>
@@ -2389,6 +2390,22 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
           </div>
         </div>
 
+
+        <!-- MY TRIPS PANEL -->
+        <div class="panel" id="panel-trips" style="overflow-y:auto;height:calc(100vh - var(--nav-h) - 52px)">
+          <div style="max-width:760px;margin:0 auto;padding:20px">
+            <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:#F5EFE0;margin-bottom:4px">My <span style="color:#C9963A">Trips</span></h2>
+            <p style="font-size:0.82rem;color:rgba(245,239,224,0.5);margin-bottom:20px">All your bookings, itineraries and travel plans in one place.</p>
+            <div id="my-trips-lookup" style="background:rgba(201,150,58,0.06);border:1px solid rgba(201,150,58,0.12);border-radius:12px;padding:16px;margin-bottom:20px">
+              <div style="font-size:0.7rem;color:rgba(245,239,224,0.5);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Find your bookings</div>
+              <div style="display:flex;gap:8px">
+                <input id="trips-phone" placeholder="Enter your phone number" style="flex:1;padding:10px 12px;background:#0A0805;border:1px solid rgba(201,150,58,0.18);border-radius:8px;color:#F5EFE0;font-size:0.85rem;outline:none"/>
+                <button onclick="loadMyTrips()" style="padding:10px 20px;background:#C9963A;color:#0A0805;border:none;border-radius:8px;font-weight:600;font-size:0.78rem;cursor:pointer">View Trips</button>
+              </div>
+            </div>
+            <div id="my-trips-list"></div>
+          </div>
+        </div>
 
         <!-- WALLET PANEL -->
         <div class="panel" id="panel-wallet" style="overflow-y:auto;height:calc(100vh - var(--nav-h) - 52px)">
@@ -4564,6 +4581,39 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
     }
 
 );
+    }
+
+    function loadMyTrips() {
+      var phoneEl = document.getElementById('trips-phone');
+      var phone = phoneEl.value.trim();
+      // Auto-fill from last booking if empty
+      if (!phone) {
+        try { phone = localStorage.getItem('ttt_last_phone') || ''; phoneEl.value = phone; } catch(e){}
+      }
+      var listEl = document.getElementById('my-trips-list');
+      if (!phone) { listEl.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(245,239,224,0.4)"><div style="font-size:2rem;margin-bottom:8px">🧳</div><div>Enter your phone number above to see your trips.</div></div>'; return; }
+      listEl.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(245,239,224,0.4)">Loading your trips...</div>';
+      fetch(API + '/api/customer/bookings?phone=' + encodeURIComponent(phone)).then(function(r){return r.json()}).then(function(d){
+        var bookings = (d && d.bookings) || [];
+        if (!bookings.length) { listEl.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(245,239,224,0.4)"><div style="font-size:2rem;margin-bottom:8px">🧳</div><div>No trips found for this number yet.</div><div style="font-size:0.78rem;margin-top:6px">Book a stay through the AI Concierge to see it here.</div></div>'; return; }
+        listEl.innerHTML = bookings.map(function(b){
+          var st = b.status || 'confirmed';
+          var stColor = st==='confirmed' ? '#34D399' : st==='pending' ? '#FBBF24' : st==='cancelled' ? '#F87171' : '#60A5FA';
+          return '<div style="background:#151009;border:1px solid rgba(201,150,58,0.12);border-radius:12px;padding:18px;margin-bottom:12px">'
+            + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'
+            + '<div><div style="font-family:\'Cormorant Garamond\',serif;font-size:1.2rem;color:#F5EFE0;font-weight:600">' + esc(b.listing_title || 'Trip') + '</div>'
+            + '<div style="font-size:0.75rem;color:rgba(245,239,224,0.5);margin-top:2px">📍 ' + esc(b.listing_location || '') + '</div></div>'
+            + '<span style="background:' + stColor + '22;color:' + stColor + ';padding:4px 12px;border-radius:14px;font-size:0.68rem;font-weight:600;text-transform:uppercase">' + st + '</span></div>'
+            + '<div style="display:flex;gap:24px;flex-wrap:wrap;padding-top:10px;border-top:1px solid rgba(201,150,58,0.08)">'
+            + '<div><div style="font-size:0.62rem;color:rgba(245,239,224,0.4);text-transform:uppercase">Check-in</div><div style="font-size:0.85rem;color:#F5EFE0">' + esc(b.checkin||'-') + '</div></div>'
+            + '<div><div style="font-size:0.62rem;color:rgba(245,239,224,0.4);text-transform:uppercase">Check-out</div><div style="font-size:0.85rem;color:#F5EFE0">' + esc(b.checkout||'-') + '</div></div>'
+            + '<div><div style="font-size:0.62rem;color:rgba(245,239,224,0.4);text-transform:uppercase">Guests</div><div style="font-size:0.85rem;color:#F5EFE0">' + (b.guests||1) + '</div></div>'
+            + '<div><div style="font-size:0.62rem;color:rgba(245,239,224,0.4);text-transform:uppercase">Total</div><div style="font-size:0.85rem;color:#C9963A;font-weight:600">₹' + (b.total_price||0).toLocaleString() + '</div></div>'
+            + '</div>'
+            + (b.notes ? '<div style="font-size:0.75rem;color:rgba(245,239,224,0.45);margin-top:10px;font-style:italic">' + esc(b.notes) + '</div>' : '')
+            + '</div>';
+        }).join('');
+      }).catch(function(){ listEl.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(245,239,224,0.4)">Could not load trips. Try again.</div>'; });
     }
 
     function switchTab(name) {
