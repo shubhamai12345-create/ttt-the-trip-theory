@@ -4540,7 +4540,8 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') _tttClose(); });
     function connectConcierge() {
       closeModal(); switchTab('chat');
       addMsg('ai','🤝 **Concierge Connected!**\n\nYour dedicated TTT travel manager is ready. Share your trip details:\n- 📍 Where do you want to go?\n- 📅 Your travel dates?\n- 💰 Total budget?\n- 👥 How many people?\n\nI\'ll handle every single booking — flights, hotels, cabs, restaurants, activities, and more! 🎯');
-      msgs.push({role:'assistant',content:'Concierge connected.'}
+      msgs.push({role:'assistant',content:'Concierge connected.'});
+    }
 
     async function browseTTTStays() {
       addMsg('user', 'Show me available TTT partner stays');
